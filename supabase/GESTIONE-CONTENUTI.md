@@ -1,6 +1,8 @@
 # Gestire rassegna stampa e partner
 
-Tutto si fa dal pannello Supabase, progetto **Squisitus**: https://supabase.com/dashboard/project/bwdulyngojvbttztqyks
+Il modo più semplice è il **pannello di gestione** del sito: `admin.html` (es. https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html), con moduli guidati per articoli, partner e richieste.
+
+In alternativa si può lavorare dal pannello Supabase, progetto **Squisitus**: https://supabase.com/dashboard/project/bwdulyngojvbttztqyks, come descritto qui sotto.
 Le modifiche compaiono sul sito al primo caricamento della pagina, senza ripubblicare nulla.
 
 ## Articoli (Table Editor → `articoli`)

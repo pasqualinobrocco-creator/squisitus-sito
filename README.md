@@ -29,4 +29,12 @@ Progetto **Squisitus** (org Bsg, eu-west-1). URL e chiave pubblicabile sono in `
 - **Contenuti** → tabelle `articoli` e `partner`, bucket Storage `media`: dal sito si leggono solo le righe pubblicate
 - Schema moduli: [`supabase/schema.sql`](supabase/schema.sql). Guida per chi gestisce i contenuti: [`supabase/GESTIONE-CONTENUTI.md`](supabase/GESTIONE-CONTENUTI.md)
 
+## Pannello di gestione (`admin.html`)
+Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` · in locale: `http://localhost:5173/admin.html`
+
+- Accesso con email e password (Supabase Auth). Ruolo **admin**: rassegna stampa, partner (con caricamento loghi), richieste espositori/sponsor, accrediti press, newsletter (con export CSV), utenti
+- Ruoli e permessi: tabella `profili` + regole RLS basate su `privato.is_admin()`; sezioni del pannello in `src/admin/App.jsx` (`SEZIONI`)
+- Creazione/eliminazione utenti, cambio ruolo e reset password passano dalla Edge Function [`gestione-utenti`](supabase/functions/gestione-utenti/index.ts), che verifica che chi chiama sia admin
+- Nuovo ruolo (es. redattore): aggiungerlo al check di `profili.ruolo`, a `RUOLI` nella funzione e nel pannello, e dargli le policy sulle tabelle che deve gestire
+
 Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.
