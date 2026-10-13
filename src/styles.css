@@ -96,3 +96,10 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
 .sq-ftit{font-family:Oswald,sans-serif;font-weight:600;font-size:13px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
 @media (max-width:980px){.sq-fgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.sq-fgrid{grid-template-columns:1fr}}
+
+/* moodboard campagna media: deriva lenta e dissolvenza quando le foto si scambiano */
+@keyframes sq-kb{0%{transform:scale(1.02) translate(0,0)}100%{transform:scale(1.12) translate(-2.5%,-2%)}}
+@keyframes sq-mood-in{0%{opacity:0;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+.sq-mood-kb{animation:sq-kb 16s ease-in-out infinite alternate;will-change:transform}
+.sq-mood-in{animation:sq-mood-in 1.4s cubic-bezier(.22,1,.36,1) backwards}
+.sq-mood figure:nth-child(even) .sq-mood-kb{animation-direction:alternate-reverse}

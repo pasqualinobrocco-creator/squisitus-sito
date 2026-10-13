@@ -5,6 +5,7 @@ import React from 'react';
 import { saveForm, loadContent, mediaUrl, presskitUrl } from './supabase.js';
 import { avviaAnalytics, fermaAnalytics, tracciaPagina } from './analytics.js';
 import { ROUTES, SITE_URL, routeFor, hrefFor, urlOf } from './routes.js';
+import Moodboard from './Moodboard.jsx';
 
 const I = {
   territori: "M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0",
@@ -79,7 +80,7 @@ export default class Site extends React.Component {
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
     flow: 0, renderTab: 0, ph: REDUCED ? 6 : 0, barHidden: true, heroP: 0,
-    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, galHover: -1, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
+    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
     const r = currentRoute();
@@ -538,10 +539,7 @@ export default class Site extends React.Component {
         ['mastrogregori', 'Affissione · Mastrogregori', 'Cartellone Squisitus con Mastrogregori su una rotatoria', 4, 4, 2, 3, '62% center'],
         ['madeo', 'Affissione · Madeo', 'Cartellone Squisitus con Madeo su un\'aiuola spartitraffico', 4, 4, 2, 3, '25% center'],
         ['ferrarese', 'Affissione · Via Ferrarese', 'Cartellone Squisitus con Mastrogregori su strada innevata', 4, 4, 2, 3, 'center 35%']
-      ].map(([f, cap, alt, c, rr, mc, mr, pos], i) => { const on = st.galHover === i; return {
-        src: 'assets/camp-' + f + '.jpg', cap, alt, pos, c: isMobile ? mc : c, r: isMobile ? mr : rr,
-        filter: on ? 'none' : 'grayscale(.3) sepia(.2) saturate(.9) contrast(1.05) brightness(.96)', scale: on ? 1.05 : 1, tint: on ? 0 : .14, capY: on ? '0' : '101%',
-        enter: () => this.setState({ galHover: i }), leave: () => this.setState(x => x.galHover === i ? { galHover: -1 } : null) }; }),
+      ].map(([f, cap, alt, c, rr, mc, mr, pos]) => ({ src: 'assets/camp-' + f + '.jpg', cap, alt, pos, c: isMobile ? mc : c, r: isMobile ? mr : rr })),
       mixRef: this.mixRef, mixPct: st.mixPct, mixOp: st.mixOn ? 1 : 0, mixLine: st.mixOn ? '64px' : '0px', mixW: st.mixOn ? '50%' : '0%',
       mixLX: st.mixOn ? '0' : '-101%', mixRX: st.mixOn ? '0' : '101%', mixLogo: st.mixOn ? 1 : 0,
       pressMore: () => this.setState({ pendAll: true }),
@@ -2646,27 +2644,7 @@ Site.prototype.render = function render() {
                 {" "}
               </div>
               {" "}
-              <div data-rv="" style={{ display: "grid", gridTemplateColumns: `${$v.galCols ?? ""}`, gridAutoRows: `${$v.galRow ?? ""}`, gap: "6px" }}>
-                {" "}
-                {($v.gallery ?? []).map((g, $index) => (
-                  <React.Fragment key={$index}>
-                    {" "}
-                    <figure onMouseEnter={g?.enter} onMouseLeave={g?.leave} style={{ position: "relative", margin: "0", overflow: "hidden", background: "#E3E3E3", gridColumn: `span ${g?.c ?? ""}`, gridRow: `span ${g?.r ?? ""}` }}>
-                      {" "}
-                      <img src={g?.src} alt={g?.alt} loading="lazy" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", objectPosition: `${g?.pos ?? ""}`, filter: `${g?.filter ?? ""}`, transform: `scale(${g?.scale ?? ""})`, transition: "filter .9s ease, transform 1.2s cubic-bezier(.22,1,.36,1)" }} />
-                      {" "}
-                      <span aria-hidden="true" style={{ position: "absolute", inset: "0", background: "#A5143B", mixBlendMode: "multiply", opacity: `${g?.tint ?? ""}`, transition: "opacity .9s ease", pointerEvents: "none" }} />
-                      {" "}
-                      <figcaption style={{ position: "absolute", left: "0", bottom: "0", padding: "8px 12px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "12px", letterSpacing: ".16em", textTransform: "uppercase", transform: `translateY(${g?.capY ?? ""})`, transition: "transform .55s cubic-bezier(.22,1,.36,1)" }}>
-                        {g?.cap}
-                      </figcaption>
-                      {" "}
-                    </figure>
-                    {" "}
-                  </React.Fragment>
-                ))}
-                {" "}
-              </div>
+              <Moodboard photos={$v.gallery} tiles={$v.gallery} cols={$v.galCols} row={$v.galRow} />
               {" "}
             </div>
           </section>
