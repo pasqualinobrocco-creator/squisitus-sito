@@ -225,7 +225,8 @@ export default class Site extends React.Component {
       h('circle', { r: 7, fill: '#fff' }, h('animateMotion', { dur: '9s', begin: '3s', repeatCount: 'indefinite', path: d }))));
     return h('svg', { 'data-sq-anim': '', viewBox: '0 0 1131 1391', 'aria-hidden': 'true', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' } }, kids);
   }
-  buildPlan() {
+  // mobile: the plan is rotated 90° (portrait) so it fills a phone screen without side scrolling
+  buildPlan(mobile) {
     const h = React.createElement, W = '#fff', E = 'cubic-bezier(.22,1,.36,1)', GOLD = '#F3C46B';
     const els = []; let k = 0;
     const wall = (d, delay, dur = 1.2, w = 1.6, op = 1) => els.push(h('path', { key: 'w' + k++, d, fill: 'none', stroke: W, strokeOpacity: op, strokeWidth: w, pathLength: 1, strokeDasharray: '1 1', strokeLinejoin: 'round', vectorEffect: 'non-scaling-stroke', style: { animation: 'sq-draw ' + dur + 's ' + E + ' ' + delay + 's both' } }));
@@ -278,9 +279,9 @@ export default class Site extends React.Component {
     const door = (cx, cy, d, lx, anchor) => els.push(h('g', { key: 'd' + k++, style: { animation: 'sq-fadein .8s ease-out ' + d + 's both' } },
       [0, 1.3].map((dl, q) => h('circle', { key: q, cx, cy, r: 30, fill: 'rgba(255,255,255,.2)', style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-halo 2.6s ease-out ' + (d + dl) + 's infinite' } })),
       h('circle', { cx, cy, r: 9, fill: W }),
-      h('text', { x: lx, y: cy + 5, textAnchor: anchor, fill: W, style: { fontFamily: 'Oswald, sans-serif', fontSize: 15, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase' } }, 'Ingresso')));
+      h('text', { x: lx, y: cy + 5, textAnchor: anchor, fill: W, transform: mobile ? `rotate(-90 ${cx} ${cy})` : undefined, style: { fontFamily: 'Oswald, sans-serif', fontSize: mobile ? 26 : 15, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase' } }, 'Ingresso')));
     door(16, 288, 3.4, 34, 'start');
-    return h('svg', { key: this.planKey || 0, 'data-sq-anim': '', viewBox: '0 0 1207 580', role: 'img', 'aria-label': 'Planimetria del Palazzo dei Congressi: salone centrale con isole e file di stand espositivi, auditorium con platea, foyer con area tavoli e ingresso sul lato sinistro. Planimetria prototipo non ufficiale', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, els);
+    return h('svg', { key: (this.planKey || 0) + (mobile ? 'm' : 'd'), 'data-sq-anim': '', viewBox: mobile ? '0 0 580 1207' : '0 0 1207 580', role: 'img', 'aria-label': 'Planimetria del Palazzo dei Congressi: salone centrale con isole e file di stand espositivi, auditorium con platea, foyer con area tavoli e ingresso sul lato sinistro. Planimetria prototipo non ufficiale', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, mobile ? h('g', { transform: 'translate(580 0) rotate(90)' }, els) : els);
   }
   skipIntro = () => {
     if (this.state.ph >= 6) return;
@@ -419,7 +420,7 @@ export default class Site extends React.Component {
       planRef: this.planRef, quadRef: this.quadRef,
       quadAnim: st.quadOn ? (this._quad || (this._quad = this.buildQuad())) : null,
       quadScale: st.quadOn && !REDUCED ? 1.04 : 1,
-      plan: st.planOn ? (this._planFor === (this.planKey || 0) && this._plan ? this._plan : (this._planFor = (this.planKey || 0), this._plan = this.buildPlan())) : React.createElement('div', { style: { aspectRatio: '1.6' } }),
+      plan: st.planOn ? (this._planFor === (this.planKey || 0) + ':' + isMobile && this._plan ? this._plan : (this._planFor = (this.planKey || 0) + ':' + isMobile, this._plan = this.buildPlan(isMobile))) : React.createElement('div', { style: { aspectRatio: isMobile ? '.48' : '1.6' } }),
       replayPlan: () => { this.planKey = (this.planKey || 0) + 1; this.setState({ planOn: true, planTick: this.planKey }); },
       bsgTags: ['Dal 1991', 'Indipendenti', 'Crossmediale', 'Chiavi in mano', 'Roma · Milano'],
       bsgBrands: [
@@ -1454,7 +1455,7 @@ Site.prototype.render = function render() {
               {" "}
               <div ref={$v.planRef} style={{ marginTop: "32px", position: "relative", background: "#A5143B", borderRadius: "8px", overflowX: "auto", overflowY: "hidden" }}>
                 {" "}
-                <div style={{ minWidth: "820px", padding: "clamp(16px,3vw,40px)" }}>
+                <div style={{ minWidth: $v.isMobile ? "0" : "820px", padding: $v.isMobile ? "28px 18px" : "clamp(16px,3vw,40px)" }}>
                   {$v.plan}
                 </div>
                 {" "}
@@ -1476,11 +1477,7 @@ Site.prototype.render = function render() {
                   {"Ingresso"}
                 </span>
                 {" "}
-                {$v.isMobile ? (<>
-                  <span style={{ opacity: ".8" }}>
-                    {"Scorri per vedere tutta la pianta →"}
-                  </span>
-                </>) : null}
+                {$v.isMobile ? <span style={{ opacity: ".8" }}>{"Pianta ruotata in verticale: l'ingresso è in alto."}</span> : null}
                 {" "}
               </div>
               {" "}
