@@ -52,16 +52,17 @@ CONF="$(nginx -T 2>/dev/null | awk '
   /^# configuration file / { f=$4; sub(":$","",f) }
   /server_name/ && /squisitus\.it/ { print f; exit }')"
 [ -n "$CONF" ] && CONF="$(readlink -f "$CONF")"  # sites-enabled is usually a link to sites-available
-if [ -n "$CONF" ] && [ -f "$CONF" ] && grep -Eq 'try_files[^;]*/index\.html[[:space:]]*;' "$CONF" && ! grep -Eq 'try_files[^;]*\$uri/' "$CONF"; then
+# il blocco "location / { … }" deve provare file, poi la pagina della cartella, poi 404
+# (prima rimandava tutto alla home o a un'app Node, "@app", che il sito statico non usa)
+if [ -n "$CONF" ] && [ -f "$CONF" ] && ! grep -q 'try_files $uri $uri/index.html' "$CONF"; then
   cp -a "$CONF" "$BACKUP_DIR/nginx-$(basename "$CONF")-$STAMP.bak"
-  # "try_files $uri /index.html;" (fallback alla home) -> cerca prima la pagina della cartella, poi 404
-  perl -0pi -e 's{try_files\s+([^;]*?)\s*/index\.html\s*;}{try_files $1 \$uri/index.html \$uri/ =404;}g' "$CONF"
+  perl -0pi -e 's#(location\s+/\s*\{[^\}]*?)try_files[^;]*;#$1try_files \$uri \$uri/index.html \$uri/ =404;#' "$CONF"
   grep -q 'error_page 404 /404.html' "$CONF" || perl -0pi -e 's{(server_name[^;]*squisitus\.it[^;]*;)}{$1\n    error_page 404 /404.html;}' "$CONF"
-  if nginx -t 2>/dev/null; then
+  if grep -q 'try_files $uri $uri/index.html' "$CONF" && nginx -t 2>/dev/null; then
     echo "→ Configurazione nginx aggiornata: ogni pagina ha il suo indirizzo (backup in $BACKUP_DIR)"
   else
     cp -a "$BACKUP_DIR/nginx-$(basename "$CONF")-$STAMP.bak" "$CONF"
-    echo "! nginx ha rifiutato la modifica: ripristinata la configurazione precedente"
+    echo "! Modifica di nginx non applicata: ripristinata la configurazione precedente"
   fi
 fi
 
