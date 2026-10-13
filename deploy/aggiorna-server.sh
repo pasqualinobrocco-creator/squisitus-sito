@@ -46,6 +46,25 @@ chown -R www-data:www-data "$ROOT" 2>/dev/null || true
 find "$ROOT" -type d -exec chmod 755 {} + ; find "$ROOT" -type f -exec chmod 644 {} +
 ls -1t "$BACKUP_DIR"/sito-*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
 
+# nginx: ogni indirizzo deve servire la sua pagina (cartella/index.html), non sempre la home,
+# e gli indirizzi inesistenti devono rispondere 404 con la pagina 404.html.
+CONF="$(nginx -T 2>/dev/null | awk '
+  /^# configuration file / { f=$4; sub(":$","",f) }
+  /server_name/ && /squisitus\.it/ { print f; exit }')"
+[ -n "$CONF" ] && CONF="$(readlink -f "$CONF")"  # sites-enabled is usually a link to sites-available
+if [ -n "$CONF" ] && [ -f "$CONF" ] && grep -Eq 'try_files[^;]*/index\.html[[:space:]]*;' "$CONF" && ! grep -Eq 'try_files[^;]*\$uri/' "$CONF"; then
+  cp -a "$CONF" "$BACKUP_DIR/nginx-$(basename "$CONF")-$STAMP.bak"
+  # "try_files $uri /index.html;" (fallback alla home) -> cerca prima la pagina della cartella, poi 404
+  perl -0pi -e 's{try_files\s+([^;]*?)\s*/index\.html\s*;}{try_files $1 \$uri/index.html \$uri/ =404;}g' "$CONF"
+  grep -q 'error_page 404 /404.html' "$CONF" || perl -0pi -e 's{(server_name[^;]*squisitus\.it[^;]*;)}{$1\n    error_page 404 /404.html;}' "$CONF"
+  if nginx -t 2>/dev/null; then
+    echo "→ Configurazione nginx aggiornata: ogni pagina ha il suo indirizzo (backup in $BACKUP_DIR)"
+  else
+    cp -a "$BACKUP_DIR/nginx-$(basename "$CONF")-$STAMP.bak" "$CONF"
+    echo "! nginx ha rifiutato la modifica: ripristinata la configurazione precedente"
+  fi
+fi
+
 nginx -t && systemctl reload nginx
 echo "✓ Sito aggiornato. Apri https://www.squisitus.it"
 echo "  Per tornare alla versione precedente: rm -rf $ROOT/* && tar -xzf $BACKUP_DIR/sito-$STAMP.tar.gz -C $ROOT"
