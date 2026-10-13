@@ -83,10 +83,10 @@ function emailPer(tabella: string, r: Record<string, any>, cfg: Record<string, a
     const dati: [string, unknown][] = [['Nome', r.nome], ['Testata', r.testata], ['Ruolo', r.ruolo], ['Email', r.email]];
     if (cfg.notifica_accrediti && team.length) out.push({ to: team, reply_to: r.email,
       subject: `Richiesta accredito press: ${r.nome} (${r.testata})`,
-      html: layout('Nuova richiesta di accredito', 'Un giornalista ha chiesto l’accesso all’area press.', dati, ['Valuta nel pannello', PANNELLO + '#/accrediti']) });
+      html: layout('Nuova richiesta di accredito', 'Un giornalista ha chiesto l’accredito stampa per Squisitus Roma 2027.', dati, ['Valuta nel pannello', PANNELLO + '#/accrediti']) });
     if (conferma) out.push({ to: [r.email], reply_to: rispondi,
       subject: 'Richiesta di accredito ricevuta · Squisitus',
-      html: layout(`Grazie, ${r.nome}`, 'Abbiamo ricevuto la tua richiesta di accesso all’area press di Squisitus. Dopo la verifica riceverai le credenziali via email.', dati) });
+      html: layout(`Grazie, ${r.nome}`, 'Abbiamo ricevuto la tua richiesta di accredito stampa per Squisitus Roma 2027 (1 • 2 ottobre 2027, Palazzo dei Congressi). Dopo la verifica ti confermeremo l’accredito via email.', dati) });
   }
 
   if (tabella === 'newsletter') {

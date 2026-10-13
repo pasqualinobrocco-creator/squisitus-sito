@@ -30,5 +30,11 @@ Dove compaiono:
 
 Finché non c'è nessun partner, in homepage restano i riquadri segnaposto. Dal primo partner pubblicato compaiono solo i livelli che hanno loghi.
 
+## Press kit (pannello → Press kit)
+Materiali scaricabili nella pagina Press, raggruppati per **cartella** (Comunicati stampa, Immagini, Loghi… o una nuova).
+- **Carica file**: uno o più file insieme (max 50 MB ciascuno); ognuno diventa una voce con il pulsante "Scarica"
+- **Aggiungi link**: per cartelle Drive/Dropbox/WeTransfer o file più grandi; sul sito si apre in una nuova finestra
+Senza materiali visibili la pagina mostra "Il press kit sarà disponibile a breve".
+
 ## Richieste dai moduli
 Table Editor → `richieste` (espositori e sponsor), `newsletter`, `accrediti_press`. Dal sito nessuno può leggerle: le vedete solo voi dal pannello.

@@ -4,7 +4,7 @@ import Elenco from './Elenco.jsx';
 
 const STATI = ['nuova', 'approvato', 'rifiutato'];
 const conf = {
-  tabella: 'accrediti_press', titolo: 'Accrediti press', sottotitolo: 'Giornalisti che hanno chiesto l’accesso al press kit.',
+  tabella: 'accrediti_press', titolo: 'Accrediti press', sottotitolo: 'Giornalisti che hanno chiesto l’accredito stampa alla fiera.',
   stati: STATI, cerca: ['nome', 'testata', 'email', 'ruolo'],
   filtri: [{ key: 'stato', label: 'Stato', options: STATI }],
   titoloDettaglio: r => r.nome + ' · ' + r.testata,

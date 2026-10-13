@@ -2,7 +2,7 @@
 // This file is now the source of the site: do not re-run the converter over it.
 /* eslint-disable */
 import React from 'react';
-import { saveForm, loadContent, mediaUrl } from './supabase.js';
+import { saveForm, loadContent, mediaUrl, presskitUrl } from './supabase.js';
 import { avviaAnalytics, fermaAnalytics, tracciaPagina } from './analytics.js';
 import { ROUTES, SITE_URL, routeFor, hrefFor, urlOf } from './routes.js';
 
@@ -72,7 +72,7 @@ export default class Site extends React.Component {
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
     flow: 0, renderTab: 0, ph: REDUCED ? 6 : 0, barHidden: true, heroP: 0,
-    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], galHover: -1, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
+    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, galHover: -1, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
     const r = currentRoute();
@@ -321,7 +321,7 @@ export default class Site extends React.Component {
       this.quadIO.observe(this.quadRef.current);
     } else this.setState({ quadOn: true });
     this.startIntro();
-    loadContent().then(c => { if (c && !this.unmounted) this.setState({ articoli: c.articoli, partner: c.partner }); });
+    loadContent().then(c => { if (this.unmounted) return; this.setState(c ? { articoli: c.articoli, partner: c.partner, presskit: c.presskit, kitPronto: true } : { kitPronto: true }); });
     this.onSkip = () => { if (this.state.ph < 6) this.skipIntro(); };
     ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, this.onSkip, { passive: true }));
     this.onHeroScroll = () => { if (!this.raf) this.raf = requestAnimationFrame(() => { this.raf = 0; this.updateHero(); }); };
@@ -580,7 +580,20 @@ export default class Site extends React.Component {
         { tag: 'Rassegna stampa', t: 'Ne hanno parlato', s: 'Articoli e servizi sulla prima tappa.', img: 'Foto · ritagli stampa' },
         { tag: 'Territorio', t: 'Visibilità alle aziende', s: 'Le realtà territoriali protagoniste.', img: 'Foto · aziende ospiti' }
       ],
-      kit: ['Comunicati stampa', 'Immagini', 'Loghi'],
+      // press kit grouped by folder, in the order the folders first appear
+      kitCartelle: st.presskit.reduce((out, x) => {
+        let g = out.find(c => c.nome === x.cartella);
+        if (!g) out.push(g = { nome: x.cartella, voci: [] });
+        const file = x.tipo === 'file';
+        const kb = x.dimensione ? (x.dimensione > 1048576 ? (x.dimensione / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(x.dimensione / 1024)) + ' KB') : '';
+        g.voci.push({ id: x.id, titolo: x.titolo, descrizione: x.descrizione, file,
+          href: file ? presskitUrl(x.file, x.nome_file) : x.link,
+          etichetta: file ? 'Scarica' : 'Apri il link',
+          meta: file ? [(x.nome_file || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : x.link.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] });
+        return out;
+      }, []),
+      kitVuoto: st.kitPronto && !st.presskit.length,
+      vaiAlKit: () => { const el = document.getElementById('presskit'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: REDUCED ? 'auto' : 'smooth' }); },
       press, pressSent: st.pressSent, pressOpen: !st.pressSent,
       pressFields: mkFields([['nome', 'Nome e cognome', 'text', 'name', ''], ['testata', 'Testata', 'text', 'organization', ''], ['email', 'Email', 'email', 'email', 'nome@testata.it'], ['ruolo', 'Ruolo', 'text', 'organization-title', 'Giornalista, redattore…']], press, pErrors, this.setPress),
       pressPrivacy: e => this.setPress('privacy', e.target.checked),
@@ -2850,30 +2863,12 @@ Site.prototype.render = function render() {
                 </h1>
                 {" "}
                 <p data-rv="" style={{ margin: "0", fontSize: "17px", lineHeight: "1.6", opacity: ".92" }}>
-                  {"Richiedi l'accesso al press kit. Dopo la verifica riceverai le credenziali via email."}
+                  {"Sei un giornalista? Richiedi l'accredito stampa per Squisitus Roma 2027, 1 • 2 ottobre 2027 al Palazzo dei Congressi. Dopo la verifica ti confermeremo l'accredito via email."}
                 </p>
                 {" "}
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "6px" }}>
-                  {" "}
-                  {($v.kit ?? []).map((k, $index) => (
-                    <React.Fragment key={$index}>
-                      {" "}
-                      <div data-rv="" style={{ minHeight: "60px", padding: "0 18px", border: "1px solid rgba(255,255,255,.35)", borderRadius: "6px", display: "flex", alignItems: "center", gap: "14px" }}>
-                        {" "}
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" aria-hidden="true">
-                          <path d="M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11" />
-                        </svg>
-                        {" "}
-                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "18px", textTransform: "uppercase", letterSpacing: ".04em" }}>
-                          {k}
-                        </span>
-                        {" "}
-                      </div>
-                      {" "}
-                    </React.Fragment>
-                  ))}
-                  {" "}
-                </div>
+                <button type="button" onClick={$v.vaiAlKit} className="sqh-3" style={{ alignSelf: "flex-start", marginTop: "6px", display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "52px", padding: "0 24px", border: "1.5px solid #fff", background: "transparent", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", cursor: "pointer" }}>
+                  {"Vai al press kit "}<span aria-hidden="true">{"↓"}</span>
+                </button>
                 {" "}
               </div>
               {" "}
@@ -2895,13 +2890,19 @@ Site.prototype.render = function render() {
                     </h2>
                     {" "}
                     <p data-rv="" style={{ margin: "0", fontSize: "17px", lineHeight: "1.6" }}>
-                      {"Ti scriveremo a "}{$v.press?.email}{" dopo la verifica dell'accredito."}
+                      {"Ti scriveremo a "}{$v.press?.email}{" per confermare l'accredito alla fiera."}
                     </p>
                     {" "}
                   </div>
                   {" "}
                 </>) : null}
                 {" "}
+                {$v.pressOpen ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "22px" }}>
+                    <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B", fontWeight: "700" }}>{"Accredito stampa"}</span>
+                    <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", fontSize: "clamp(28px,3vw,38px)", textTransform: "uppercase", lineHeight: "1" }}>{"Richiedi l'"}<span style={{ fontWeight: "700" }}>{"accredito"}</span></h2>
+                  </div>
+                ) : null}
                 {$v.pressOpen ? (<>
                   {" "}
                   <form onSubmit={$v.pressSubmit} noValidate="novalidate" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,240px),1fr))", gap: "18px 20px" }}>
@@ -2956,6 +2957,46 @@ Site.prototype.render = function render() {
                 {" "}
               </div>
               {" "}
+            </div>
+          </section>
+          <section id="presskit" data-screen-label="P5b Press kit" style={{ background: "#F4F1EC", color: "#3C3C3B", padding: "clamp(72px,9vw,120px) clamp(20px,4vw,48px)" }}>
+            <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "36px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                  <div data-rv="" style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#A5143B" }}>
+                    <span style={{ fontWeight: "700" }}>{"Press kit"}</span>
+                    <span style={{ width: "48px", height: "1px", background: "#A5143B" }} />
+                  </div>
+                  <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(40px,5vw,68px)", lineHeight: ".92" }}>
+                    {"Materiali per la "}<span style={{ fontWeight: "700", color: "#A5143B" }}>{"stampa"}</span>
+                  </h2>
+                </div>
+                <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6" }}>{"Comunicati, immagini e loghi di Squisitus da scaricare liberamente per articoli e servizi."}</p>
+              </div>
+              {$v.kitVuoto ? <p data-rv="" style={{ margin: "0", padding: "28px", background: "#fff", borderRadius: "6px", fontSize: "17px" }}>{"Il press kit sarà disponibile a breve."}</p> : null}
+              {($v.kitCartelle ?? []).map(c => (
+                <div key={c.nome} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <h3 data-rv="" style={{ margin: "0", display: "flex", alignItems: "center", gap: "10px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "20px", letterSpacing: ".06em", textTransform: "uppercase" }}>
+                    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A5143B" strokeWidth="1.6" strokeLinejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" /></svg>
+                    {c.nome}
+                  </h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,280px),1fr))", gap: "14px" }}>
+                    {c.voci.map(v => (
+                      <a key={v.id} data-rv="" className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? "" : undefined}
+                        style={{ display: "flex", flexDirection: "column", gap: "10px", minHeight: "150px", padding: "22px 22px 20px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
+                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "19px", lineHeight: "1.2", textTransform: "uppercase", letterSpacing: ".02em" }}>{v.titolo}</span>
+                        {v.descrizione ? <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>{v.descrizione}</span> : null}
+                        <span style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                          <span style={{ fontSize: "12px", letterSpacing: ".06em", color: "#5F564D" }}>{v.meta}</span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", color: "#A5143B", whiteSpace: "nowrap" }}>
+                            {v.etichetta}<span aria-hidden="true">{v.file ? "↓" : "↗"}</span>
+                          </span>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         </>) : null}

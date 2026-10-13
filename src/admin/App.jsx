@@ -4,6 +4,7 @@ import { Field, useToast } from './ui.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Articoli from './pages/Articoli.jsx';
 import Partner from './pages/Partner.jsx';
+import PressKit from './pages/PressKit.jsx';
 import Richieste from './pages/Richieste.jsx';
 import Newsletter from './pages/Newsletter.jsx';
 import Accrediti from './pages/Accrediti.jsx';
@@ -18,6 +19,7 @@ const SEZIONI = [
   { sep: 'Contenuti' },
   { id: 'articoli', label: 'Rassegna stampa', C: Articoli, ruoli: ['admin'] },
   { id: 'partner', label: 'Partner', C: Partner, ruoli: ['admin'] },
+  { id: 'presskit', label: 'Press kit', C: PressKit, ruoli: ['admin'] },
   { sep: 'Richieste' },
   { id: 'richieste', label: 'Espositori e sponsor', C: Richieste, ruoli: ['admin'], badge: 'richieste' },
   { id: 'accrediti', label: 'Accrediti press', C: Accrediti, ruoli: ['admin'], badge: 'accrediti_press' },

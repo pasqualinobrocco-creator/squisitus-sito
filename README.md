@@ -32,7 +32,7 @@ Progetto **Squisitus** (org Bsg, eu-west-1). URL e chiave pubblicabile sono in `
 ## Pannello di gestione (`admin.html`)
 Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` · in locale: `http://localhost:5173/admin.html`
 
-- Accesso con email e password (Supabase Auth). Ruolo **admin**: rassegna stampa, partner (con caricamento loghi), richieste espositori/sponsor, accrediti press, newsletter (con export CSV), utenti
+- Accesso con email e password (Supabase Auth). Ruolo **admin**: rassegna stampa, partner (con caricamento loghi), press kit (file nel bucket `presskit` o link esterni, raggruppati per cartella), richieste espositori/sponsor, accrediti press, newsletter (con export CSV), utenti
 - Ruoli e permessi: tabella `profili` + regole RLS basate su `privato.is_admin()`; sezioni del pannello in `src/admin/App.jsx` (`SEZIONI`)
 - Creazione/eliminazione utenti, cambio ruolo e reset password passano dalla Edge Function [`gestione-utenti`](supabase/functions/gestione-utenti/index.ts), che verifica che chi chiama sia admin
 - Nuovo ruolo (es. redattore): aggiungerlo al check di `profili.ruolo`, a `RUOLI` nella funzione e nel pannello, e dargli le policy sulle tabelle che deve gestire
