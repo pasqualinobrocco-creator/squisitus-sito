@@ -2961,23 +2961,19 @@ Site.prototype.render = function render() {
         </>) : null}
         <footer style={{ background: "#2A2523", color: "#fff", padding: "56px clamp(20px,4vw,48px) 32px" }}>
           {" "}
-          <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "36px 40px", alignItems: "flex-start" }}>
-            {" "}
-            <img src="assets/squisitus-logo-white.svg" alt="Squisitus" style={{ height: "110px", width: "auto" }} />
-            {" "}
-            <div style={{ flex: "1 1 300px", minWidth: "min(100%,280px)", display: "flex", flexDirection: "column", gap: "6px", fontSize: "15px", lineHeight: "1.6" }}>
-              {" "}
+          <div className="sq-fgrid">
+            <div className="sq-fcol">
+              <img src="assets/squisitus-logo-white.svg" alt="Squisitus" style={{ height: "96px", width: "auto", alignSelf: "flex-start", marginBottom: "6px" }} />
               <a className="sqh-18" href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", textDecoration: "none", alignSelf: "flex-start" }}>
                 {"Un progetto del "}
                 <span style={{ whiteSpace: "nowrap" }}>
                   {"Gruppo BSG ↗"}
                 </span>
               </a>
-              {" "}
-              <span style={{ opacity: ".85" }}>
-                {"BSG S.r.l. · Roma · Milano"}
-              </span>
-              {" "}
+              <span style={{ opacity: ".85" }}>{"BSG S.r.l. · Roma · Milano"}</span>
+            </div>
+            <div className="sq-fcol">
+              <span className="sq-ftit">{"Sedi"}</span>
               <span style={{ display: "flex", flexDirection: "column", opacity: ".9" }}>
                 <b>
                   {"Roma"}
@@ -2992,8 +2988,7 @@ Site.prototype.render = function render() {
                   {"+39 06 2031223"}
                 </a>
               </span>
-              {" "}
-              <span style={{ display: "flex", flexDirection: "column", opacity: ".9", marginTop: "6px" }}>
+              <span style={{ display: "flex", flexDirection: "column", opacity: ".9" }}>
                 <b>
                   {"Milano"}
                 </b>
@@ -3007,30 +3002,26 @@ Site.prototype.render = function render() {
                   {"+39 392 2639937"}
                 </a>
               </span>
-              {" "}
-              <a href="mailto:info@bsgsrl.it" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start", marginTop: "6px" }}>
-                {"info@bsgsrl.it"}
-              </a>
-              {" "}
-              <a href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start" }}>
-                {"www.bsgsrl.it"}
-              </a>
-              {" "}
             </div>
-            {" "}
-            <nav aria-label="Pagine" style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              {" "}
+            <nav aria-label="Pagine" className="sq-fcol" style={{ gap: "2px" }}>
+              <span className="sq-ftit">{"Pagine"}</span>
               {($v.footerNav ?? []).map((n, $index) => (
                 <React.Fragment key={$index}>
-                  <a className="sqh-19" href={n?.href} style={{ color: "#fff", fontSize: "15px", minHeight: "32px", display: "flex", alignItems: "center" }}>
+                  <a className="sqh-19" href={n?.href} style={{ color: "#fff", fontSize: "15px", minHeight: "30px", display: "flex", alignItems: "center", alignSelf: "flex-start" }}>
                     {n?.label}
                   </a>
                 </React.Fragment>
               ))}
-              {" "}
             </nav>
-            {" "}
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div className="sq-fcol">
+              <span className="sq-ftit">{"Contatti"}</span>
+              <a href="mailto:info@bsgsrl.it" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start" }}>
+                {"info@bsgsrl.it"}
+              </a>
+              <a href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start" }}>
+                {"www.bsgsrl.it"}
+              </a>
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
               {" "}
               <a className="sqh-20" href="https://www.facebook.com/profile.php?id=100063584168175" target="_blank" rel="noopener" aria-label="Facebook · Squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -3053,9 +3044,8 @@ Site.prototype.render = function render() {
               </a>
               {" "}
             </div>
-            {" "}
+            </div>
           </div>
-          {" "}
           <div style={{ maxWidth: "1240px", margin: "40px auto 0", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,.18)", display: "flex", flexWrap: "wrap", gap: "12px 24px", fontSize: "13px" }}>
             {" "}
             <span>

@@ -90,3 +90,9 @@ img[data-rv].sq-ph.rv-in{transform:none}
 html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{opacity:1!important;transform:none!important}
 /* titolo pagina BSG su una riga quando la colonna è abbastanza larga */
 @media (min-width:1220px),(min-width:600px) and (max-width:880px){.sq-oneline{white-space:nowrap}}
+/* footer: 4 colonne bilanciate (2 su tablet, 1 su mobile) */
+.sq-fgrid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:36px 40px;align-items:start}
+.sq-fcol{display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.6;min-width:0}
+.sq-ftit{font-family:Oswald,sans-serif;font-weight:600;font-size:13px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+@media (max-width:980px){.sq-fgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.sq-fgrid{grid-template-columns:1fr}}
