@@ -9,6 +9,7 @@ import Newsletter from './pages/Newsletter.jsx';
 import Accrediti from './pages/Accrediti.jsx';
 import Utenti from './pages/Utenti.jsx';
 import Account from './pages/Account.jsx';
+import Email from './pages/Email.jsx';
 
 // Sections of the panel and which roles can open them. To add a role (e.g. "redattore"),
 // list it here and give it the matching policies in Supabase.
@@ -23,6 +24,7 @@ const SEZIONI = [
   { id: 'newsletter', label: 'Newsletter', C: Newsletter, ruoli: ['admin'] },
   { sep: 'Impostazioni' },
   { id: 'utenti', label: 'Utenti', C: Utenti, ruoli: ['admin'] },
+  { id: 'email', label: 'Email', C: Email, ruoli: ['admin'] },
   { id: 'account', label: 'Il mio account', C: Account, ruoli: ['admin'] },
 ];
 export const RUOLI = { admin: 'Admin · può fare tutto' };
