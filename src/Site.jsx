@@ -3,6 +3,7 @@
 /* eslint-disable */
 import React from 'react';
 import { saveForm, loadContent, mediaUrl } from './supabase.js';
+import { avviaAnalytics, fermaAnalytics, tracciaPagina } from './analytics.js';
 
 const I = {
   territori: "M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0",
@@ -299,7 +300,8 @@ export default class Site extends React.Component {
     window.addEventListener('mousemove', this.onMove);
     this.onResize = () => this.setState({ w: window.innerWidth });
     this.onScroll = () => { const s = window.scrollY > 40; if (s !== this.state.scrolled) this.setState({ scrolled: s }); };
-    this.onHash = () => { this.setState({ ...this.parseHash(), menu: false }, () => requestAnimationFrame(this.updateHero)); window.scrollTo(0, 0); };
+    this.onHash = () => { this.setState({ ...this.parseHash(), menu: false }, () => { requestAnimationFrame(this.updateHero); tracciaPagina(); }); window.scrollTo(0, 0); };
+    try { if (localStorage.getItem('sq-cookie-choice') === 'all') avviaAnalytics(); } catch (e) {}
     window.addEventListener('resize', this.onResize);
     window.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('hashchange', this.onHash);
@@ -323,7 +325,7 @@ export default class Site extends React.Component {
     if (!f.privacy) e.privacy = 'Il consenso privacy è necessario per inviare la richiesta';
     return e;
   }
-  cookieChoice = v => { try { localStorage.setItem('sq-cookie-choice', v); } catch (e) {} this.setState({ cookie: false }); };
+  cookieChoice = v => { try { localStorage.setItem('sq-cookie-choice', v); } catch (e) {} v === 'all' ? avviaAnalytics() : fermaAnalytics(); this.setState({ cookie: false }); };
   pick = (sel, t) => ({ sel: sel ? 'true' : 'false', bg: sel ? '#3C3C3B' : 'transparent', ink: sel ? '#fff' : '#3C3C3B', t });
 
   renderVals() {

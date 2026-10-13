@@ -41,4 +41,7 @@ Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` �
 - **Notifiche e conferme**: un trigger su `richieste`, `accrediti_press`, `newsletter` chiama la Edge Function [`notifica-email`](supabase/functions/notifica-email/index.ts), che invia con Resend la notifica al team e la conferma a chi ha compilato il modulo. Mittente, destinatari (aggiungi/rimuovi) e opzioni: pannello → **Impostazioni** (tabella `impostazioni`). Segreto: `RESEND_API_KEY` in Supabase → Edge Functions → Secrets
 - **Email di accesso** (recupero password): Supabase → Authentication → Emails → SMTP Settings con `smtp.resend.com`, porta 465, utente `resend`, password = API key Resend
 
+## Google Analytics 4
+ID di misurazione in `.env` → `VITE_GA_ID=G-…` (vuoto = Analytics disattivato). Si carica solo dopo “Accetta” nel banner cookie; con “Rifiuta” o revoca del consenso la raccolta si ferma e i cookie `_ga` vengono cancellati. Page view inviate a ogni cambio pagina (`#/…`). Codice: [`src/analytics.js`](src/analytics.js).
+
 Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.
