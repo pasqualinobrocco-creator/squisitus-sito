@@ -3019,7 +3019,7 @@ Site.prototype.render = function render() {
           <div style={{ maxWidth: "1240px", margin: "40px auto 0", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,.18)", display: "flex", flexWrap: "wrap", gap: "12px 24px", fontSize: "13px" }}>
             {" "}
             <span>
-              {"© 2026 BSG srl · P.IVA 04567890123 · Ateco 73.11.01"}
+              {"© 2026 BSG srl · P.IVA 10119151008 · Ateco 73.11.01"}
             </span>
             {" "}
             <a href="#/" style={{ color: "#fff" }}>
