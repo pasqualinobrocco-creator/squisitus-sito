@@ -44,6 +44,15 @@ Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` �
 ## Google Analytics 4
 ID di misurazione in `.env` → `VITE_GA_ID=G-…` (vuoto = Analytics disattivato). Si carica solo dopo “Accetta” nel banner cookie; con “Rifiuta” o revoca del consenso la raccolta si ferma e i cookie `_ga` vengono cancellati. Page view inviate a ogni cambio pagina (`#/…`). Codice: [`src/analytics.js`](src/analytics.js).
 
+## Pubblicazione su www.squisitus.it (VPS Aruba "Squisitus-web")
+A ogni push su `main` GitHub genera la build per il dominio definitivo nel ramo `server`. Per installarla o aggiornarla, dalla console del server (Aruba → VPS → Squisitus-web → Azioni → Accedi console, oppure via SSH):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pasqualinobrocco-creator/squisitus-sito/main/deploy/aggiorna-server.sh | sudo bash
+```
+
+Lo script ([`deploy/aggiorna-server.sh`](deploy/aggiorna-server.sh)) trova la cartella del sito in nginx, fa un backup in `/var/backups/squisitus`, installa i nuovi file e ricarica nginx (configurazione e HTTPS restano invariati).
+
 ## Indirizzi delle pagine e SEO
 Le pagine hanno indirizzi veri (`/un-progetto-bsg/`, `/sali-a-bordo/sponsor/`, `/salotto-on-the-road/`…) definiti in [`src/routes.js`](src/routes.js) con titolo e descrizione per Google. La build genera un HTML statico per pagina (titolo, description, canonical, Open Graph), `404.html`, `sitemap.xml` e `robots.txt`. I vecchi link `#/…` vengono reindirizzati.
 
