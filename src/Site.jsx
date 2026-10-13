@@ -14,6 +14,9 @@ const TARGET = new Date('2027-10-01T09:00:00+02:00').getTime();
 const EMPTY = { azienda: '', referente: '', email: '', telefono: '', categoria: '', stand: '4×3 m', livello: 'Da valutare', messaggio: '', privacy: false, newsletter: false };
 const pad = n => String(n).padStart(2, '0');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// iubenda (sito 4718486): pagine pubbliche della Privacy e della Cookie Policy
+const PRIVACY_URL = 'https://www.iubenda.com/privacy-policy/63043067';
+const COOKIE_URL = 'https://www.iubenda.com/privacy-policy/63043067/cookie-policy';
 const SEND_ERR = 'Invio non riuscito. Controlla la connessione e riprova.';
 // Shown until (or if not) the articles arrive from Supabase.
 const DEFAULT_ARTICOLI = [
@@ -1502,7 +1505,7 @@ Site.prototype.render = function render() {
                   {" "}
                   <label style={{ display: "flex", gap: "12px", alignItems: "flex-start", paddingLeft: "18px", fontSize: "14px", lineHeight: "1.5", cursor: "pointer", textWrap: "pretty" }}>
                     <input type="checkbox" checked={!!($v.nl?.privacy)} onChange={$v.nlPrivacy} style={{ width: "20px", height: "20px", margin: "0", accentColor: "#106B30", flexShrink: "0" }} />
-                    {"Acconsento al trattamento dei dati per l'invio della newsletter. *"}
+                    {"Acconsento al trattamento dei dati per l'invio della newsletter, come descritto nella "}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"privacy policy"}</a>{". *"}
                   </label>
                   {" "}
                   <label style={{ display: "flex", gap: "12px", alignItems: "flex-start", paddingLeft: "18px", fontSize: "14px", lineHeight: "1.5", cursor: "pointer", textWrap: "pretty" }}>
@@ -2019,7 +2022,7 @@ Site.prototype.render = function render() {
                         {" "}
                         <span>
                           {"Ho letto l'"}
-                          <a href="#/sali-a-bordo" style={{ textDecoration: "underline" }}>
+                          <a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>
                             {"informativa privacy"}
                           </a>
                           {" e acconsento al trattamento dei dati per essere ricontattato. "}
@@ -2894,7 +2897,7 @@ Site.prototype.render = function render() {
                       <input type="checkbox" checked={!!($v.press?.privacy)} onChange={$v.pressPrivacy} style={{ width: "22px", height: "22px", margin: "0", accentColor: "#A5143B", flexShrink: "0" }} />
                       {" "}
                       <span>
-                        {"Acconsento al trattamento dei dati per la gestione dell'accredito. "}
+                        {"Acconsento al trattamento dei dati per la gestione dell'accredito, come descritto nella "}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"privacy policy"}</a>{". "}
                         <span style={{ color: "#A5143B" }}>
                           {"*"}
                         </span>
@@ -3022,16 +3025,12 @@ Site.prototype.render = function render() {
               {"© 2026 BSG srl · P.IVA 10119151008 · Ateco 73.11.01"}
             </span>
             {" "}
-            <a href="#/" style={{ color: "#fff" }}>
+            <a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "#fff" }}>
               {"Privacy Policy"}
             </a>
             {" "}
-            <a href="#/" style={{ color: "#fff" }}>
+            <a href={COOKIE_URL} target="_blank" rel="noopener" style={{ color: "#fff" }}>
               {"Cookie Policy"}
-            </a>
-            {" "}
-            <a href="#/" style={{ color: "#fff" }}>
-              {"Termini e condizioni"}
             </a>
             {" "}
             <button type="button" onClick={$v.reopenCookie} style={{ background: "none", border: "0", color: "#fff", padding: "0", cursor: "pointer", textDecoration: "underline", fontSize: "13px" }}>
@@ -3136,7 +3135,7 @@ Site.prototype.render = function render() {
             {" "}
             <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.55" }}>
               {"Usiamo cookie tecnici e, con il tuo consenso, cookie di analisi e marketing. Leggi la "}
-              <a href="#/" style={{ textDecoration: "underline" }}>
+              <a href={COOKIE_URL} target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>
                 {"Cookie Policy"}
               </a>
               {"."}
