@@ -33,11 +33,18 @@ function currentRoute() {
 function applicaMeta(r) {
   document.title = r.title;
   const set = (sel, attr, val) => { const el = document.head.querySelector(sel); if (el) el.setAttribute(attr, val); };
+  const url = SITE_URL + '/' + urlOf(r), img = SITE_URL + '/' + r.social.image;
   set('meta[name="description"]', 'content', r.description);
-  set('link[rel="canonical"]', 'href', SITE_URL + '/' + urlOf(r));
-  set('meta[property="og:title"]', 'content', r.title);
-  set('meta[property="og:description"]', 'content', r.description);
-  set('meta[property="og:url"]', 'content', SITE_URL + '/' + urlOf(r));
+  set('link[rel="canonical"]', 'href', url);
+  set('meta[property="og:title"]', 'content', r.social.title);
+  set('meta[property="og:description"]', 'content', r.social.description);
+  set('meta[property="og:url"]', 'content', url);
+  set('meta[property="og:image"]', 'content', img);
+  set('meta[property="og:image:alt"]', 'content', r.social.alt);
+  set('meta[name="twitter:title"]', 'content', r.social.title);
+  set('meta[name="twitter:description"]', 'content', r.social.description);
+  set('meta[name="twitter:image"]', 'content', img);
+  set('meta[name="twitter:image:alt"]', 'content', r.social.alt);
 }
 const SEND_ERR = 'Invio non riuscito. Controlla la connessione e riprova.';
 // Shown until (or if not) the articles arrive from Supabase.
@@ -781,7 +788,7 @@ Site.prototype.render = function render() {
                 {" "}
                 <h1 style={{ margin: "0", opacity: `${$v.o4 ?? ""}`, transform: `translateY(${$v.y4 ?? ""})`, transition: "opacity .8s ease-out, transform .9s cubic-bezier(.22,1,.36,1)" }}>
                   <span style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>
-                    {"Squisitus"}
+                    {"Squisitus Roma 2027 – Food Exhibition al Palazzo dei Congressi"}
                   </span>
                   <svg aria-hidden="true" viewBox="-1 471 403 82" style={{ display: "block", height: "clamp(32px,min(6.4vw,9svh),84px)", width: "auto" }}>
                     <g>
