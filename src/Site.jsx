@@ -1542,7 +1542,7 @@ Site.prototype.render = function render() {
                   {" "}
                   <label style={{ display: "flex", gap: "12px", alignItems: "flex-start", paddingLeft: "18px", fontSize: "14px", lineHeight: "1.5", cursor: "pointer", textWrap: "pretty" }}>
                     <input type="checkbox" checked={!!($v.nl?.privacy)} onChange={$v.nlPrivacy} style={{ width: "20px", height: "20px", margin: "0", accentColor: "#106B30", flexShrink: "0" }} />
-                    {"Acconsento al trattamento dei dati per l'invio della newsletter, come descritto nella "}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"privacy policy"}</a>{". *"}
+                    <span>{"Ho letto l'"}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"informativa privacy"}</a>{" e acconsento al trattamento dei dati per l'invio della newsletter. *"}</span>
                   </label>
                   {" "}
                   <label style={{ display: "flex", gap: "12px", alignItems: "flex-start", paddingLeft: "18px", fontSize: "14px", lineHeight: "1.5", cursor: "pointer", textWrap: "pretty" }}>
@@ -2934,7 +2934,7 @@ Site.prototype.render = function render() {
                       <input type="checkbox" checked={!!($v.press?.privacy)} onChange={$v.pressPrivacy} style={{ width: "22px", height: "22px", margin: "0", accentColor: "#A5143B", flexShrink: "0" }} />
                       {" "}
                       <span>
-                        {"Acconsento al trattamento dei dati per la gestione dell'accredito, come descritto nella "}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"privacy policy"}</a>{". "}
+                        {"Ho letto l'"}<a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>{"informativa privacy"}</a>{" e acconsento al trattamento dei dati per la gestione dell'accredito. "}
                         <span style={{ color: "#A5143B" }}>
                           {"*"}
                         </span>
