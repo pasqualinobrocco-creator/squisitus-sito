@@ -22,5 +22,13 @@ node scripts/convert-dc.mjs "../Squisitus Sito v3.dc.html"
 ```
 It overwrites `src/Site.jsx`, `src/styles.css` and `src/head.html` (paste `head.html` into `index.html` if the title or fonts change). Re-copy `../assets` into `public/assets` if assets changed, but keep `squisitus-logo-h-*.svg`: in this project the ® has been moved after the wordmark.
 
-## Before go-live
-The forms (sali a bordo, newsletter, press area) only validate and show the confirmation state; they don't send anything yet. Hook `submit`, `nlSubmit` and `pressSubmit` in `renderVals()` up to a backend or form service.
+## Supabase (moduli)
+I tre moduli (Sali a bordo, newsletter, area press) salvano su Supabase nelle tabelle `richieste`, `newsletter`, `accrediti_press`.
+
+1. Supabase → **SQL Editor** → incolla ed esegui [`supabase/schema.sql`](supabase/schema.sql)
+2. Supabase → **Project Settings → API**: copia *Project URL* e la chiave **anon / publishable** (mai la `service_role`)
+3. In locale: copia `.env.example` in `.env.local` e compila
+4. Online: GitHub → **Settings → Secrets and variables → Actions → Variables** → crea `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, poi rilancia il workflow *Deploy*
+
+Le regole RLS permettono ai visitatori solo di inserire, mai di leggere: le richieste si consultano dal **Table Editor** di Supabase.
+Senza configurazione il sito funziona lo stesso, ma i moduli mostrano la conferma senza salvare nulla.
