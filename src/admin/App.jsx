@@ -24,7 +24,7 @@ const SEZIONI = [
   { id: 'newsletter', label: 'Newsletter', C: Newsletter, ruoli: ['admin'] },
   { sep: 'Impostazioni' },
   { id: 'utenti', label: 'Utenti', C: Utenti, ruoli: ['admin'] },
-  { id: 'email', label: 'Email', C: Email, ruoli: ['admin'] },
+  { id: 'impostazioni', label: 'Impostazioni', C: Email, ruoli: ['admin'] },
   { id: 'account', label: 'Il mio account', C: Account, ruoli: ['admin'] },
 ];
 export const RUOLI = { admin: 'Admin · può fare tutto' };

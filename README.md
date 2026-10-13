@@ -38,7 +38,7 @@ Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` �
 - Nuovo ruolo (es. redattore): aggiungerlo al check di `profili.ruolo`, a `RUOLI` nella funzione e nel pannello, e dargli le policy sulle tabelle che deve gestire
 
 ## Email (Resend)
-- **Notifiche e conferme**: un trigger su `richieste`, `accrediti_press`, `newsletter` chiama la Edge Function [`notifica-email`](supabase/functions/notifica-email/index.ts), che invia con Resend la notifica al team e la conferma a chi ha compilato il modulo. Mittente, destinatari e opzioni: pannello → **Email** (tabella `impostazioni`). Segreto: `RESEND_API_KEY` in Supabase → Edge Functions → Secrets
+- **Notifiche e conferme**: un trigger su `richieste`, `accrediti_press`, `newsletter` chiama la Edge Function [`notifica-email`](supabase/functions/notifica-email/index.ts), che invia con Resend la notifica al team e la conferma a chi ha compilato il modulo. Mittente, destinatari (aggiungi/rimuovi) e opzioni: pannello → **Impostazioni** (tabella `impostazioni`). Segreto: `RESEND_API_KEY` in Supabase → Edge Functions → Secrets
 - **Email di accesso** (recupero password): Supabase → Authentication → Emails → SMTP Settings con `smtp.resend.com`, porta 465, utente `resend`, password = API key Resend
 
 Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.

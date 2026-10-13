@@ -45,7 +45,7 @@ ${cta ? `<a href="${esc(cta[1])}" style="display:inline-block;background:#A5143B
 </table></td></tr></table></body></html>`;
 }
 
-type Email = { to: string[]; subject: string; html: string; reply_to?: string };
+type Email = { to: string[]; subject: string; html: string; reply_to?: string | string[] };
 
 async function invia(cfg: Record<string, any>, e: Email) {
   const r = await fetch('https://api.resend.com/emails', {
@@ -63,7 +63,8 @@ function emailPer(tabella: string, r: Record<string, any>, cfg: Record<string, a
   const team = lista(cfg.notifiche_a);
   const out: Email[] = [];
   const conferma = cfg.conferma_mittente && r.email;
-  const rispondi = cfg.rispondi_a || undefined;
+  // replies to confirmations: the dedicated address if set, otherwise the team recipients
+  const rispondi = cfg.rispondi_a ? lista(cfg.rispondi_a) : team.length ? team : undefined;
 
   if (tabella === 'richieste') {
     const espo = r.tipo === 'espositore';
@@ -117,7 +118,7 @@ Deno.serve(async (req) => {
     if (!Deno.env.get('RESEND_API_KEY')) return json({ error: 'Manca il segreto RESEND_API_KEY nelle Edge Functions di Supabase' }, 400);
     if (!cfg?.mittente_email) return json({ error: 'Imposta prima l’email del mittente e salva' }, 400);
     try {
-      await invia(cfg, { to: [user!.email!], reply_to: cfg.rispondi_a || undefined, subject: 'Email di prova · Squisitus',
+      await invia(cfg, { to: [user!.email!], reply_to: cfg.rispondi_a ? lista(cfg.rispondi_a) : undefined, subject: 'Email di prova · Squisitus',
         html: layout('Funziona!', 'Questa è un’email di prova inviata dal pannello di gestione di Squisitus tramite Resend.',
           [['Mittente', cfg.mittente_email], ['Notifiche al team', cfg.notifiche_a]]) });
       return json({ ok: true, a: user!.email });
