@@ -448,10 +448,9 @@ export default class Site extends React.Component {
       ],
       renderTabs: ['Planimetria', 'Render'].map((t, i) => { const sel = st.renderTab === i; return { t, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#1C1714' : '#fff', on: () => this.setState({ renderTab: i }) }; }),
       renderLabel: st.renderTab === 0 ? '[ Planimetria prototipo · versione architetto da fornire ]' : '[ Video-render o visual immersivo · in attesa materiali architetto ]',
-      // placeholder boxes until the first partner is published, then only the levels that have logos
-      tiers: st.partner.length
-        ? LIVELLI.map(([k, t, min, h]) => ({ t, min, h, logos: st.partner.filter(x => x.livello === k).map(x => ({ nome: x.nome, src: mediaUrl(x.logo), link: x.link })) })).filter(x => x.logos.length)
-        : LIVELLI.map(([, t, min, h], i) => ({ t, min, h, logos: Array.from({ length: i + 2 }, () => ({})) })),
+      // only published partners that have a logo; with none, the whole "Sponsor e partner" section is hidden
+      tiers: LIVELLI.map(([k, t, min, h]) => ({ t, min, h, logos: st.partner.filter(x => x.livello === k && x.logo).map(x => ({ nome: x.nome, src: mediaUrl(x.logo), link: x.link })) })).filter(x => x.logos.length),
+      haPartner: st.partner.some(x => x.logo),
       nl, nlDone: st.nlDone, nlOpen: !st.nlDone, nlErr: st.nlErr, nlBorder: st.nlErr ? '#E3E3E3' : '#fff',
       nlEmail: e => this.setState({ nl: { ...nl, email: e.target.value }, nlErr: '' }),
       nlPrivacy: e => this.setState({ nl: { ...nl, privacy: e.target.checked }, nlErr: '' }),
@@ -1436,6 +1435,7 @@ Site.prototype.render = function render() {
               {" "}
             </div>
           </section>
+          {$v.haPartner ? (
           <section data-screen-label="H7 Sponsor e partner" style={{ background: "#fff", padding: "clamp(80px,10vw,130px) clamp(20px,4vw,48px)" }}>
             {" "}
             <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "40px 64px" }}>
@@ -1498,6 +1498,7 @@ Site.prototype.render = function render() {
               {" "}
             </div>
           </section>
+          ) : null}
           <section data-screen-label="H8 Newsletter" style={{ background: "#A5143B", color: "#fff", padding: "clamp(56px,7vw,90px) clamp(20px,4vw,48px)" }}>
             {" "}
             <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "28px 56px", alignItems: "center", justifyContent: "space-between" }}>

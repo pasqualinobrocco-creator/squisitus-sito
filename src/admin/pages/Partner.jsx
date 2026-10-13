@@ -15,7 +15,7 @@ export default function Partner() {
     <Page title="Partner" subtitle="Loghi di sponsor e partner nella homepage, raggruppati per livello." actions={<button className="btn primary" onClick={() => setEdit({ ...VUOTO })}>+ Nuovo partner</button>}>
       <div className="toolbar">
         <select value={liv} onChange={e => setLiv(e.target.value)} style={{ width: 'auto' }}><option value="">Tutti i livelli</option>{LIVELLI.map(l => <option key={l}>{l}</option>)}</select>
-        {!rows.length && <span className="note">Finché non c’è nessun partner visibile, la homepage mostra i riquadri segnaposto.</span>}
+        {!rows.some(r => r.pubblicato && r.logo) && <span className="note">Nessun partner visibile con logo: la sezione “Sponsor e partner” della homepage è nascosta. Compare appena ne pubblichi uno.</span>}
       </div>
       <Table rows={vis} onRow={r => setEdit(r)} empty="Nessun partner." columns={[
         { key: 'logo', label: 'Logo', render: r => r.logo ? <img className="thumb" src={mediaUrl(r.logo)} alt="" /> : <span className="badge warn">manca</span> },
@@ -23,7 +23,7 @@ export default function Partner() {
         { key: 'livello', label: 'Livello', render: r => <span className="badge red">{r.livello}</span> },
         { key: 'link', label: 'Link', render: r => r.link ? <a href={r.link} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>{r.link.replace(/^https?:\/\//, '').slice(0, 32)}</a> : '—' },
         { key: 'ordine', label: 'Ordine' },
-        { key: 'pubblicato', label: 'Visibile', render: r => <Si v={r.pubblicato} /> }
+        { key: 'pubblicato', label: 'Sul sito', render: r => r.pubblicato && r.logo ? <Si v si="Visibile" /> : <span className="badge warn">{r.pubblicato ? 'Manca il logo' : 'Nascosto'}</span> }
       ]} />
       {edit && <Editor val={edit} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); reload(); }} />}
     </Page>
@@ -78,13 +78,13 @@ function Editor({ val, onClose, onSaved }) {
       <form className="form" onSubmit={salva}>
         <Field label="Nome *"><input value={f.nome} onChange={set('nome')} /></Field>
         <Field label="Livello"><select value={f.livello} onChange={set('livello')}>{LIVELLI.map(l => <option key={l}>{l}</option>)}</select></Field>
-        <Field label="Logo" full hint="PNG trasparente, SVG o JPG, massimo 5 MB.">
+        <Field label="Logo *" full hint="PNG trasparente, SVG o JPG, massimo 5 MB. Senza logo il partner non compare sul sito.">
           <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
             {anteprima ? <img src={anteprima} alt="" style={{ height: 70, maxWidth: 200, objectFit: 'contain', border: '1px solid var(--line)', borderRadius: 6, padding: 6, background: '#fff' }} /> : null}
             <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={e => setFile(e.target.files[0] || null)} />
           </div>
         </Field>
-        <Field label="Link al sito del partner" full><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>
+        <Field label="Link al sito del partner" full hint="Cliccando il logo sul sito si apre questo indirizzo in una nuova scheda."><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>
         <Field label="Ordine" hint="Posizione nel livello: numeri più bassi prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
         <div className="field" style={{ justifyContent: 'center' }}><label className="check"><input type="checkbox" checked={f.pubblicato} onChange={set('pubblicato')} /> Visibile sul sito</label></div>
         {err && <div className="err full" role="alert">{err}</div>}
