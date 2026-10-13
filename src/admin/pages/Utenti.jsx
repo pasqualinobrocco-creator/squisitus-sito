@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db, fmtData, gestioneUtenti } from '../client.js';
 import { RUOLI } from '../App.jsx';
-import { Field, Modal, Page, Table, useRows, useToast } from '../ui.jsx';
+import { Field, Modal, Page, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
 // Readable temporary password: the admin passes it on, the user changes it from "Il mio account".
 const generaPassword = () => {
@@ -65,6 +65,7 @@ function Gestisci({ u, io, onClose, onDone }) {
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
   const toast = useToast();
+  const conferma = useConfirm();
   const sonoIo = u.id === io.id;
   const run = async (body, ok) => {
     setBusy(true);
@@ -74,7 +75,7 @@ function Gestisci({ u, io, onClose, onDone }) {
   };
   return (
     <Modal title={u.nome || u.email} onClose={onClose} footer={<>
-      {!sonoIo && <button className="btn danger left" disabled={busy} onClick={() => confirm('Eliminare l’utente ' + u.email + '? Non potrà più accedere.') && run({ azione: 'elimina' }, 'Utente eliminato.')}>Elimina utente</button>}
+      {!sonoIo && <button className="btn danger left" disabled={busy} onClick={async () => (await conferma('Eliminare l’utente ' + u.email + '? Non potrà più accedere.')) && run({ azione: 'elimina' }, 'Utente eliminato.')}>Elimina utente</button>}
       <button className="btn" onClick={onClose}>Chiudi</button>
     </>}>
       <dl className="dl"><dt>Email</dt><dd>{u.email}</dd><dt>Creato il</dt><dd>{fmtData(u.created_at)}</dd></dl>

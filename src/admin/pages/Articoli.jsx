@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db, fmtData } from '../client.js';
-import { Field, Modal, Page, Si, Table, useRows, useToast } from '../ui.jsx';
+import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
 const VUOTO = { tipo: 'articolo', testata: '', titolo: '', link: '', data: '', in_evidenza: false, occhiello: '', testo: '', ordine: 0, pubblicato: true };
 const dove = a => a.tipo === 'comunicato' ? 'Apertura "Dicono di noi"' : a.link ? (a.in_evidenza ? 'Salotto + In evidenza' : 'Salotto') : 'In pubblicazione';
@@ -41,6 +41,7 @@ function Editor({ val, onClose, onSaved }) {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const toast = useToast();
+  const conferma = useConfirm();
   const set = k => e => setF(x => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const com = f.tipo === 'comunicato';
 
@@ -58,7 +59,7 @@ function Editor({ val, onClose, onSaved }) {
     toast(val.id ? 'Articolo aggiornato.' : 'Articolo aggiunto.'); onSaved();
   };
   const elimina = async () => {
-    if (!confirm('Eliminare definitivamente “' + val.titolo + '”?')) return;
+    if (!(await conferma('Eliminare definitivamente “' + val.titolo + '”?'))) return;
     const { error } = await db.from('articoli').delete().eq('id', val.id);
     if (error) return toast(error.message, 'error');
     toast('Articolo eliminato.'); onSaved();

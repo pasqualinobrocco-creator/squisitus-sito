@@ -66,8 +66,30 @@ export function Table({ columns, rows, onRow, actions, empty = 'Nessun elemento.
 
 export const Si = ({ v, si = 'Sì', no = 'No' }) => <span className={'badge' + (v ? ' green' : '')}>{v ? si : no}</span>;
 
-export function useConfirm() {
-  return msg => window.confirm(msg);
+// In-panel confirmation (window.confirm is blocked in some browsers and embedded views).
+// Usage: const conferma = useConfirm(); if (!(await conferma('Eliminare…?'))) return;
+const ConfirmCtx = createContext(async () => false);
+export const useConfirm = () => useContext(ConfirmCtx);
+export function ConfirmProvider({ children }) {
+  const [req, setReq] = useState(null);
+  const ask = useCallback((msg, ok = 'Elimina') => new Promise(resolve => setReq({ msg, ok, resolve })), []);
+  const close = v => { req?.resolve(v); setReq(null); };
+  return (
+    <ConfirmCtx.Provider value={ask}>
+      {children}
+      {req && (
+        <div className="overlay" style={{ zIndex: 70 }} onMouseDown={e => e.target === e.currentTarget && close(false)}>
+          <div className="modal" role="alertdialog" aria-modal="true" aria-label="Conferma" style={{ width: 'min(460px, 100%)' }}>
+            <div className="body"><p style={{ margin: 0, fontSize: 16 }}>{req.msg}</p></div>
+            <footer>
+              <button className="btn" onClick={() => close(false)} autoFocus>Annulla</button>
+              <button className="btn danger" onClick={() => close(true)}>{req.ok}</button>
+            </footer>
+          </div>
+        </div>
+      )}
+    </ConfirmCtx.Provider>
+  );
 }
 
 // Loads rows with a Supabase query builder; returns [rows, reload, loading].

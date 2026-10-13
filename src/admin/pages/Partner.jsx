@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db, mediaUrl } from '../client.js';
-import { Field, Modal, Page, Si, Table, useRows, useToast } from '../ui.jsx';
+import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
 const LIVELLI = ['Platinum', 'Main', 'Official', 'Technical'];
 const VUOTO = { nome: '', livello: 'Main', logo: '', link: '', ordine: 0, pubblicato: true };
@@ -36,6 +36,7 @@ function Editor({ val, onClose, onSaved }) {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const toast = useToast();
+  const conferma = useConfirm();
   const set = k => e => setF(x => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const anteprima = file ? URL.createObjectURL(file) : mediaUrl(f.logo);
 
@@ -62,7 +63,7 @@ function Editor({ val, onClose, onSaved }) {
     toast(val.id ? 'Partner aggiornato.' : 'Partner aggiunto.'); onSaved();
   };
   const elimina = async () => {
-    if (!confirm('Eliminare definitivamente “' + val.nome + '” e il suo logo?')) return;
+    if (!(await conferma('Eliminare definitivamente “' + val.nome + '” e il suo logo?'))) return;
     const { error } = await db.from('partner').delete().eq('id', val.id);
     if (error) return toast(error.message, 'error');
     if (val.logo && !/^https?:/.test(val.logo)) await db.storage.from('media').remove([val.logo]);

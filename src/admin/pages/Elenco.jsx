@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db, scaricaCsv } from '../client.js';
-import { Field, Modal, Page, Table, useRows, useToast } from '../ui.jsx';
+import { Field, Modal, Page, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
 // Shared view for the tables filled by the site forms: filters, search, detail with status and notes, CSV, delete.
 // conf: { tabella, titolo, sottotitolo, stati?, filtri?: [{ key, label, options }], cerca: [keys], colonne, dettaglio: [{key,label,render?}], csv }
@@ -35,6 +35,7 @@ function Dettaglio({ conf, r, onClose, onDone }) {
   const [note, setNote] = useState(r.note || '');
   const [busy, setBusy] = useState(false);
   const toast = useToast();
+  const conferma = useConfirm();
   const salva = async () => {
     setBusy(true);
     const { error } = await db.from(conf.tabella).update({ stato, note: note.trim() || null }).eq('id', r.id);
@@ -43,7 +44,7 @@ function Dettaglio({ conf, r, onClose, onDone }) {
     toast('Salvato.'); onDone();
   };
   const elimina = async () => {
-    if (!confirm('Eliminare definitivamente questo elemento? L’operazione non si può annullare.')) return;
+    if (!(await conferma('Eliminare definitivamente questo elemento? L’operazione non si può annullare.'))) return;
     const { error } = await db.from(conf.tabella).delete().eq('id', r.id);
     if (error) return toast(error.message, 'error');
     toast('Eliminato.'); onDone();
