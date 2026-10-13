@@ -80,7 +80,7 @@ export default class Site extends React.Component {
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
     flow: 0, renderTab: 0, ph: REDUCED ? 6 : 0, barHidden: true, heroP: 0,
-    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
+    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, contatto: false, copiato: false, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
     const r = currentRoute();
@@ -598,6 +598,10 @@ export default class Site extends React.Component {
         return out;
       }, []),
       kitVuoto: st.kitPronto && !st.presskit.length,
+      contatto: st.contatto, copiato: st.copiato,
+      apriContatto: () => this.setState({ contatto: true, copiato: false }),
+      chiudiContatto: () => this.setState({ contatto: false }),
+      copiaEmail: () => { const ok = () => this.setState({ copiato: true }); navigator.clipboard ? navigator.clipboard.writeText('info@bsgsrl.it').then(ok, ok) : ok(); },
       vaiAlKit: () => { const el = document.getElementById('presskit'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: REDUCED ? 'auto' : 'smooth' }); },
       press, pressSent: st.pressSent, pressOpen: !st.pressSent,
       pressFields: mkFields([['nome', 'Nome e cognome', 'text', 'name', ''], ['testata', 'Testata', 'text', 'organization', ''], ['email', 'Email', 'email', 'email', 'nome@testata.it'], ['ruolo', 'Ruolo', 'text', 'organization-title', 'Giornalista, redattore…']], press, pErrors, this.setPress),
@@ -2817,15 +2821,33 @@ Site.prototype.render = function render() {
                   </span>
                 </a>
                 {" "}
-                <a className="sqh-17" href="mailto:info@bsgsrl.it?subject=Partnership%20Squisitus" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 26px", border: "1.5px solid #fff", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s" }}>
+                <button type="button" className="sqh-17" onClick={$v.apriContatto} aria-haspopup="dialog" style={{ background: "transparent", cursor: "pointer", font: "inherit", display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 26px", border: "1.5px solid #fff", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s" }}>
                   {"Scrivici"}
-                </a>
+                </button>
                 {" "}
               </div>
               {" "}
             </div>
           </section>
         </>) : null}
+        {$v.contatto ? (
+          <div role="dialog" aria-modal="true" aria-label="Scrivici" onMouseDown={e => e.target === e.currentTarget && $v.chiudiContatto()} onKeyDown={e => e.key === 'Escape' && $v.chiudiContatto()}
+            style={{ position: "fixed", inset: "0", zIndex: "90", background: "rgba(28,23,20,.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+            <div style={{ position: "relative", width: "min(480px,100%)", background: "#fff", color: "#3C3C3B", borderRadius: "10px", padding: "clamp(24px,4vw,36px)", display: "flex", flexDirection: "column", gap: "16px", boxShadow: "0 30px 80px rgba(0,0,0,.35)" }}>
+              <button type="button" onClick={$v.chiudiContatto} aria-label="Chiudi" autoFocus style={{ position: "absolute", top: "12px", right: "12px", width: "40px", height: "40px", borderRadius: "999px", border: "1px solid #E3E3E3", background: "#fff", cursor: "pointer", fontSize: "18px" }}>{"✕"}</button>
+              <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B", fontWeight: "700" }}>{"Scrivici"}</span>
+              <p style={{ margin: "0", fontSize: "16px", lineHeight: "1.55" }}>{"Per partnership, sponsorship e informazioni sul Salotto Squisitus on the road scrivi a:"}</p>
+              <a href="mailto:info@bsgsrl.it?subject=Partnership%20Squisitus" style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "clamp(22px,4vw,28px)", color: "#A5143B", letterSpacing: ".02em", wordBreak: "break-all" }}>{"info@bsgsrl.it"}</a>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                <a href="mailto:info@bsgsrl.it?subject=Partnership%20Squisitus" style={{ display: "inline-flex", alignItems: "center", minHeight: "48px", padding: "0 22px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase" }}>{"Apri l'email"}</a>
+                <button type="button" onClick={$v.copiaEmail} style={{ display: "inline-flex", alignItems: "center", minHeight: "48px", padding: "0 22px", border: "1.5px solid #3C3C3B", background: "#fff", color: "#3C3C3B", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", cursor: "pointer" }}>{$v.copiato ? "Copiato ✓" : "Copia indirizzo"}</button>
+              </div>
+              <p style={{ margin: "4px 0 0", paddingTop: "14px", borderTop: "1px solid #E3E3E3", fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>
+                {"Oppure compila il modulo "}<a href="sali-a-bordo/sponsor/" onClick={$v.chiudiContatto} style={{ color: "#A5143B", textDecoration: "underline" }}>{"Sali a bordo"}</a>{": ti ricontattiamo noi."}
+              </p>
+            </div>
+          </div>
+        ) : null}
         {$v.isPress ? (<>
           <section data-screen-label="P5 Area Press" style={{ background: "#3C3C3B", color: "#fff", padding: "170px clamp(20px,4vw,48px) clamp(80px,10vw,130px)" }}>
             {" "}
