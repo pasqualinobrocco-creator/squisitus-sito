@@ -4,6 +4,7 @@
 import React from 'react';
 import { saveForm, loadContent, mediaUrl } from './supabase.js';
 import { avviaAnalytics, fermaAnalytics, tracciaPagina } from './analytics.js';
+import { ROUTES, SITE_URL, routeFor, hrefFor, urlOf } from './routes.js';
 
 const I = {
   territori: "M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0",
@@ -18,6 +19,26 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // iubenda (sito 4718486): pagine pubbliche della Privacy e della Cookie Policy
 const PRIVACY_URL = 'https://www.iubenda.com/privacy-policy/63043067';
 const COOKIE_URL = 'https://www.iubenda.com/privacy-policy/63043067/cookie-policy';
+const BASE = import.meta.env.BASE_URL; // '/' on squisitus.it, '/squisitus-sito/' on the GitHub Pages preview
+// Current route from the address bar; old #/ links are rewritten to the new addresses.
+function currentRoute() {
+  if (/^#\/./.test(location.hash)) {
+    const r = routeFor(location.hash.slice(2));
+    history.replaceState(null, '', BASE + (r ? urlOf(r) : ''));
+  }
+  const rel = location.pathname.startsWith(BASE) ? location.pathname.slice(BASE.length) : '';
+  return routeFor(rel) || ROUTES[0];
+}
+// Title, description and canonical of the page (the static HTML already has them; this keeps them right while navigating).
+function applicaMeta(r) {
+  document.title = r.title;
+  const set = (sel, attr, val) => { const el = document.head.querySelector(sel); if (el) el.setAttribute(attr, val); };
+  set('meta[name="description"]', 'content', r.description);
+  set('link[rel="canonical"]', 'href', SITE_URL + '/' + urlOf(r));
+  set('meta[property="og:title"]', 'content', r.title);
+  set('meta[property="og:description"]', 'content', r.description);
+  set('meta[property="og:url"]', 'content', SITE_URL + '/' + urlOf(r));
+}
 const SEND_ERR = 'Invio non riuscito. Controlla la connessione e riprova.';
 // Shown until (or if not) the articles arrive from Supabase.
 const DEFAULT_ARTICOLI = [
@@ -27,7 +48,6 @@ const DEFAULT_ARTICOLI = [
 ];
 const LIVELLI = [['Platinum', 'Platinum Partner', '220px', '110px'], ['Main', 'Main Partner', '160px', '90px'], ['Official', 'Official Partner', '120px', '72px'], ['Technical', 'Technical Partner', '100px', '60px']];
 const fmtData = d => d ? d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4) : '';
-const PAGES = ['home', 'bsg', 'sali-a-bordo', 'dicono-di-noi', 'salotto', 'press'];
 const RING = "<g>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M389,182.6c6.65,8.64,9.57,18.82,8.68,30.34-.87,11.4-5.34,21.01-13.29,28.63,3.66,10.28,3.31,20.87-1.07,31.52-4.39,10.64-11.64,18.43-21.62,23.21.26,11.03-3.38,21-10.87,29.71-7.44,8.68-16.7,13.8-27.56,15.26-3.12,10.57-9.68,18.97-19.54,24.99-7.31,4.46-15.05,6.72-23.01,6.72-2.6,0-5.25-.25-7.9-.72-6.28,9.08-15.11,15.01-26.29,17.65-3.72.87-7.4,1.32-10.98,1.32-7.1,0-13.92-1.75-20.31-5.19-7.69,5.87-16.55,8.83-26.39,8.83-1.27,0-2.58-.05-3.89-.15-11.42-.88-21.05-5.35-28.69-13.29-4.68,1.66-9.46,2.49-14.24,2.49-5.75,0-11.58-1.21-17.35-3.59-10.59-4.38-18.35-11.62-23.13-21.56-.36,0-.71,0-1.06,0-10.54,0-20.16-3.64-28.58-10.83-8.74-7.46-13.89-16.74-15.35-27.63-10.54-3.12-18.93-9.66-24.94-19.49-5.96-9.72-7.97-20.11-6.01-30.96-9.06-6.23-15-15.04-17.66-26.23-2.66-11.16-1.38-21.66,3.82-31.29-6.4-8.29-9.53-19.12-8.67-30.33.86-11.26,5.65-21.53,13.29-28.78-3.64-10.27-3.27-20.85,1.13-31.5,4.38-10.6,11.63-18.37,21.59-23.15-.26-11.05,3.4-21.03,10.91-29.76,7.43-8.64,16.64-13.74,27.39-15.19,5.22-18.07,23.33-31.68,43.1-31.68,2.51,0,5.02.22,7.49.66,6.16-9,14.96-14.92,26.19-17.62,3.73-.89,7.44-1.35,11.05-1.35,7.11,0,13.93,1.76,20.33,5.22,7.67-5.88,16.53-8.85,26.37-8.85,1.32,0,2.68.06,4.03.17,11.41.9,21,5.37,28.58,13.29,4.68-1.65,9.46-2.48,14.24-2.48,5.74,0,11.56,1.2,17.31,3.57,10.62,4.38,18.39,11.63,23.18,21.6.37,0,.72,0,1.08,0,10.57,0,20.19,3.65,28.61,10.86,8.68,7.44,13.81,16.69,15.27,27.56,10.52,3.1,18.89,9.63,24.92,19.44,5.97,9.71,8,20.12,6.05,31.01,9.02,6.19,14.95,14.98,17.64,26.16,2.69,11.18,1.39,21.73-3.84,31.42ZM392.15,212.52c.85-11.16-2.3-21.07-9.96-29.36,6.25-9.52,7.86-19.78,5.25-30.68-2.62-10.9-8.73-19.31-18.52-24.83,2.93-10.99,1.33-21.23-4.51-30.73-5.86-9.53-14.26-15.66-25.36-17.92-.54-11.3-5.23-20.52-13.72-27.78-7.32-6.27-15.64-9.52-24.98-9.52-1.52,0-3.07.08-4.64.26-4.03-10.63-11.37-17.99-21.75-22.26-5.05-2.08-10.12-3.16-15.19-3.16s-10.58,1.17-15.83,3.54c-7.08-8.81-16.32-13.49-27.42-14.37-1.21-.1-2.41-.14-3.59-.14-9.71,0-18.38,3.27-25.84,10.08-6.58-4.35-13.56-6.46-20.86-6.46-3.19,0-6.44.4-9.75,1.19-10.88,2.62-19.34,8.67-24.86,18.51-3.38-.94-6.78-1.39-10.12-1.39-18.76,0-35.65,14.01-38.59,31.3-11.19.51-20.41,5.19-27.69,13.65-7.32,8.51-10.54,18.38-9.31,29.68-10.6,4.02-17.99,11.36-22.26,21.72-4.27,10.34-4.32,20.74.39,31.01-17.38,13.23-19.52,41.25-4.44,56.9-6.21,9.42-7.85,19.67-5.25,30.58,2.6,10.91,8.7,19.32,18.53,24.9-2.93,10.93-1.34,21.17,4.48,30.68,5.85,9.54,14.24,15.69,25.39,17.96.53,11.31,5.24,20.57,13.78,27.84,7.33,6.25,15.65,9.5,24.96,9.5,1.51,0,3.05-.09,4.62-.26,4.05,10.64,11.38,17.97,21.7,22.23,5.06,2.09,10.14,3.17,15.23,3.17s10.56-1.16,15.81-3.55c7.13,8.79,16.36,13.51,27.55,14.37,1.17.09,2.32.13,3.46.13,9.77,0,18.43-3.31,25.86-10.05,6.6,4.33,13.56,6.41,20.84,6.41,3.18,0,6.4-.4,9.7-1.17,10.93-2.58,19.33-8.67,24.96-18.53,3.57.97,7.08,1.46,10.51,1.46,7.02,0,13.74-2.01,20.12-5.91,9.55-5.84,15.72-14.22,18-25.42,11.31-.54,20.52-5.23,27.78-13.7,7.32-8.52,10.51-18.41,9.28-29.65,10.67-4.04,18.02-11.41,22.28-21.77,4.25-10.33,4.28-20.74-.43-30.98,8.84-7.13,13.54-16.36,14.39-27.48Z\"/>\n    <path class=\"cls-4\" fill=\"#E3E3E3\" d=\"M387.78,203.34c-1.24-7.12-4.32-13.27-9.61-18.24-7.68-7.25-16.05-13.6-25.02-19.17-.93-.59-1.9-1.11-2.88-1.69-.17.21-.31.33-.4.49-.67,1.26-1.39,2.51-2,3.81-3.45,7.38-4.47,15.05-2.48,23.02,1.6,6.41,4.89,11.89,9.36,16.67,7.75,8.3,14.5,17.35,20.32,27.1.18.31.4.58.66.94.58-.48,1.09-.86,1.57-1.3,3.43-3.15,6.12-6.83,7.97-11.11,2.85-6.59,3.75-13.43,2.51-20.53Z\"/>\n    <path class=\"cls-8\" fill=\"#106B30\" d=\"M383.56,153.45c-2.61-10.47-8.54-18.37-18.48-23.01-8.67-4.04-17.64-7.21-26.9-9.6-1.78-.46-3.58-.83-5.52-1.28-.15.5-.26.8-.32,1.11-.89,4.3-1.14,8.63-.6,12.99.79,6.28,3.24,11.86,7.21,16.75,3.26,4.02,7.26,7.14,11.76,9.64,8.41,4.68,16.32,10.08,23.7,16.25,1.53,1.27,3.05,2.55,4.72,3.95.54-.89,1.06-1.69,1.5-2.54,4.07-7.71,5.02-15.85,2.92-24.27Z\"/>\n    <path class=\"cls-9\" fill=\"#D8476C\" d=\"M372.93,239.86c-5.04-8.9-10.83-17.28-17.47-25.06-.74-.88-1.51-1.75-2.28-2.64-3.24,2.61-5.81,5.63-7.95,9.02-3.31,5.26-5.04,10.99-5.14,17.22-.09,5.96,1.31,11.58,3.8,16.94,4.4,9.44,7.82,19.21,10.24,29.33.3,1.25.61,2.49.93,3.81.38-.11.65-.16.89-.26,2.59-1.03,5.04-2.33,7.26-4.05,8.02-6.23,12.58-14.45,13.77-24.52.83-7.04-.56-13.64-4.05-19.8Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M358.77,95.77c5.02,6.49,7.55,13.86,7.52,22.06,0,2.46-.41,4.89-1.04,7.28-.05.21-.14.42-.25.73-1.34-.57-2.61-1.1-3.89-1.62-9.8-4.01-19.91-6.9-30.29-8.99-8.48-1.71-15.73-5.69-21.21-12.53-4.19-5.23-6.48-11.29-7.33-17.91-.08-.65-.14-1.29-.21-1.94,0-.04.03-.08.1-.27.26-.06.6-.18.93-.22,4.79-.44,9.59-.66,14.38-.66,3.86,0,7.73.14,11.59.42,3.5.25,7.05.54,10.47,1.26,7.93,1.67,14.27,5.98,19.22,12.37ZM360.73,117.82c.02-6.98-2.05-13.08-6.36-18.65-4.33-5.6-9.55-8.97-15.96-10.32-3.1-.66-6.36-.92-9.72-1.16-3.75-.26-7.52-.4-11.21-.4-3.04,0-6.07.09-9.08.27,1.01,4.46,2.84,8.31,5.55,11.68,4.46,5.57,10.33,9.02,17.97,10.55,10.38,2.09,19.83,4.81,28.8,8.3,0-.09,0-.18,0-.27Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M351.49,291.86c1.59,8.25-.05,15.97-4.4,23.08-5.42,8.87-13.21,14.5-23.48,16.53-1.34.27-2.73.33-4.22.5.2-3.31.38-6.3.55-9.31.34-6.3.19-12.61-.32-18.9-.3-3.79-.86-7.57-.92-11.35-.2-14.71,6.35-25.47,19.31-32.37.97-.52,2-.93,3.08-1.44.22.46.41.82.57,1.19,4.5,10.32,7.72,21.03,9.85,32.08ZM342.36,312.04c3.76-6.15,4.96-12.42,3.67-19.14-1.78-9.27-4.37-18.21-7.71-26.65-9.62,5.93-14.22,14.48-14.06,26.06.03,2.24.28,4.56.53,6.99.14,1.3.28,2.65.39,4,.56,6.96.66,13.38.32,19.64-.05.79-.09,1.59-.14,2.38,7.25-2.08,12.82-6.45,17.01-13.29Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M350.56,209.39c-.34.27-.73.51-1.07.82-2.95,2.77-5.64,5.76-7.79,9.21-3.96,6.37-5.83,13.25-5.52,20.76.2,4.68,1.25,9.16,2.87,13.54.16.43.31.85.48,1.34-17.47,7.67-25.69,21.01-24.66,40.13-19,2-30.9,12.1-35.81,30.59-.51-.08-1.03-.14-1.56-.24-3.07-.63-6.12-.97-9.16-.97-4.11,0-8.2.63-12.23,2.03-7.47,2.59-13.35,7.33-18.02,13.64-.85,1.15-1.65,2.34-2.52,3.58-7.3-4.26-14.43-6.4-21.43-6.4-8.78,0-17.35,3.38-25.71,10.2-.25-.36-.45-.72-.72-1.02-2.77-2.96-5.74-5.66-9.19-7.82-5.94-3.71-12.35-5.61-19.33-5.61-.24,0-.48,0-.72,0-4.97.09-9.72,1.19-14.36,2.89-.39.15-.77.31-1.3.53-.22-.46-.45-.89-.65-1.34-2.58-5.81-6.13-10.91-11.04-14.99-4.72-3.94-10.13-6.44-16.17-7.63-2.89-.58-5.8-.83-8.72-.83-.91,0-1.84.03-2.76.08h-.79c-.18-1.22-.34-2.4-.53-3.58-.57-3.68-1.53-7.25-3.05-10.66-3.72-8.44-9.85-14.48-18.14-18.39-2.6-1.22-5.28-2.24-8.1-2.88-.26-.06-.51-.19-.82-.3,3.98-18.62-1.94-33.13-18.06-43.49,4.47-7.4,7.01-15.35,6.34-24.05-.67-8.73-4.36-16.2-10.03-22.93,6.53-5.74,11.4-12.48,13.44-20.99,2.01-8.48.79-16.66-2.46-24.79.49-.23.96-.47,1.45-.68,5.44-2.44,10.26-5.75,14.22-10.24,4.57-5.17,7.32-11.21,8.49-18,.53-2.99.64-5.99.58-9.01-.02-.68,0-1.38,0-2.16,1.37-.22,2.73-.42,4.08-.64,5.99-.97,11.54-3.04,16.52-6.55,5.32-3.75,9.25-8.66,12-14.52,1.34-2.86,2.38-5.82,3.14-9.01,3.63.82,7.24,1.28,10.81,1.28,4.74,0,9.44-.82,14.05-2.73,8.07-3.33,13.98-9.12,18.61-16.53.51.26.94.48,1.37.72,4.31,2.43,8.83,4.27,13.74,5.1,2.15.37,4.3.56,6.41.56,4.41,0,8.73-.8,12.97-2.46,4.2-1.64,7.95-3.97,11.46-6.74.33-.26.66-.51,1.1-.85.34.37.67.73,1.01,1.09,3.98,4.3,8.5,7.88,13.9,10.24,4.7,2.05,9.5,3.06,14.37,3.06,3.16,0,6.34-.42,9.56-1.24,1.97-.5,3.89-1.19,5.84-1.8.34-.11.67-.23,1.09-.37,7.26,16.42,19.49,24.69,36.85,24.69,1.07,0,2.15-.03,3.27-.09.19,1.33.36,2.6.56,3.87,1.02,6.37,3.23,12.27,7.1,17.48,3.66,4.94,8.35,8.65,13.92,11.25,2.73,1.28,5.54,2.35,8.49,3.04.18.04.34.12.6.23-3.99,18.58,1.9,33.1,18.02,43.45-9.62,16.48-8.44,32.13,3.76,47.13ZM336.98,216.49c1.66-2.66,3.64-5.19,6.12-7.78-9.76-14.22-10.93-29.23-3.51-44.71-6.76-5.19-11.61-11.31-14.48-18.25-2.84-6.89-3.72-14.63-2.64-23.05-1.66-.59-3.36-1.28-5.13-2.11-6.5-3.04-11.89-7.4-16.02-12.96-4.01-5.41-6.69-11.81-7.97-19.04-17.19-.44-30.02-8.32-38.19-23.45-.87.28-1.78.54-2.7.77-3.67.93-7.35,1.41-10.93,1.41-5.68,0-11.27-1.19-16.61-3.52-4.74-2.07-9.11-5.05-13.26-9.03-3.28,2.28-6.56,4.05-9.96,5.38-4.83,1.89-9.88,2.84-15,2.84-2.41,0-4.88-.22-7.35-.64-4.14-.7-8.23-2.05-12.39-4.09-5.09,6.75-11.1,11.49-18.26,14.45-5.06,2.09-10.51,3.15-16.18,3.15-2.25,0-4.53-.15-6.87-.48-.6,1.69-1.27,3.34-2.04,5-3.23,6.9-7.88,12.52-13.83,16.71-5.27,3.71-11.4,6.2-18.24,7.39-.04,2.7-.26,5.09-.66,7.37-1.38,7.95-4.67,14.92-9.8,20.72-3.54,4.01-7.89,7.39-12.95,10.08,2.45,8.08,2.77,15.72.97,23.25-1.78,7.47-5.52,14.14-11.38,20.27,4.86,6.92,7.52,14.13,8.12,21.94.6,7.71-.92,15.22-4.63,22.79,6.74,5.18,11.59,11.3,14.45,18.21,2.86,6.9,3.74,14.64,2.66,23.07,1.62.56,3.27,1.24,4.99,2.05,9.65,4.55,16.67,11.66,20.86,21.17,1.49,3.37,2.56,6.94,3.26,10.87,2.94.06,5.82.37,8.59.91,7.02,1.39,13.29,4.36,18.64,8.82,4.41,3.67,8.09,8.27,10.97,13.71,4.4-1.32,8.6-2,12.72-2.08.28,0,.55,0,.82,0,7.94,0,15.43,2.17,22.27,6.46,2.63,1.65,5.12,3.61,7.68,6.07,8.05-5.5,16.44-8.29,24.99-8.29,6.47,0,13.08,1.61,19.71,4.76,5.52-7.34,12.4-12.49,20.44-15.28,4.47-1.56,9.19-2.34,14.05-2.34,2.21,0,4.51.17,6.84.5,5.73-16.19,17.16-25.96,34.07-29.11.24-8.55,2.34-16.08,6.27-22.47,3.92-6.38,9.68-11.64,17.15-15.7-1.21-4.02-1.89-7.91-2.04-11.81-.36-8.54,1.78-16.59,6.35-23.93Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M334.79,76.83c.04.5,0,1,0,1.62-.26,0-.5,0-.72,0-.13,0-.26,0-.39,0-4.97-.45-9.94-.71-14.92-.71-1.51,0-3.02.02-4.54.07-5.1.18-10.17.65-15.25,1.18-1.55.16-3.09.25-4.62.25-5.8,0-11.39-1.23-16.68-4.06-7.56-4.03-12.63-10.31-15.96-18.09-.04-.08-.02-.18-.03-.56,3.53-1.36,7.05-2.79,10.61-4.07,7.46-2.69,15.11-4.76,22.91-6.18,1.9-.34,3.78-.51,5.65-.51,4.71,0,9.3,1.08,13.72,3.19,8.06,3.83,13.98,9.82,17.63,17.97,1.41,3.16,2.23,6.48,2.58,9.92ZM328.32,72.47c-.33-1.13-.72-2.22-1.19-3.28-3.11-6.94-8-11.92-14.95-15.23-3.69-1.76-7.5-2.64-11.33-2.64-1.53,0-3.1.14-4.67.42-7.35,1.34-14.76,3.34-22.01,5.94-1.66.6-3.34,1.24-4.99,1.89,2.84,4.72,6.5,8.26,11.11,10.71,4.28,2.29,8.87,3.4,14.05,3.4,1.31,0,2.66-.08,4.03-.22,4.61-.49,10.05-1.01,15.64-1.2,1.54-.06,3.13-.08,4.72-.08,3.08,0,6.24.09,9.57.29Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M315.62,301.83c.64,8.48.68,16.96-.02,25.44-.27,3.23-.53,6.49-1.23,9.65-1.89,8.37-6.61,14.92-13.58,19.85-6.11,4.33-12.89,6.55-20.31,6.55-.46,0-.92,0-1.39-.03-2.36-.09-4.69-.47-7.08-1.21.19-.5.36-.96.55-1.42,4.04-9.34,7.1-19.01,9.24-28.95.72-3.35,1.32-6.73,2.57-9.95,4.68-12.08,13.38-19.39,26.05-22,1.57-.32,3.18-.48,4.84-.72.14,1.06.28,1.93.35,2.79ZM310.06,326.8c.57-6.81.65-13.97.23-21.31-10.11,2.42-16.9,8.41-20.73,18.28-.88,2.26-1.41,4.76-1.97,7.42-.12.56-.23,1.12-.36,1.68-1.84,8.55-4.35,16.89-7.46,24.87.24,0,.48,0,.71,0,6.24,0,11.84-1.82,17.09-5.53,6.12-4.34,9.85-9.75,11.36-16.54.6-2.65.83-5.49,1.08-8.51l.04-.39Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M291.12,41.68c.13.33.22.68.36,1.09-2.31.58-4.56,1.1-6.79,1.69-8.84,2.3-17.43,5.33-25.72,9.2-3.96,1.86-8.08,3.24-12.43,3.8-1.61.21-3.19.31-4.75.31-6.23,0-12.11-1.67-17.6-5.12-3.81-2.4-7-5.26-9.08-8.06,2.54-2.09,5.02-4.19,7.55-6.2,6.62-5.26,13.66-9.92,21.08-13.96,4.7-2.57,9.71-3.79,14.98-3.79.89,0,1.81.03,2.72.1,6.98.55,13.26,2.93,18.85,7.09,4.87,3.61,8.53,8.21,10.83,13.86ZM283.29,39.08c.06,0,.12-.03.18-.05-1.7-2.55-3.85-4.78-6.49-6.75-4.81-3.57-10.03-5.54-15.97-6-.76-.06-1.54-.09-2.28-.09-4.45,0-8.48,1.01-12.32,3.11-7.13,3.89-13.96,8.41-20.28,13.43-.97.77-1.93,1.55-2.9,2.34,1.19,1,2.51,1.98,3.93,2.87,4.56,2.87,9.34,4.27,14.63,4.27,1.32,0,2.67-.09,4.04-.27,3.44-.45,6.97-1.53,10.79-3.32,8.33-3.89,17.3-7.11,26.67-9.55Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M277.82,329.55c.12.05.24.12.5.26-.81,3.17-1.57,6.36-2.46,9.52-2.16,7.68-4.98,15.13-8.26,22.4-3.65,8.1-9.65,13.74-17.78,17.13-4.41,1.84-8.96,2.78-13.68,2.78-1.05,0-2.11-.05-3.18-.14-4.9-.44-9.42-1.9-13.69-4.27-.45-.25-.86-.54-1.29-.82-.11-.07-.18-.19-.32-.35.72-.85,1.43-1.7,2.14-2.54,6.83-7.99,12.86-16.55,17.96-25.75,2.54-4.6,5.74-8.67,9.86-11.95,5.08-4.06,10.86-6.43,17.36-7.15,1.21-.13,2.42-.19,3.62-.19,2.87,0,5.71.34,8.55.86.23.04.45.12.67.2ZM270.51,337.82c.34-1.19.67-2.42.97-3.64-1-.09-1.96-.13-2.87-.13-1.03,0-2.05.05-3.03.16-5.47.6-10.21,2.55-14.49,5.97-3.33,2.65-6.09,6.02-8.46,10.29-4.56,8.23-10.02,16.26-16.29,23.92,2.3.84,4.66,1.36,7.11,1.58.89.08,1.81.12,2.69.12,3.91,0,7.79-.79,11.53-2.35,6.97-2.91,11.83-7.58,14.85-14.28,3.39-7.54,6.01-14.62,7.98-21.63Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M238.38,21.07c.28.31.51.66.86,1.11-1.16.7-2.2,1.31-3.22,1.95-8.84,5.51-17.13,11.74-24.74,18.87-4.42,4.15-9.45,7.33-15.3,9.05-3.23.95-6.4,1.42-9.55,1.42-5.35,0-10.58-1.34-15.68-3.86-1.19-.59-2.34-1.25-3.61-1.94.75-1.28,1.4-2.44,2.11-3.57,5.21-8.31,11.17-16.05,17.74-23.35,5.2-5.77,11.54-9.44,19.17-10.66,2.24-.37,4.44-.55,6.58-.55,8.83,0,16.79,3.1,23.74,9.49.68.63,1.28,1.35,1.9,2.03ZM230.37,21.14c-5.25-4.06-11.05-6.03-17.63-6.03-1.83,0-3.74.16-5.7.47-6.21,1-11.42,3.92-15.92,8.9-6.07,6.74-11.49,13.78-16.14,20.96,3.84,1.64,7.68,2.47,11.45,2.47,2.63,0,5.31-.4,7.97-1.19,4.69-1.39,8.97-3.93,13.07-7.78,6.82-6.38,14.5-12.36,22.89-17.8Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M233.74,347.23c-1.58,2.5-3.04,4.86-4.56,7.19-4.76,7.28-10.17,14.03-16.07,20.43-4.89,5.3-10.91,8.53-17.95,9.87-2.32.45-4.62.67-6.89.67-5.22,0-10.3-1.16-15.21-3.46-4.12-1.94-7.7-4.63-10.66-8.11-.27-.31-.5-.65-.79-1.03,3.16-2.05,6.22-3.97,9.22-5.99,6.63-4.46,12.84-9.45,18.68-14.91,4.29-4.01,9.14-7.15,14.77-8.88,3.39-1.05,6.75-1.56,10.06-1.56,4.98,0,9.9,1.15,14.71,3.36,1.54.71,3.02,1.57,4.67,2.43ZM224.54,351.37c.42-.65.83-1.29,1.25-1.95-3.81-1.62-7.65-2.43-11.43-2.43-2.77,0-5.61.44-8.42,1.31-4.47,1.38-8.6,3.88-12.62,7.63-6.19,5.79-12.71,10.99-19.38,15.46-1.19.79-2.39,1.58-3.59,2.36,1.56,1.21,3.26,2.25,5.08,3.12,4.16,1.95,8.49,2.94,12.85,2.94,1.92,0,3.88-.19,5.85-.57,6.01-1.14,10.88-3.82,14.91-8.18,6.01-6.52,11.09-12.96,15.5-19.7Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M185.65,350.16c-.6.55-1.17,1.12-1.79,1.65-7.93,6.82-16.44,12.82-25.55,17.98-2.14,1.21-4.34,2.27-6.7,2.99-3.35,1.02-6.67,1.52-9.95,1.52-5.09,0-10.07-1.19-14.94-3.48-7.74-3.64-13.54-9.31-16.91-17.29-.18-.41-.32-.84-.53-1.39,1.12-.28,2.13-.56,3.16-.79,10.31-2.4,20.26-5.84,29.86-10.32,3.67-1.72,7.49-2.97,11.5-3.53,1.75-.25,3.46-.37,5.16-.37,6.55,0,12.7,1.86,18.41,5.64,3.08,2.04,5.81,4.47,8.27,7.41ZM177.57,349.84c-1.03-.88-2.1-1.7-3.26-2.46-4.79-3.18-9.81-4.71-15.35-4.71-1.43,0-2.9.1-4.39.31-3.26.47-6.5,1.47-9.93,3.07-8.74,4.09-17.92,7.38-27.33,9.82,2.78,4.26,6.67,7.52,11.76,9.93,4.17,1.96,8.4,2.95,12.58,2.95,2.74,0,5.55-.43,8.33-1.27,1.68-.52,3.44-1.31,5.59-2.52,7.68-4.34,15.07-9.41,21.99-15.1Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M183.26,18.67c-1,1.18-1.9,2.24-2.79,3.3-6.61,7.8-12.46,16.15-17.42,25.1-2.66,4.8-6.01,9.04-10.39,12.39-6.08,4.66-12.91,6.93-20.44,6.93-.72,0-1.46-.02-2.19-.06-2.46-.14-4.87-.46-7.41-1.03.06-.49.08-.93.18-1.36,2.43-10.8,5.97-21.23,10.65-31.26,4.69-10.02,12.71-15.96,23.33-18.48,2.77-.66,5.51-.99,8.22-.99,5.01,0,9.92,1.14,14.67,3.47,1.2.59,2.33,1.29,3.6,2ZM158.19,44.38c4.58-8.26,10.04-16.29,16.28-23.89-3.09-1.15-6.26-1.73-9.48-1.73-2.25,0-4.59.29-6.93.84-9.36,2.22-15.76,7.27-19.57,15.42-3.82,8.18-6.91,16.78-9.19,25.67.35.03.69.06,1.05.08.63.03,1.26.05,1.88.05,6.38,0,11.97-1.89,17.07-5.79,3.48-2.66,6.39-6.14,8.89-10.66Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M138.92,337.43c.1.21.16.43.27.7-.36.18-.67.37-1.01.51-10.7,4.65-21.8,8.02-33.27,10.07-1.72.31-3.42.46-5.11.46-4.31,0-8.51-.97-12.55-2.8-10.75-4.84-17.81-12.89-20.61-24.48-.42-1.74-.72-3.51-.67-5.38.48,0,.9-.02,1.31-.02.24,0,.48,0,.7.03,4.41.42,8.82.62,13.24.62,2.11,0,4.23-.05,6.35-.13,4.3-.17,8.6-.55,12.87-1.01,1.91-.21,3.79-.33,5.67-.33,5.01,0,9.91.82,14.64,2.89,7.67,3.34,13.15,9,16.97,16.36.43.82.79,1.68,1.18,2.51ZM131.62,335.35c-3.31-5.47-7.6-9.31-13.07-11.69-3.75-1.63-7.81-2.42-12.42-2.42-1.6,0-3.3.1-5.05.29-4.89.55-9.23.88-13.27,1.04-2.22.09-4.43.14-6.57.14-2.94,0-5.85-.09-8.68-.26,2.6,8.7,8.18,14.89,16.99,18.87,3.38,1.53,6.83,2.3,10.25,2.3,1.37,0,2.76-.13,4.13-.38,9.41-1.68,18.7-4.33,27.69-7.89Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M127.95,32.54c.26.07.5.2.83.34-.54,1.29-1.04,2.52-1.55,3.75-3.99,9.72-6.91,19.75-8.95,30.05-1.73,8.68-5.74,16.13-12.78,21.7-5.1,4.02-10.97,6.29-17.4,7.13-.82.11-1.64.2-2.64.33-.18-2.22-.37-4.21-.49-6.19-.4-6.48-.39-12.97.07-19.45.23-3.15.54-6.28.89-9.42.51-4.6,2.1-8.83,4.59-12.7,4.99-7.78,12.04-12.87,20.93-15.34,2.86-.78,5.73-1.18,8.61-1.18,2.63,0,5.26.33,7.89.99ZM121.05,37.12c-.33-.02-.67-.02-.99-.02-2.35,0-4.75.33-7.13.98-7.69,2.13-13.5,6.37-17.74,12.98-2.08,3.24-3.34,6.71-3.74,10.31-.4,3.61-.67,6.53-.86,9.19-.44,6.05-.46,12.36-.07,18.73,0,.05,0,.1,0,.14,4.36-.97,8.15-2.77,11.52-5.43,5.68-4.48,9.2-10.5,10.77-18.41,1.99-9.98,4.75-19.54,8.23-28.48Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M97.95,306.75c.4,1.79.59,3.62.9,5.64-2.35.18-4.52.38-6.67.52-2.97.19-5.95.29-8.91.29s-6.11-.1-9.17-.31c-4.53-.29-9.09-.46-13.52-1.53-7.93-1.93-14.21-6.37-19.05-12.9-4.48-6.02-6.8-12.81-7.03-20.3-.09-3.03.39-6,1.24-9.11.98.39,1.8.69,2.59,1.04,9.32,3.95,18.95,6.93,28.86,8.96,3.73.76,7.42,1.62,10.91,3.18,10.74,4.83,17.27,13.08,19.84,24.53ZM91.83,307.36c.18,0,.37-.02.55-.03-2.3-9.51-7.72-16.06-16.55-20.03-3.06-1.37-6.49-2.14-9.74-2.81-8.9-1.82-17.64-4.4-26.02-7.69,0,.4,0,.79,0,1.19.19,6.42,2.13,12.03,5.94,17.16,4.23,5.7,9.43,9.24,15.89,10.81,3.37.81,6.97,1.04,10.78,1.27.6.04,1.2.08,1.8.12,2.93.19,5.89.29,8.8.29s5.72-.1,8.56-.28Z\"/>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M81.99,99.3c.81,9.61-1.19,18.45-7.32,26.09-3.81,4.76-8.69,8.15-14.26,10.58-.12.06-.26.11-.39.14-.03,0-.07,0-.12,0h-.45c-1.4-3.68-2.87-7.33-4.19-11.03-2.52-7.03-4.39-14.23-5.87-21.56-1.44-7.13-.56-13.96,2.61-20.44,4.81-9.87,12.47-16.44,23.18-19.22,1.83-.48,3.74-.61,5.62-.88.02,0,.05,0,.07,0,.15,0,.32.06.57.1-.11,1.37-.21,2.69-.3,4.01-.44,6.25-.67,12.51-.28,18.76.29,4.49.73,8.96,1.12,13.44ZM70.34,121.92c4.86-6.07,6.87-13.32,6.11-22.14-.11-1.3-.23-2.59-.35-3.89-.28-3.16-.58-6.42-.77-9.67-.32-4.95-.29-10.16.08-16.63-8.35,2.48-14.37,7.7-18.4,15.95-2.65,5.42-3.35,10.95-2.15,16.89,1.55,7.69,3.39,14.49,5.65,20.79.65,1.8,1.34,3.62,2.03,5.43,3.11-1.88,5.69-4.1,7.8-6.74Z\"/>\n    <path class=\"cls-9\" fill=\"#D8476C\" d=\"M62.29,245.01c-3.29-4.24-7.4-7.51-12.08-10.11-7.19-4-14.03-8.52-20.48-13.63-2.69-2.12-5.31-4.34-8.07-6.6-.42.67-.86,1.3-1.23,1.99-5.08,9.38-5.55,19.12-1.9,29.02,3.27,8.85,9.23,15.27,17.94,19.14,9.51,4.22,19.26,7.68,29.41,9.99.75.17,1.51.33,2.26.5.12-.35.23-.56.26-.78.25-1.46.53-2.92.68-4.4,1.03-9.25-1.05-17.69-6.8-25.1Z\"/>\n    <path class=\"cls-8\" fill=\"#106B30\" d=\"M57.04,139.83c-3.63-7.79-6.62-15.81-8.92-24.08-.86-3.08-1.6-6.18-2.42-9.41-.38.13-.64.2-.89.31-5.65,2.26-10.26,5.91-13.92,10.74-4.04,5.38-6.43,11.43-7.12,18.15-.65,6.4.37,12.52,3.41,18.17,5.42,10.03,11.97,19.3,19.46,27.89.33.37.67.71,1.04,1.1,4.46-3.78,7.88-8.16,10.21-13.37,1.68-3.77,2.61-7.72,2.79-11.84.27-6.19-1.05-12.08-3.65-17.67Z\"/>\n    <path class=\"cls-4\" fill=\"#E3E3E3\" d=\"M53.21,197.17c-1.9-4.1-4.51-7.66-7.55-10.94-5.37-5.79-10.29-11.93-14.69-18.49-1.99-2.97-3.88-5.99-5.89-9.08-1.97,1.4-3.57,3.07-4.99,4.89-6.57,8.43-8.77,17.95-6.99,28.4,1.13,6.62,3.98,12.47,8.83,17.15,8.33,8.05,17.54,14.99,27.5,20.9.35.21.71.38,1.13.6.18-.23.34-.4.45-.59,1.6-2.83,3-5.74,3.92-8.87,2.41-8.22,1.86-16.19-1.73-23.97Z\"/>\n  </g>";
 const REG = "<path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M366.67,7.23c8.51,0,15.39,6.89,15.39,15.39s-6.89,15.39-15.39,15.39-15.39-6.89-15.39-15.39,6.89-15.39,15.39-15.39ZM379.32,22.63c0-7.14-5.64-12.9-12.66-12.9s-12.65,5.77-12.65,12.9,5.64,12.9,12.65,12.9,12.66-5.77,12.66-12.9ZM360.53,13.71h6.97c3.98,0,6.14,1.7,6.14,5.27,0,3.19-2.12,4.69-4.85,4.98l5.15,7.76h-2.74l-4.98-7.55h-2.95v7.55h-2.74V13.71ZM366.21,21.67c2.49,0,4.69-.12,4.69-2.82,0-2.36-1.99-2.66-3.9-2.66h-3.74v5.48h2.95Z\"/>";
 const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -55,13 +75,25 @@ export default class Site extends React.Component {
     pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], galHover: -1, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
-    const p = location.hash.replace(/^#\/?/, '').split('/');
-    const page = PAGES.includes(p[0]) ? p[0] : 'home';
-    const out = { page };
-    if (page === 'sali-a-bordo' && (p[1] === 'sponsor' || p[1] === 'espositore')) out.path = p[1];
+    const r = currentRoute();
+    const out = { page: r.page };
+    if (r.path) out.path = r.path;
     else if (!this.state || !this.state.path) out.path = 'espositore';
     return out;
   }
+  // Internal links (<a href="un-progetto-bsg">…) change page without reloading.
+  onLinkClick = e => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target || a.hasAttribute('download')) return;
+    const u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || !u.pathname.startsWith(BASE)) return;
+    const rel = u.pathname.slice(BASE.length);
+    if (/\.[a-z0-9]+$/i.test(rel) || !routeFor(rel)) return; // files (pdf, admin.html…) and unknown paths load normally
+    e.preventDefault();
+    if (u.pathname !== location.pathname) history.pushState(null, '', u.pathname);
+    this.onHash();
+  };
   tiltRef = React.createRef();
   heroRef = React.createRef(); stickyRef = React.createRef(); revealRef = React.createRef(); crownRef = React.createRef(); heroTextRef = React.createRef(); nextRef = React.createRef(); crownInnerRef = React.createRef(); crownRootRef = React.createRef();
   buildCrown() {
@@ -300,16 +332,18 @@ export default class Site extends React.Component {
     window.addEventListener('mousemove', this.onMove);
     this.onResize = () => this.setState({ w: window.innerWidth });
     this.onScroll = () => { const s = window.scrollY > 40; if (s !== this.state.scrolled) this.setState({ scrolled: s }); };
-    this.onHash = () => { this.setState({ ...this.parseHash(), menu: false }, () => { requestAnimationFrame(this.updateHero); tracciaPagina(); }); window.scrollTo(0, 0); };
+    this.onHash = () => { this.setState({ ...this.parseHash(), menu: false }, () => { requestAnimationFrame(this.updateHero); applicaMeta(currentRoute()); tracciaPagina(); }); window.scrollTo(0, 0); };
+    applicaMeta(currentRoute());
+    document.addEventListener('click', this.onLinkClick);
     try { if (localStorage.getItem('sq-cookie-choice') === 'all') avviaAnalytics(); } catch (e) {}
     window.addEventListener('resize', this.onResize);
     window.addEventListener('scroll', this.onScroll, { passive: true });
-    window.addEventListener('hashchange', this.onHash);
+    window.addEventListener('popstate', this.onHash);
     this.t = setInterval(() => this.setState({ now: Date.now() }), 1000);
   }
   componentWillUnmount() { this.unmounted = true; window.removeEventListener('scroll', this.rvScroll); this.rvIO && this.rvIO.disconnect();
     window.removeEventListener('resize', this.onResize); window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('hashchange', this.onHash); window.removeEventListener('mousemove', this.onMove); clearInterval(this.t); this.planIO && this.planIO.disconnect(); this.quadIO && this.quadIO.disconnect(); this.routeIO && this.routeIO.disconnect();
+    window.removeEventListener('popstate', this.onHash); document.removeEventListener('click', this.onLinkClick); window.removeEventListener('mousemove', this.onMove); clearInterval(this.t); this.planIO && this.planIO.disconnect(); this.quadIO && this.quadIO.disconnect(); this.routeIO && this.routeIO.disconnect();
     ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(ev => window.removeEventListener(ev, this.onSkip));
     window.removeEventListener('scroll', this.onHeroScroll); window.removeEventListener('resize', this.onHeroScroll); (this.timers || []).forEach(clearTimeout);
   }
@@ -391,8 +425,8 @@ export default class Site extends React.Component {
       headerInk: solid ? '#3C3C3B' : '#fff', headerLine: solid ? '#B9B2A9' : 'rgba(255,255,255,.55)',
       logoWhiteD: solid ? 'none' : 'block', logoColorD: solid ? 'block' : 'none',
       menuOpen: menu, toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
-      nav: navDef.filter(n => n[1] !== 'sali-a-bordo').map(([label, p]) => ({ label, href: '#/' + p, current: page === p ? 'page' : 'false', line: page === p ? '#A5143B' : 'transparent' })),
-      footerNav: navDef.map(([label, p]) => ({ label, href: '#/' + p, current: page === p ? 'page' : 'false', line: page === p ? '#A5143B' : 'transparent' })),
+      nav: navDef.filter(n => n[1] !== 'sali-a-bordo').map(([label, p]) => ({ label, href: hrefFor(p), current: page === p ? 'page' : 'false', line: page === p ? '#A5143B' : 'transparent' })),
+      footerNav: navDef.map(([label, p]) => ({ label, href: hrefFor(p), current: page === p ? 'page' : 'false', line: page === p ? '#A5143B' : 'transparent' })),
       countdown: [{ v: Math.floor(diff / 864e5), l: 'giorni' }, { v: pad(Math.floor(diff / 36e5) % 24), l: 'ore' }, { v: pad(Math.floor(diff / 6e4) % 60), l: 'minuti' }, { v: pad(Math.floor(diff / 1e3) % 60), l: 'secondi' }],
       target: [
         { t: 'Territori', s: 'Città, regioni e borghi che si raccontano attraverso il food.', d: I.territori },
@@ -434,7 +468,7 @@ export default class Site extends React.Component {
       nlLabel: st.sending === 'nl' ? 'Invio…' : 'Iscriviti →', nlBusy: st.sending === 'nl',
       paths: [['espositore', 'Sono un espositore', 'Spazio espositivo indicativo 4×3 / 3×4 m'], ['sponsor', 'Sono uno sponsor', 'Livelli Platinum, Main, Official, Technical']].map(([k, t, s]) => {
         const sel = path === k;
-        return { t, s, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#A5143B' : '#fff', bd: sel ? '#fff' : 'rgba(255,255,255,.45)', dot: sel ? '#A5143B' : 'transparent', on: () => { history.replaceState(null, '', '#/sali-a-bordo/' + k); this.setState({ path: k, errors: {} }); } };
+        return { t, s, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#A5143B' : '#fff', bd: sel ? '#fff' : 'rgba(255,255,255,.45)', dot: sel ? '#A5143B' : 'transparent', on: () => { history.replaceState(null, '', BASE + hrefFor('sali-a-bordo', k)); applicaMeta(currentRoute()); this.setState({ path: k, errors: {} }); } };
       }),
       isExpo: expo, isSponsor: !expo,
       formTitle: expo ? 'Richiesta espositore' : 'Richiesta sponsorship',
@@ -580,7 +614,7 @@ Site.prototype.render = function render() {
           {" "}
           <div className="sq-hdr" data-sq-anim="" style={{ maxWidth: "1320px", margin: "0 auto", padding: "10px clamp(16px,4vw,48px)", display: "flex", alignItems: "center", gap: "clamp(10px,2vw,24px)", minHeight: "76px" }}>
             {" "}
-            <a href="#/" aria-label="Squisitus — homepage" style={{ display: "flex", alignItems: "center", flexShrink: "0" }}>
+            <a href="./" aria-label="Squisitus — homepage" style={{ display: "flex", alignItems: "center", flexShrink: "0" }}>
               <img src="assets/squisitus-logo-h-white.svg" alt="Squisitus" style={{ display: `${$v.logoWhiteD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
               <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" style={{ display: `${$v.logoColorD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
             </a>
@@ -601,7 +635,7 @@ Site.prototype.render = function render() {
                 {" "}
               </nav>
               {" "}
-              <a className="sqh-1" href="#/sali-a-bordo" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "46px", padding: "0 22px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a className="sqh-1" href="sali-a-bordo/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "46px", padding: "0 22px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Sali a bordo "}
                 <span aria-hidden="true">
                   {"→"}
@@ -612,7 +646,7 @@ Site.prototype.render = function render() {
             {" "}
             {$v.isMobile ? (<>
               {" "}
-              <a href="#/sali-a-bordo" style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", minHeight: "44px", padding: "0 14px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a href="sali-a-bordo/" style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", minHeight: "44px", padding: "0 14px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Sali a bordo"}
               </a>
               {" "}
@@ -646,7 +680,7 @@ Site.prototype.render = function render() {
             {" "}
             <nav style={{ display: "flex", flexDirection: "column", marginTop: "28px" }}>
               {" "}
-              <a href="#/" style={{ color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "300", fontSize: "34px", textTransform: "uppercase", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,.18)" }}>
+              <a href="./" style={{ color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "300", fontSize: "34px", textTransform: "uppercase", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,.18)" }}>
                 {"Homepage"}
               </a>
               {" "}
@@ -664,11 +698,11 @@ Site.prototype.render = function render() {
             {" "}
             <div style={{ marginTop: "auto", paddingTop: "28px", display: "flex", flexDirection: "column", gap: "12px" }}>
               {" "}
-              <a href="#/sali-a-bordo/espositore" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "52px", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a href="sali-a-bordo/espositore/" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "52px", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Vuoi esporre? Sali a bordo"}
               </a>
               {" "}
-              <a href="#/sali-a-bordo/sponsor" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "52px", border: "1.5px solid #fff", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a href="sali-a-bordo/sponsor/" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "52px", border: "1.5px solid #fff", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Opportunità di sponsorship"}
               </a>
               {" "}
@@ -709,7 +743,7 @@ Site.prototype.render = function render() {
                 {" "}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                   {" "}
-                  <a className="sqh-2" href="#/salotto" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "0 22px", border: "1.5px solid #fff", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", textDecoration: "none" }}>
+                  <a className="sqh-2" href="salotto-on-the-road/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "0 22px", border: "1.5px solid #fff", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", textDecoration: "none" }}>
                     {"Scopri Squisitus Salotto "}
                     <span aria-hidden="true">
                       {"→"}
@@ -792,14 +826,14 @@ Site.prototype.render = function render() {
                 {" "}
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", opacity: `${$v.o6 ?? ""}`, transform: `translateY(${$v.y6 ?? ""})`, transition: "opacity .7s ease-out, transform .8s cubic-bezier(.22,1,.36,1)", pointerEvents: `${$v.pe6 ?? ""}` }}>
                   {" "}
-                  <a className="sqh-4" href="#/sali-a-bordo/espositore" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px", minHeight: "54px", padding: "0 28px", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", flex: "0 1 auto", whiteSpace: "normal", textAlign: "center", maxWidth: "100%" }}>
+                  <a className="sqh-4" href="sali-a-bordo/espositore/" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px", minHeight: "54px", padding: "0 28px", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", flex: "0 1 auto", whiteSpace: "normal", textAlign: "center", maxWidth: "100%" }}>
                     {"Vuoi esporre? Sali a bordo "}
                     <span aria-hidden="true">
                       {"→"}
                     </span>
                   </a>
                   {" "}
-                  <a className="sqh-5" href="#/sali-a-bordo/sponsor" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: "54px", padding: "0 28px", border: "1.5px solid #fff", background: "transparent", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", flex: "0 1 auto", whiteSpace: "normal", textAlign: "center", maxWidth: "100%" }}>
+                  <a className="sqh-5" href="sali-a-bordo/sponsor/" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: "54px", padding: "0 28px", border: "1.5px solid #fff", background: "transparent", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", flex: "0 1 auto", whiteSpace: "normal", textAlign: "center", maxWidth: "100%" }}>
                     {"Scopri le opportunità di sponsorship"}
                   </a>
                   {" "}
@@ -870,7 +904,7 @@ Site.prototype.render = function render() {
                   {" "}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "6px" }}>
                     {" "}
-                    <a className="sqh-6" href="#/sali-a-bordo/espositore" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "18px", minHeight: "64px", padding: "10px 26px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".1em", textTransform: "uppercase", lineHeight: "1.15", borderRadius: "6px", flex: "1 1 240px", maxWidth: "320px" }}>
+                    <a className="sqh-6" href="sali-a-bordo/espositore/" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "18px", minHeight: "64px", padding: "10px 26px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".1em", textTransform: "uppercase", lineHeight: "1.15", borderRadius: "6px", flex: "1 1 240px", maxWidth: "320px" }}>
                       <span>
                         {"Vuoi esporre?"}
                         <br />
@@ -881,7 +915,7 @@ Site.prototype.render = function render() {
                       </span>
                     </a>
                     {" "}
-                    <a className="sqh-7" href="#/sali-a-bordo/sponsor" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "18px", minHeight: "64px", padding: "10px 26px", border: "1.5px solid #fff", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".1em", textTransform: "uppercase", lineHeight: "1.15", borderRadius: "6px", flex: "1 1 240px", maxWidth: "320px" }}>
+                    <a className="sqh-7" href="sali-a-bordo/sponsor/" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "18px", minHeight: "64px", padding: "10px 26px", border: "1.5px solid #fff", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".1em", textTransform: "uppercase", lineHeight: "1.15", borderRadius: "6px", flex: "1 1 240px", maxWidth: "320px" }}>
                       <span>
                         {"Scopri le opportunità"}
                         <br />
@@ -1427,7 +1461,7 @@ Site.prototype.render = function render() {
                   {"Le realtà che sostengono Squisitus e ne condividono la visione."}
                 </p>
                 {" "}
-                <a className="sqh-4" href="#/sali-a-bordo/sponsor" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 26px", border: "1.5px solid #3C3C3B", color: "#3C3C3B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px" }}>
+                <a className="sqh-4" href="sali-a-bordo/sponsor/" style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 26px", border: "1.5px solid #3C3C3B", color: "#3C3C3B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px" }}>
                   {"Diventa partner →"}
                 </a>
                 {" "}
@@ -2777,7 +2811,7 @@ Site.prototype.render = function render() {
               {" "}
               <div data-rv="" style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                 {" "}
-                <a className="sqh-16" href="#/sali-a-bordo/sponsor" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 30px", background: "#fff", color: "#A5143B", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s, color .3s" }}>
+                <a className="sqh-16" href="sali-a-bordo/sponsor/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 30px", background: "#fff", color: "#A5143B", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s, color .3s" }}>
                   {"Diventa partner "}
                   <span aria-hidden="true">
                     {"→"}
@@ -3055,7 +3089,7 @@ Site.prototype.render = function render() {
               {"Roma · Palazzo dei Congressi"}
             </span>
             {" "}
-            <a href="#/sali-a-bordo/espositore" style={{ minHeight: "44px", padding: "0 18px", display: "flex", alignItems: "center", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase" }}>
+            <a href="sali-a-bordo/espositore/" style={{ minHeight: "44px", padding: "0 18px", display: "flex", alignItems: "center", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase" }}>
               {$v.barCta}
             </a>
             {" "}

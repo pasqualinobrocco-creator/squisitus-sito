@@ -18,7 +18,7 @@ export function avviaAnalytics() {
   loaded = true;
   gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
   gtag('js', new Date());
-  // pages are hash routes (#/salotto…): page views are sent by tracciaPagina
+  // the site changes page without reloading: page views are sent by tracciaPagina
   gtag('config', GA_ID, { send_page_view: false });
   const s = document.createElement('script');
   s.async = true;
@@ -39,6 +39,5 @@ export function fermaAnalytics() {
 
 export function tracciaPagina() {
   if (!GA_ID || !loaded || !consenso) return;
-  const pagina = location.hash.replace(/^#/, '') || '/';
-  gtag('event', 'page_view', { page_title: document.title, page_location: location.origin + location.pathname + '#' + pagina, page_path: pagina });
+  gtag('event', 'page_view', { page_title: document.title, page_location: location.href, page_path: location.pathname });
 }

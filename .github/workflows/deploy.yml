@@ -24,6 +24,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # GitHub Pages preview: site under /squisitus-sito/ and kept out of Google.
+          # On the final domain (www.squisitus.it) build with BASE_PATH=/ and without NOINDEX.
+          BASE_PATH: /squisitus-sito/
+          NOINDEX: 'true'
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

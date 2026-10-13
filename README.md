@@ -44,4 +44,11 @@ Online: `https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html` �
 ## Google Analytics 4
 ID di misurazione in `.env` → `VITE_GA_ID=G-…` (vuoto = Analytics disattivato). Si carica solo dopo “Accetta” nel banner cookie; con “Rifiuta” o revoca del consenso la raccolta si ferma e i cookie `_ga` vengono cancellati. Page view inviate a ogni cambio pagina (`#/…`). Codice: [`src/analytics.js`](src/analytics.js).
 
+## Indirizzi delle pagine e SEO
+Le pagine hanno indirizzi veri (`/un-progetto-bsg/`, `/sali-a-bordo/sponsor/`, `/salotto-on-the-road/`…) definiti in [`src/routes.js`](src/routes.js) con titolo e descrizione per Google. La build genera un HTML statico per pagina (titolo, description, canonical, Open Graph), `404.html`, `sitemap.xml` e `robots.txt`. I vecchi link `#/…` vengono reindirizzati.
+
+- Dominio definitivo: `npm run build` (base `/`), poi pubblica `dist/` alla radice di www.squisitus.it e invia `https://www.squisitus.it/sitemap.xml` in Search Console
+- Anteprima GitHub Pages: il workflow usa `BASE_PATH=/squisitus-sito/` e `NOINDEX=true` (fuori da Google)
+- Il server deve servire `cartella/index.html` per gli indirizzi con la barra finale (GitHub Pages, Netlify, Apache e Nginx lo fanno di default)
+
 Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.
