@@ -60,7 +60,6 @@ const RING = "<g>\n    <path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M389,182.6c6.6
 const REG = "<path class=\"cls-1\" fill=\"#FFFFFF\" d=\"M366.67,7.23c8.51,0,15.39,6.89,15.39,15.39s-6.89,15.39-15.39,15.39-15.39-6.89-15.39-15.39,6.89-15.39,15.39-15.39ZM379.32,22.63c0-7.14-5.64-12.9-12.66-12.9s-12.65,5.77-12.65,12.9,5.64,12.9,12.65,12.9,12.66-5.77,12.66-12.9ZM360.53,13.71h6.97c3.98,0,6.14,1.7,6.14,5.27,0,3.19-2.12,4.69-4.85,4.98l5.15,7.76h-2.74l-4.98-7.55h-2.95v7.55h-2.74V13.71ZM366.21,21.67c2.49,0,4.69-.12,4.69-2.82,0-2.36-1.99-2.66-3.9-2.66h-3.74v5.48h2.95Z\"/>";
 const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 const clamp01 = v => Math.max(0, Math.min(1, v));
-const braidPath = i => { let d = ''; for (let k = 0; k <= 360; k++) { const t = k / 360 * 2 * Math.PI, r = 167 + 19 * Math.sin(11 * t + i * 2 * Math.PI / 3); d += (k ? 'L' : 'M') + (200 + r * Math.cos(t)).toFixed(1) + ' ' + (197 + r * Math.sin(t)).toFixed(1); } return d + 'Z'; };
 
 export default class Site extends React.Component {
   loadA11y() {
@@ -104,18 +103,48 @@ export default class Site extends React.Component {
   };
   tiltRef = React.createRef();
   heroRef = React.createRef(); stickyRef = React.createRef(); revealRef = React.createRef(); crownRef = React.createRef(); heroTextRef = React.createRef(); nextRef = React.createRef(); crownInnerRef = React.createRef(); crownRootRef = React.createRef();
+  // Logo "construction": a point, the construction grid (cross, square, diagonals, diamond),
+  // the circles of the braid, the braid drawn as an outline, then the coloured logo; guides fade out.
+  // Every intro element carries data-sq-intro: skipping (scroll/click) jumps straight to the final logo.
   buildCrown() {
     const h = React.createElement;
-    const cols = ['#F2B8C6', '#106B30', '#E3E3E3'];
-    const strands = cols.map((c, i) => h('g', { key: i, 'data-sq-intro': '', style: { transformBox: 'view-box', transformOrigin: '200px 197px', animation: 'sq-conv' + i + ' 2s cubic-bezier(.22,1,.36,1) ' + (i * .15) + 's both' } },
-      [['#5E0B22', 20], [c, 12]].map(([col, w], j) => h('path', { key: j, d: braidPath(i), fill: 'none', stroke: col, strokeWidth: w, strokeLinejoin: 'round', strokeLinecap: 'round', pathLength: 1, strokeDasharray: '1 1', 'data-sq-intro': '', style: { animation: 'sq-draw 2.1s cubic-bezier(.22,1,.36,1) ' + (i * .15) + 's both' } }))));
+    const E = 'cubic-bezier(.22,1,.36,1)';
+    const C = { x: 200, y: 197 };
+    const guide = { fill: 'none', stroke: '#fff', strokeOpacity: .55, strokeWidth: 1, vectorEffect: 'non-scaling-stroke', pathLength: 1, strokeDasharray: '1 1' };
+    const draw = (delay, dur = .7) => ({ animation: 'sq-draw ' + dur + 's ' + E + ' ' + delay + 's both' });
+    let k = 0;
+    const line = (x1, y1, x2, y2, delay, dur) => h('path', { key: 'l' + k++, d: 'M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2, ...guide, style: draw(delay, dur) });
+    const S = 176, D = 248; // half side of the square, half diagonal of the diamond (from the construction drawing)
+    const guides = [
+      // cross from the centre outwards
+      line(C.x, C.y, C.x + S, C.y, .3, .5), line(C.x, C.y, C.x - S, C.y, .3, .5),
+      line(C.x, C.y, C.x, C.y - S, .3, .5), line(C.x, C.y, C.x, C.y + S, .3, .5),
+      // square, diagonals, diamond
+      h('path', { key: 'sq', d: `M${C.x - S} ${C.y - S}H${C.x + S}V${C.y + S}H${C.x - S}Z`, ...guide, style: draw(.55, .8) }),
+      line(C.x - S, C.y - S, C.x + S, C.y + S, .75, .6), line(C.x + S, C.y - S, C.x - S, C.y + S, .75, .6),
+      h('path', { key: 'di', d: `M${C.x} ${C.y - D}L${C.x + D} ${C.y}L${C.x} ${C.y + D}L${C.x - D} ${C.y}Z`, ...guide, style: draw(.9, .8) }),
+      // construction circles around the ring, two staggered rows
+      ...Array.from({ length: 32 }, (_, i) => {
+        const outer = i % 2, a = (i / 32) * 2 * Math.PI - Math.PI / 2, R = outer ? 168 : 152, r = outer ? 34 : 37;
+        const cx = (C.x + R * Math.cos(a)).toFixed(1), cy = (C.y + R * Math.sin(a)).toFixed(1);
+        return h('circle', { key: 'c' + i, cx, cy, r, ...guide, strokeOpacity: .4, style: { transformBox: 'fill-box', transformOrigin: 'center', animation: `sq-draw .5s ${E} ${(1 + i * .03).toFixed(2)}s both` } });
+      })
+    ];
+    // the braid as an outline: same paths as the logo, stroked, drawn one after the other
+    let n = 0;
+    const outline = RING.replace(/<path class="[^"]*" fill="[^"]*"/g, () =>
+      `<path fill="none" stroke="#fff" stroke-width="1.2" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1 1" style="animation:sq-draw 1s ${E} ${(1.3 + (n++) * .025).toFixed(3)}s both"`);
     return h('div', { ref: this.crownRootRef, 'data-sq-anim': '', style: { position: 'absolute', inset: 0 } },
       h('div', { ref: this.crownInnerRef, style: { position: 'absolute', inset: 0, willChange: 'transform, opacity' } },
         h('div', { style: { position: 'absolute', inset: 0, animation: 'sq-spin 60s linear infinite' } },
           h('svg', { viewBox: '0 -3 400 400', style: { width: '100%', height: '100%', overflow: 'visible', display: 'block' } },
-            h('g', { 'data-sq-intro': '', style: { opacity: 0, animation: 'sq-fadeout .7s ease-out 2.1s both' } }, strands),
-            h('g', { 'data-sq-intro': '', style: { animation: 'sq-fadein .8s ease-out 1.9s both' }, dangerouslySetInnerHTML: { __html: RING } }))),
-        h('svg', { viewBox: '0 -3 400 400', 'data-sq-intro': '', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible', animation: 'sq-fadein .8s ease-out 2.2s both' }, dangerouslySetInnerHTML: { __html: REG } })));
+            // guides: visible during the build, then gone (base opacity 0, so a skipped intro hides them)
+            h('g', { 'data-sq-intro': '', style: { opacity: 0, animation: 'sq-costruzione 3.2s linear both' } },
+              h('rect', { x: C.x - 5, y: C.y - 5, width: 10, height: 10, fill: '#fff', 'data-sq-intro': '', style: { transformBox: 'fill-box', transformOrigin: 'center', animation: `sq-punto .45s ${E} 0s both` } }),
+              guides),
+            h('g', { 'data-sq-intro': '', style: { opacity: 0, animation: 'sq-costruzione 3.2s linear both' }, dangerouslySetInnerHTML: { __html: outline } }),
+            h('g', { 'data-sq-intro': '', style: { animation: 'sq-fadein .7s ease-out 2.3s both' }, dangerouslySetInnerHTML: { __html: RING } }))),
+        h('svg', { viewBox: '0 -3 400 400', 'data-sq-intro': '', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible', animation: 'sq-fadein .6s ease-out 2.9s both' }, dangerouslySetInnerHTML: { __html: REG } })));
   }
   openHole = (dur = 900) => {
     if (this.holeK >= 1) return;
@@ -262,8 +291,8 @@ export default class Site extends React.Component {
   startIntro() {
     (this.timers || []).forEach(clearTimeout);
     if (REDUCED) { this.holeK = 1; return this.setState({ ph: 6 }, this.updateHero); }
-    this.holeT = setTimeout(() => this.openHole(), 2300);
-    this.timers = [2500, 2800, 3100, 3500, 3900, 4300].map((ms, i) => setTimeout(() => this.setState({ ph: i + 1 }), ms));
+    this.holeT = setTimeout(() => this.openHole(), 3300);
+    this.timers = [3400, 3700, 4000, 4400, 4800, 5200].map((ms, i) => setTimeout(() => this.setState({ ph: i + 1 }), ms));
   }
   updateHero = () => {
     const sec = this.heroRef.current, st = this.stickyRef.current, rv = this.revealRef.current, cb = this.crownRef.current;

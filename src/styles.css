@@ -103,3 +103,7 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
 .sq-mood-kb{animation:sq-kb 16s ease-in-out infinite alternate;will-change:transform}
 .sq-mood-in{animation:sq-mood-in 1.4s cubic-bezier(.22,1,.36,1) backwards}
 .sq-mood figure:nth-child(even) .sq-mood-kb{animation-direction:alternate-reverse}
+
+/* hero: costruzione del logo (punto, griglia, cerchi, contorno) prima del logo pieno */
+@keyframes sq-costruzione{0%{opacity:0}4%{opacity:1}72%{opacity:1}92%,100%{opacity:0}}
+@keyframes sq-punto{0%{opacity:0;transform:scale(0) rotate(45deg)}60%{opacity:1;transform:scale(1.6) rotate(45deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
