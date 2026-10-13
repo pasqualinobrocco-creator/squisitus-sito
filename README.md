@@ -22,13 +22,11 @@ node scripts/convert-dc.mjs "../Squisitus Sito v3.dc.html"
 ```
 It overwrites `src/Site.jsx`, `src/styles.css` and `src/head.html` (paste `head.html` into `index.html` if the title or fonts change). Re-copy `../assets` into `public/assets` if assets changed, but keep `squisitus-logo-h-*.svg`: in this project the ® has been moved after the wordmark.
 
-## Supabase (moduli)
-I tre moduli (Sali a bordo, newsletter, area press) salvano su Supabase nelle tabelle `richieste`, `newsletter`, `accrediti_press`.
+## Supabase
+Progetto **Squisitus** (org Bsg, eu-west-1). URL e chiave pubblicabile sono in `.env`: la chiave è pubblica per progetto, la sicurezza è data dalle regole RLS.
 
-1. Supabase → **SQL Editor** → incolla ed esegui [`supabase/schema.sql`](supabase/schema.sql)
-2. Supabase → **Project Settings → API**: copia *Project URL* e la chiave **anon / publishable** (mai la `service_role`)
-3. In locale: copia `.env.example` in `.env.local` e compila
-4. Online: GitHub → **Settings → Secrets and variables → Actions → Variables** → crea `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, poi rilancia il workflow *Deploy*
+- **Moduli** (Sali a bordo, newsletter, press) → tabelle `richieste`, `newsletter`, `accrediti_press`: dal sito si può solo inserire, mai leggere
+- **Contenuti** → tabelle `articoli` e `partner`, bucket Storage `media`: dal sito si leggono solo le righe pubblicate
+- Schema moduli: [`supabase/schema.sql`](supabase/schema.sql). Guida per chi gestisce i contenuti: [`supabase/GESTIONE-CONTENUTI.md`](supabase/GESTIONE-CONTENUTI.md)
 
-Le regole RLS permettono ai visitatori solo di inserire, mai di leggere: le richieste si consultano dal **Table Editor** di Supabase.
-Senza configurazione il sito funziona lo stesso, ma i moduli mostrano la conferma senza salvare nulla.
+Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.

@@ -24,3 +24,28 @@ export async function saveForm(table, row) {
     return { ok: false, duplicate: false, message: String(e) };
   }
 }
+
+// Public URL for a file in the "media" bucket; full URLs are returned as they are.
+export function mediaUrl(path) {
+  if (!path) return '';
+  if (/^https?:\/\//.test(path)) return path;
+  return url + '/storage/v1/object/public/media/' + path.replace(/^\/+/, '').replace(/^media\//, '');
+}
+
+// Press articles and partners managed from the Supabase dashboard (only published rows are readable).
+// Resolves to null when Supabase is not configured or the request fails, so the site keeps its defaults.
+export async function loadContent() {
+  if (!supabase) return null;
+  try {
+    const [a, p] = await Promise.all([
+      supabase.from('articoli').select('id,tipo,testata,titolo,link,data,occhiello,testo,in_evidenza,ordine')
+        .order('data', { ascending: false, nullsFirst: false }).order('ordine'),
+      supabase.from('partner').select('id,nome,livello,logo,link,ordine').order('ordine').order('nome')
+    ]);
+    if (a.error || p.error) throw a.error || p.error;
+    return { articoli: a.data, partner: p.data };
+  } catch (e) {
+    console.error('[squisitus] contenuti:', e);
+    return null;
+  }
+}

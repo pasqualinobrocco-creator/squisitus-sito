@@ -62,3 +62,6 @@ create policy "visitatori si iscrivono alla newsletter" on public.newsletter
 drop policy if exists "giornalisti chiedono l'accredito" on public.accrediti_press;
 create policy "giornalisti chiedono l'accredito" on public.accrediti_press
   for insert to anon, authenticated with check (privacy);
+
+-- Contenuti (rassegna stampa e partner): vedi la migrazione "contenuti_articoli_partner"
+-- applicata al progetto e supabase/GESTIONE-CONTENUTI.md.
