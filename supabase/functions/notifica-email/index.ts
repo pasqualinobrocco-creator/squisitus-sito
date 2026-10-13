@@ -9,7 +9,7 @@
 // create negli ultimi 15 minuti e non ancora notificate, quindi non può essere usata per spam.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const PANNELLO = Deno.env.get('PANNELLO_URL') ?? 'https://pasqualinobrocco-creator.github.io/squisitus-sito/admin.html';
+const PANNELLO = Deno.env.get('PANNELLO_URL') ?? 'https://www.squisitus.it/admin.html';
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
