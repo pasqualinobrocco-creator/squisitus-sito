@@ -33,7 +33,9 @@ const SEZIONI = [
 ];
 export const RUOLI = { admin: 'Admin · può fare tutto' };
 
-const LOGO = 'assets/squisitus-logo-h-white.svg';
+// the panel has no <base>: site files are addressed from the site root
+const SITO = import.meta.env.BASE_URL;
+const LOGO = SITO + 'assets/squisitus-logo-h-white.svg';
 const route = () => location.hash.replace(/^#\/?/, '').split('/')[0] || 'dashboard';
 
 export default function App() {
@@ -100,7 +102,7 @@ function Shell({ profilo, setProfilo }) {
           <div className="me">
             <span>{profilo.nome || profilo.email}</span>
             <span style={{ opacity: .6 }}>{RUOLI[profilo.ruolo] || profilo.ruolo}</span>
-            <a href="./" target="_blank" rel="noopener" style={{ padding: 0, opacity: .8, textTransform: 'none', letterSpacing: 0, fontFamily: 'Lato' }}>Apri il sito ↗</a>
+            <a href={SITO} target="_blank" rel="noopener" style={{ padding: 0, opacity: .8, textTransform: 'none', letterSpacing: 0, fontFamily: 'Lato' }}>Apri il sito ↗</a>
             <button onClick={() => db.auth.signOut()}>Esci</button>
           </div>
         </nav>
@@ -136,7 +138,7 @@ function Login() {
   return (
     <div className="login">
       <form className="card" onSubmit={reset ? recupera : entra}>
-        <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" />
+        <img src={SITO + 'assets/squisitus-logo-h-color.svg'} alt="Squisitus" />
         <h1>{reset ? 'Recupera password' : 'Pannello di gestione'}</h1>
         <Field label="Email"><input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} /></Field>
         {!reset && <Field label="Password"><input type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /></Field>}
@@ -162,7 +164,7 @@ function NuovaPassword({ onDone }) {
   return (
     <div className="login">
       <form className="card" onSubmit={salva}>
-        <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" />
+        <img src={SITO + 'assets/squisitus-logo-h-color.svg'} alt="Squisitus" />
         <h1>Nuova password</h1>
         <Field label="Nuova password" hint="Almeno 10 caratteri"><input type="password" autoComplete="new-password" value={p} onChange={e => setP(e.target.value)} /></Field>
         {err && <div className="err" role="alert">{err}</div>}
@@ -176,7 +178,7 @@ function SenzaPermessi({ email }) {
   return (
     <div className="login">
       <div className="card">
-        <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" />
+        <img src={SITO + 'assets/squisitus-logo-h-color.svg'} alt="Squisitus" />
         <h1>Accesso non abilitato</h1>
         <p style={{ margin: 0, textAlign: 'center' }}>L’account <b>{email}</b> esiste ma non ha ancora un ruolo. Chiedi a un admin di abilitarlo dalla sezione Utenti.</p>
         <button className="btn" onClick={() => db.auth.signOut()}>Esci</button>

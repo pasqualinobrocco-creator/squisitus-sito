@@ -42,7 +42,7 @@ export default function Lancio() {
           <Field label="Messaggio" full><input value={f.messaggio || ''} onChange={set('messaggio')} placeholder="Il nuovo sito di Squisitus è quasi pronto." /></Field>
           <div className="full" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn primary" disabled={busy}>{busy ? 'Salvo…' : 'Salva'}</button>
-            <a className="btn" href="./" target="_blank" rel="noopener">Apri il sito (anteprima) ↗</a>
+            <a className="btn" href={import.meta.env.BASE_URL} target="_blank" rel="noopener">Apri il sito (anteprima) ↗</a>
           </div>
         </form>
         <div className="note">Per vedere la pagina come la vede il pubblico, apri www.squisitus.it in una finestra di navigazione in incognito o da un altro dispositivo.</div>

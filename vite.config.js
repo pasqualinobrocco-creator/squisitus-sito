@@ -53,8 +53,8 @@ const siteHtml = {
   transformIndexHtml: {
     order: 'post',
     handler(html, ctx) {
+      if (!ctx.filename.endsWith('index.html')) return html; // panel: no base tag (its #/ links must stay in the panel)
       html = html.replace('<head>', '<head>\n<base href="' + BASE + '">');
-      if (!ctx.filename.endsWith('index.html')) return html; // panel: base tag only
       if (NOINDEX) html = html.replace('<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">');
       return seo(html, ROUTES[0]);
     },
