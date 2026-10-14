@@ -1,4 +1,4 @@
-// Google Analytics 4, caricato SOLO dopo il consenso ai cookie di analisi ("Accetta" nel banner).
+// Google Analytics 4, caricato SOLO dopo il consenso ai cookie di misurazione nel banner di iubenda.
 // ID di misurazione in .env: VITE_GA_ID=G-XXXXXXXXXX. Senza ID non viene caricato nulla.
 const GA_ID = import.meta.env.VITE_GA_ID;
 let loaded = false;
@@ -40,4 +40,17 @@ export function fermaAnalytics() {
 export function tracciaPagina() {
   if (!GA_ID || !loaded || !consenso) return;
   gtag('event', 'page_view', { page_title: document.title, page_location: location.href, page_path: location.pathname });
+}
+
+// iubenda Cookie Solution (configured in index.html) calls window.__sqConsenso with the visitor's choice,
+// on every page load once a choice exists and whenever it changes. Purpose 4 = "Misurazione" (analytics).
+export function collegaConsenso() {
+  const applica = p => (p && p.purposes && p.purposes[4] ? avviaAnalytics() : fermaAnalytics());
+  window.__sqConsenso = applica;
+  if (window.__sqPref) applica(window.__sqPref);
+}
+
+// Opens the iubenda preferences panel ("Modifica consenso cookie" in the footer).
+export function apriPreferenzeCookie() {
+  try { window._iub.cs.api.openPreferences(); } catch (e) { window.open('https://www.iubenda.com/privacy-policy/63043067/cookie-policy', '_blank', 'noopener'); }
 }

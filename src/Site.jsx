@@ -3,7 +3,7 @@
 /* eslint-disable */
 import React from 'react';
 import { saveForm, loadContent, mediaUrl, presskitUrl } from './supabase.js';
-import { avviaAnalytics, fermaAnalytics, tracciaPagina } from './analytics.js';
+import { collegaConsenso, apriPreferenzeCookie, tracciaPagina } from './analytics.js';
 import { ROUTES, SITE_URL, routeFor, hrefFor, urlOf } from './routes.js';
 import Moodboard from './Moodboard.jsx';
 
@@ -74,7 +74,6 @@ export default class Site extends React.Component {
   setA11y(v) { this.applyA11y(v); this.setState({ a11y: v }); }
   state = {
     w: window.innerWidth, scrolled: false, menu: false, now: Date.now(), ...this.parseHash(),
-    cookie: (() => { try { return !localStorage.getItem('sq-cookie-choice'); } catch (e) { return true; } })(),
     form: { ...EMPTY }, errors: {}, sent: false,
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
@@ -373,7 +372,7 @@ export default class Site extends React.Component {
     this.onHash = () => { this.setState({ ...this.parseHash(), menu: false }, () => { requestAnimationFrame(this.updateHero); applicaMeta(currentRoute()); tracciaPagina(); }); window.scrollTo(0, 0); };
     applicaMeta(currentRoute());
     document.addEventListener('click', this.onLinkClick);
-    try { if (localStorage.getItem('sq-cookie-choice') === 'all') avviaAnalytics(); } catch (e) {}
+    collegaConsenso(); // cookie banner: iubenda (index.html)
     window.addEventListener('resize', this.onResize);
     window.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('popstate', this.onHash);
@@ -397,7 +396,6 @@ export default class Site extends React.Component {
     if (!f.privacy) e.privacy = 'Il consenso privacy è necessario per inviare la richiesta';
     return e;
   }
-  cookieChoice = v => { try { localStorage.setItem('sq-cookie-choice', v); } catch (e) {} v === 'all' ? avviaAnalytics() : fermaAnalytics(); this.setState({ cookie: false }); };
   pick = (sel, t) => ({ sel: sel ? 'true' : 'false', bg: sel ? '#3C3C3B' : 'transparent', ink: sel ? '#fff' : '#3C3C3B', t });
 
   renderVals() {
@@ -650,8 +648,7 @@ export default class Site extends React.Component {
       },
       socials: [['FB', 'Facebook · Squisitus', 'https://www.facebook.com/profile.php?id=100063584168175'], ['IG', 'Instagram · @squisitus', 'https://www.instagram.com/squisitus/']].map(([t, label, href]) => ({ t, label, href, target: href.startsWith('http') ? '_blank' : '_self' })),
       barCta: isMobile ? 'Sali a bordo' : 'Vuoi esporre? Sali a bordo',
-      showCookie: st.cookie, acceptCookie: () => this.cookieChoice('all'), rejectCookie: () => this.cookieChoice('necessary'),
-      reopenCookie: () => this.setState({ cookie: true })
+      reopenCookie: apriPreferenzeCookie
     };
   }
 }
@@ -3226,40 +3223,6 @@ Site.prototype.render = function render() {
             {" "}
           </button>
         </div>
-        {$v.showCookie ? (<>
-          {" "}
-          <div role="dialog" aria-label="Preferenze cookie" style={{ position: "fixed", left: "clamp(12px,3vw,32px)", right: "clamp(12px,3vw,32px)", bottom: "84px", zIndex: "70", maxWidth: "560px", background: "#fff", color: "#3C3C3B", borderRadius: "8px", boxShadow: "0 24px 60px rgba(0,0,0,.28)", padding: "22px", display: "flex", flexDirection: "column", gap: "14px" }}>
-            {" "}
-            <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "20px", textTransform: "uppercase" }}>
-              {"Cookie"}
-            </span>
-            {" "}
-            <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.55" }}>
-              {"Usiamo cookie tecnici e, con il tuo consenso, cookie di analisi e marketing. Leggi la "}
-              <a href={COOKIE_URL} target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>
-                {"Cookie Policy"}
-              </a>
-              {"."}
-            </p>
-            {" "}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {" "}
-              <button type="button" onClick={$v.acceptCookie} style={{ flex: "1 1 120px", minHeight: "46px", border: "0", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", cursor: "pointer" }}>
-                {"Accetta"}
-              </button>
-              {" "}
-              <button type="button" onClick={$v.rejectCookie} style={{ flex: "1 1 120px", minHeight: "46px", border: "1.5px solid #3C3C3B", background: "#fff", color: "#3C3C3B", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".1em", textTransform: "uppercase", cursor: "pointer" }}>
-                {"Rifiuta"}
-              </button>
-              {" "}
-              <button type="button" onClick={$v.rejectCookie} style={{ flex: "1 1 120px", minHeight: "46px", border: "0", background: "transparent", color: "#3C3C3B", textDecoration: "underline", cursor: "pointer", fontSize: "14px" }}>
-                {"Personalizza"}
-              </button>
-              {" "}
-            </div>
-            {" "}
-          </div>
-        </>) : null}
       </div>
     </>
   );
