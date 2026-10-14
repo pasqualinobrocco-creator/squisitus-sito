@@ -81,3 +81,5 @@ create table if not exists public.sito_stato (
 alter table public.sito_stato enable row level security;
 create policy "sito_stato lettura pubblica" on public.sito_stato for select to anon, authenticated using (true);
 create policy "sito_stato admin" on public.sito_stato for update to authenticated using (privato.is_admin()) with check (privato.is_admin());
+
+alter table public.sito_stato add column if not exists solo_logo boolean not null default false;

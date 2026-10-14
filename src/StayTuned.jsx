@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 // Temporary page shown before the launch instead of the site (switched on and off in the panel → "Pagina di lancio").
-// With a launch date it shows a countdown; when it reaches zero and "spegni al lancio" is on, the page reloads into the site.
+// With "solo logo" it shows only the logo; otherwise logo, text and, with a launch date, a countdown.
+// In both cases, when it reaches zero and "spegni al lancio" is on, the page reloads into the site.
 
 const RED = '#A5143B';
 const SOCIAL = [
@@ -34,6 +35,15 @@ export default function StayTuned({ stato }) {
     }, 1000);
     return () => clearInterval(t);
   }, [fine]);
+
+  if (stato.solo_logo) return (
+    <main className="sq-st" style={{ minHeight: '100svh', background: RED, display: 'grid', placeItems: 'center', overflow: 'hidden', position: 'relative', padding: 16 }}>
+      <span aria-hidden="true" className="sq-st-ring" style={{ top: '50%' }} />
+      <h1 style={{ margin: 0, position: 'relative' }}>
+        <img src="assets/squisitus-logo-white.svg" alt="Squisitus" className="sq-st-in" style={{ display: 'block', width: 'min(clamp(200px, 30vw, 340px), 55svh)', height: 'auto' }} />
+      </h1>
+    </main>
+  );
 
   return (
     <main className="sq-st" style={{ minHeight: '100svh', background: RED, color: '#fff', display: 'grid', gridTemplateRows: '1fr auto', fontFamily: 'Lato,sans-serif', overflow: 'hidden', position: 'relative' }}>

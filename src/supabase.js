@@ -57,10 +57,10 @@ export async function loadContent() {
 }
 
 // "Stay tuned" page before the launch (table sito_stato, readable by everyone, editable by admins).
-// Resolves to { in_arrivo, lancio_at, spegni_al_lancio, messaggio } or null (no Supabase, error, timeout).
+// Resolves to { in_arrivo, lancio_at, spegni_al_lancio, messaggio, solo_logo } or null (no Supabase, error, timeout).
 export async function loadStato(ms = 2500) {
   if (!supabase) return null;
-  const req = supabase.from('sito_stato').select('in_arrivo,lancio_at,spegni_al_lancio,messaggio').eq('id', 1).maybeSingle()
+  const req = supabase.from('sito_stato').select('in_arrivo,lancio_at,spegni_al_lancio,messaggio,solo_logo').eq('id', 1).maybeSingle()
     .then(({ data, error }) => (error ? null : data), () => null);
   return Promise.race([req, new Promise(r => setTimeout(() => r(null), ms))]);
 }

@@ -23,7 +23,7 @@ export default function Lancio() {
   const salva = async e => {
     e?.preventDefault();
     setBusy(true);
-    const { error } = await db.from('sito_stato').update({ in_arrivo: f.in_arrivo, lancio_at: daLocale(f.lancio), spegni_al_lancio: f.spegni_al_lancio, messaggio: f.messaggio?.trim() || null, aggiornato_at: new Date().toISOString() }).eq('id', 1);
+    const { error } = await db.from('sito_stato').update({ in_arrivo: f.in_arrivo, solo_logo: f.solo_logo, lancio_at: daLocale(f.lancio), spegni_al_lancio: f.spegni_al_lancio, messaggio: f.messaggio?.trim() || null, aggiornato_at: new Date().toISOString() }).eq('id', 1);
     setBusy(false);
     if (error) return toast(error.message, 'error');
     toast(f.in_arrivo ? 'Salvato: la pagina “Stay tuned” è attiva.' : 'Salvato: il sito è visibile a tutti.');
@@ -37,9 +37,14 @@ export default function Lancio() {
         </div>
         <form className="card form" onSubmit={salva}>
           <label className="check full"><input type="checkbox" checked={f.in_arrivo} onChange={set('in_arrivo')} /> <b>Mostra la pagina “Stay tuned” ai visitatori</b></label>
-          <Field label="Data e ora del lancio" hint="Ora italiana. Compare nella pagina con il conto alla rovescia."><input type="datetime-local" value={f.lancio} onChange={set('lancio')} /></Field>
+          <div className="full" style={{ display: 'grid', gap: 10 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--muted)' }}>Cosa mostrare</span>
+            <label className="check"><input type="radio" name="vista" checked={!f.solo_logo} onChange={() => setF(x => ({ ...x, solo_logo: false }))} /> Logo, “Stay tuned”, messaggio, data e conto alla rovescia</label>
+            <label className="check"><input type="radio" name="vista" checked={!!f.solo_logo} onChange={() => setF(x => ({ ...x, solo_logo: true }))} /> Solo il logo</label>
+          </div>
+          <Field label="Data e ora del lancio" hint={f.solo_logo ? 'Ora italiana. Con “Solo il logo” la data non compare, ma serve per mostrare il sito in automatico.' : 'Ora italiana. Compare nella pagina con il conto alla rovescia.'}><input type="datetime-local" value={f.lancio} onChange={set('lancio')} /></Field>
           <label className="check" style={{ alignSelf: 'center' }}><input type="checkbox" checked={f.spegni_al_lancio} onChange={set('spegni_al_lancio')} /> Al lancio mostra il sito in automatico</label>
-          <Field label="Messaggio" full><input value={f.messaggio || ''} onChange={set('messaggio')} placeholder="Il nuovo sito di Squisitus è quasi pronto." /></Field>
+          {!f.solo_logo && <Field label="Messaggio" full><input value={f.messaggio || ''} onChange={set('messaggio')} placeholder="Il nuovo sito di Squisitus è quasi pronto." /></Field>}
           <div className="full" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn primary" disabled={busy}>{busy ? 'Salvo…' : 'Salva'}</button>
             <a className="btn" href={import.meta.env.BASE_URL} target="_blank" rel="noopener">Apri il sito (anteprima) ↗</a>
