@@ -1,13 +1,16 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
 import { ROUTES, SITE_URL, urlOf, jsonLd } from './src/routes.js';
 
 // BASE_PATH: '/' when the site is on its own domain (squisitus.it), '/squisitus-sito/' on the GitHub Pages preview.
 // NOINDEX=true keeps a preview out of Google (the canonical tags already point to SITE_URL).
 const BASE = process.env.BASE_PATH || '/';
 const NOINDEX = process.env.NOINDEX === 'true';
+// ADMIN_PATH (only in .env.local, never committed): secret folder of the management panel, e.g. "gestione-abc123".
+// Without it the panel is not built at all (GitHub Pages preview, builds from the repository).
+const ADMIN = (loadEnv('production', __dirname, '').ADMIN_PATH || process.env.ADMIN_PATH || '').replace(/^\/+|\/+$/g, '');
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
@@ -41,8 +44,8 @@ const siteHtml = {
   transformIndexHtml: {
     order: 'post',
     handler(html, ctx) {
-      if (!ctx.filename.endsWith('index.html')) return html;
       html = html.replace('<head>', '<head>\n<base href="' + BASE + '">');
+      if (!ctx.filename.endsWith('index.html')) return html; // panel: base tag only
       if (NOINDEX) html = html.replace('<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">');
       return seo(html, ROUTES[0]);
     },
@@ -56,28 +59,27 @@ const siteHtml = {
       mkdirSync(resolve(dist, r.slug), { recursive: true });
       writeFileSync(resolve(dist, r.slug, 'index.html'), seo(html, r));
     }
-    // /admin (without .html) leads to the management panel
-    mkdirSync(resolve(dist, 'admin'), { recursive: true });
-    writeFileSync(resolve(dist, 'admin', 'index.html'), '<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="robots" content="noindex">' +
-      '<title>Gestione · Squisitus</title><meta http-equiv="refresh" content="0; url=' + BASE + 'admin.html">' +
-      '<script>location.replace(' + JSON.stringify(BASE + 'admin.html') + ' + location.hash)</script></head>' +
-      '<body><a href="' + BASE + 'admin.html">Apri il pannello di gestione</a></body></html>\n');
+    // the panel lives only at its secret address (no /admin, no admin.html, not listed in robots.txt)
+    if (ADMIN) {
+      mkdirSync(resolve(dist, ADMIN), { recursive: true });
+      renameSync(resolve(dist, 'admin.html'), resolve(dist, ADMIN, 'index.html'));
+    }
     writeFileSync(resolve(dist, '404.html'), html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex">').replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/g, ''));
     const oggi = new Date().toISOString().slice(0, 10);
     writeFileSync(resolve(dist, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       ROUTES.map(r => `  <url><loc>${SITE_URL}/${urlOf(r)}</loc><lastmod>${oggi}</lastmod></url>`).join('\n') + '\n</urlset>\n');
     writeFileSync(resolve(dist, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' :
-      `User-agent: *\nDisallow: /admin.html\nDisallow: /admin/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+      `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
   },
 };
 
-// Two entry points: the public site (index.html) and the management panel (admin.html).
+// Two entry points: the public site (index.html) and, with ADMIN_PATH, the management panel (admin.html).
 export default defineConfig({
   base: BASE,
   plugins: [react(), siteHtml],
   build: {
     rollupOptions: {
-      input: { main: resolve(__dirname, 'index.html'), admin: resolve(__dirname, 'admin.html') },
+      input: { main: resolve(__dirname, 'index.html'), ...(ADMIN && { pannello: resolve(__dirname, 'admin.html') }) },
     },
   },
 });

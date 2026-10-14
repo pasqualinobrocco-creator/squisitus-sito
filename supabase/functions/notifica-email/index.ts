@@ -9,7 +9,6 @@
 // create negli ultimi 15 minuti e non ancora notificate, quindi non può essere usata per spam.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const PANNELLO = Deno.env.get('PANNELLO_URL') ?? 'https://www.squisitus.it/admin.html';
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -60,6 +59,8 @@ const lista = (s: string | null) => (s || '').split(/[,;\s]+/).map(x => x.trim()
 
 // Which emails to send for a new row of each table.
 function emailPer(tabella: string, r: Record<string, any>, cfg: Record<string, any>): Email[] {
+  // the panel address is not public: it is stored in impostazioni.pannello_url
+  const PANNELLO = cfg.pannello_url || Deno.env.get('PANNELLO_URL') || 'https://www.squisitus.it/';
   const team = lista(cfg.notifiche_a);
   const out: Email[] = [];
   const conferma = cfg.conferma_mittente && r.email;

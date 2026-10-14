@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Installa (o aggiorna) il sito Squisitus sul server nginx di www.squisitus.it.
-# Uso, dalla console del server:
-#   curl -fsSL https://raw.githubusercontent.com/pasqualinobrocco-creator/squisitus-sito/main/deploy/aggiorna-server.sh | sudo bash
+# Di solito si lancia dal Mac con deploy/pubblica.sh, che costruisce il sito (pannello incluso) e passa
+# a questo script il pacchetto già caricato sul server:  bash aggiorna-server.sh /tmp/squisitus-sito.tar.gz
+# Senza argomento scarica la build dal ramo "server" del repository (che però non contiene il pannello).
 #
 # Cosa fa: trova la cartella del sito configurata in nginx, ne fa un backup in /var/backups/squisitus,
 # scarica l'ultima build dal ramo "server" del repository, la mette al posto dei file attuali,
@@ -28,10 +29,17 @@ case "$ROOT" in /|/etc*|/usr*|/bin*|/root*|"") echo "Cartella del sito non sicur
 echo "→ Cartella del sito: $ROOT"
 
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-echo "→ Scarico l'ultima versione del sito…"
-curl -fsSL "$PACCHETTO" -o "$TMP/sito.tar.gz"
 mkdir -p "$TMP/sito"
-tar -xzf "$TMP/sito.tar.gz" -C "$TMP/sito" --strip-components=1
+if [ -n "${1:-}" ]; then
+  [ -f "$1" ] || { echo "Pacchetto $1 non trovato."; exit 1; }
+  echo "→ Uso il pacchetto $1"
+  tar -xzf "$1" -C "$TMP/sito"
+  rm -f "$1"
+else
+  echo "→ Scarico l'ultima versione del sito…"
+  curl -fsSL "$PACCHETTO" -o "$TMP/sito.tar.gz"
+  tar -xzf "$TMP/sito.tar.gz" -C "$TMP/sito" --strip-components=1
+fi
 [ -f "$TMP/sito/index.html" ] && [ -f "$TMP/sito/sitemap.xml" ] || { echo "Pacchetto non valido. Nessuna modifica fatta."; exit 1; }
 
 mkdir -p "$BACKUP_DIR" "$ROOT"

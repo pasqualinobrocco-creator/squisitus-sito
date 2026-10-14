@@ -65,3 +65,6 @@ create policy "giornalisti chiedono l'accredito" on public.accrediti_press
 
 -- Contenuti (rassegna stampa e partner): vedi la migrazione "contenuti_articoli_partner"
 -- applicata al progetto e supabase/GESTIONE-CONTENUTI.md.
+
+-- Indirizzo (non pubblico) del pannello, usato nei link delle email di notifica
+alter table public.impostazioni add column if not exists pannello_url text;
