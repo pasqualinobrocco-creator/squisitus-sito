@@ -56,12 +56,18 @@ const siteHtml = {
       mkdirSync(resolve(dist, r.slug), { recursive: true });
       writeFileSync(resolve(dist, r.slug, 'index.html'), seo(html, r));
     }
+    // /admin (without .html) leads to the management panel
+    mkdirSync(resolve(dist, 'admin'), { recursive: true });
+    writeFileSync(resolve(dist, 'admin', 'index.html'), '<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="robots" content="noindex">' +
+      '<title>Gestione · Squisitus</title><meta http-equiv="refresh" content="0; url=' + BASE + 'admin.html">' +
+      '<script>location.replace(' + JSON.stringify(BASE + 'admin.html') + ' + location.hash)</script></head>' +
+      '<body><a href="' + BASE + 'admin.html">Apri il pannello di gestione</a></body></html>\n');
     writeFileSync(resolve(dist, '404.html'), html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex">').replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/g, ''));
     const oggi = new Date().toISOString().slice(0, 10);
     writeFileSync(resolve(dist, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       ROUTES.map(r => `  <url><loc>${SITE_URL}/${urlOf(r)}</loc><lastmod>${oggi}</lastmod></url>`).join('\n') + '\n</urlset>\n');
     writeFileSync(resolve(dist, 'robots.txt'), NOINDEX ? 'User-agent: *\nDisallow: /\n' :
-      `User-agent: *\nDisallow: /admin.html\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+      `User-agent: *\nDisallow: /admin.html\nDisallow: /admin/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
   },
 };
 

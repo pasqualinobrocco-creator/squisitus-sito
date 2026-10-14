@@ -23,6 +23,8 @@ const COOKIE_URL = 'https://www.iubenda.com/privacy-policy/63043067/cookie-polic
 const BASE = import.meta.env.BASE_URL; // '/' on squisitus.it, '/squisitus-sito/' on the GitHub Pages preview
 // Current route from the address bar; old #/ links are rewritten to the new addresses.
 function currentRoute() {
+  // /admin (dev server, or hosts without the generated admin/index.html) -> management panel
+  if (/^admin\/?$/.test(location.pathname.slice(BASE.length))) location.replace(BASE + 'admin.html' + location.hash);
   if (/^#\/./.test(location.hash)) {
     const r = routeFor(location.hash.slice(2));
     history.replaceState(null, '', BASE + (r ? urlOf(r) : ''));
