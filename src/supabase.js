@@ -55,3 +55,17 @@ export async function loadContent() {
     return null;
   }
 }
+
+// "Stay tuned" page before the launch (table sito_stato, readable by everyone, editable by admins).
+// Resolves to { in_arrivo, lancio_at, spegni_al_lancio, messaggio } or null (no Supabase, error, timeout).
+export async function loadStato(ms = 2500) {
+  if (!supabase) return null;
+  const req = supabase.from('sito_stato').select('in_arrivo,lancio_at,spegni_al_lancio,messaggio').eq('id', 1).maybeSingle()
+    .then(({ data, error }) => (error ? null : data), () => null);
+  return Promise.race([req, new Promise(r => setTimeout(() => r(null), ms))]);
+}
+
+// Logged in to the management panel in this browser: the team sees the real site behind the "Stay tuned" page.
+export function inPannello() {
+  try { return !!JSON.parse(localStorage.getItem('sq-admin-auth') || 'null')?.refresh_token; } catch (e) { return false; }
+}

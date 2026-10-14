@@ -107,3 +107,12 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
 /* hero: costruzione del logo (punto, griglia, cerchi, contorno) prima del logo pieno */
 @keyframes sq-costruzione{0%{opacity:0}4%{opacity:1}72%{opacity:1}92%,100%{opacity:0}}
 @keyframes sq-punto{0%{opacity:0;transform:scale(0) rotate(45deg)}60%{opacity:1;transform:scale(1.6) rotate(45deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+
+/* "Stay tuned" page before the launch */
+@keyframes sq-st-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes sq-st-ring { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+.sq-st-in { animation: sq-st-in .9s cubic-bezier(.22,1,.36,1) both; }
+.sq-st-ring { position: absolute; left: 50%; top: 46%; width: min(120vw, 1100px); aspect-ratio: 1; border-radius: 50%;
+  border: 1px dashed rgba(255,255,255,.18); box-shadow: 0 0 0 clamp(40px, 8vw, 90px) rgba(255,255,255,.035);
+  animation: sq-st-ring 90s linear infinite; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sq-st-in, .sq-st-ring { animation: none; } }

@@ -68,3 +68,16 @@ create policy "giornalisti chiedono l'accredito" on public.accrediti_press
 
 -- Indirizzo (non pubblico) del pannello, usato nei link delle email di notifica
 alter table public.impostazioni add column if not exists pannello_url text;
+
+-- Pagina "Stay tuned" prima del lancio (pannello → Pagina di lancio). Leggibile da tutti, modificabile dagli admin.
+create table if not exists public.sito_stato (
+  id int primary key default 1 check (id = 1),
+  in_arrivo boolean not null default false,
+  lancio_at timestamptz,
+  spegni_al_lancio boolean not null default true,
+  messaggio text,
+  aggiornato_at timestamptz not null default now()
+);
+alter table public.sito_stato enable row level security;
+create policy "sito_stato lettura pubblica" on public.sito_stato for select to anon, authenticated using (true);
+create policy "sito_stato admin" on public.sito_stato for update to authenticated using (privato.is_admin()) with check (privato.is_admin());

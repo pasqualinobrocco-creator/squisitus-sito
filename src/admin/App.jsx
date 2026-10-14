@@ -11,6 +11,7 @@ import Accrediti from './pages/Accrediti.jsx';
 import Utenti from './pages/Utenti.jsx';
 import Account from './pages/Account.jsx';
 import Email from './pages/Email.jsx';
+import Lancio from './pages/Lancio.jsx';
 
 // Sections of the panel and which roles can open them. To add a role (e.g. "redattore"),
 // list it here and give it the matching policies in Supabase.
@@ -25,6 +26,7 @@ const SEZIONI = [
   { id: 'accrediti', label: 'Accrediti press', C: Accrediti, ruoli: ['admin'], badge: 'accrediti_press' },
   { id: 'newsletter', label: 'Newsletter', C: Newsletter, ruoli: ['admin'] },
   { sep: 'Impostazioni' },
+  { id: 'lancio', label: 'Pagina di lancio', C: Lancio, ruoli: ['admin'] },
   { id: 'utenti', label: 'Utenti', C: Utenti, ruoli: ['admin'] },
   { id: 'impostazioni', label: 'Impostazioni', C: Email, ruoli: ['admin'] },
   { id: 'account', label: 'Il mio account', C: Account, ruoli: ['admin'] },
