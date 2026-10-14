@@ -41,6 +41,15 @@ function seo(html, r) {
 // base tag: relative links and images ("assets/…", "un-progetto-bsg") resolve from the site root on every page.
 const siteHtml = {
   name: 'squisitus-seo',
+  // dev server: the panel answers at its secret address too, as online (and still at /admin.html)
+  configureServer(server) {
+    if (!ADMIN) return;
+    server.middlewares.use((req, _res, next) => {
+      const [path, q] = req.url.split('?');
+      if (path.replace(/\/+$/, '') === BASE + ADMIN) req.url = BASE + 'admin.html' + (q ? '?' + q : '');
+      next();
+    });
+  },
   transformIndexHtml: {
     order: 'post',
     handler(html, ctx) {
