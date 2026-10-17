@@ -780,15 +780,10 @@ Site.prototype.render = function render() {
               <div style={{ position: "absolute", zIndex: "3", left: "clamp(20px,4vw,48px)", right: "clamp(20px,4vw,48px)", bottom: "156px", maxWidth: "640px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "20px", color: "#fff", opacity: `${$v.capOp ?? ""}`, pointerEvents: `${$v.capPe ?? ""}`, transition: "opacity .6s ease-out" }}>
                 {" "}
                 <p style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontSize: "clamp(24px,3vw,40px)", fontWeight: "300", textTransform: "uppercase", lineHeight: "1.05", textWrap: "pretty", textShadow: "0 2px 20px rgba(0,0,0,.4)" }}>
-                  {"Questo è solo il primo assaggio:"}
+                  {"Questo è solo il "}
+                  <span style={{ fontWeight: "700" }}>{"primo assaggio"}</span>
                   <br />
-                  <span style={{ fontWeight: "700" }}>
-                    {"Scopri il Salotto Squisitus"}
-                    <br />
-                    {"on the Road"}
-                  </span>
-                  <br />
-                  {"il viaggio nel gusto è appena iniziato."}
+                  <span style={{ fontWeight: "700" }}>{"il viaggio nel gusto è appena iniziato."}</span>
                 </p>
                 {" "}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
