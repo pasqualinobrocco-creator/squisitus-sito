@@ -788,15 +788,21 @@ Site.prototype.render = function render() {
                 {" "}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                   {" "}
-                  <a className="sqh-2" href="salotto-on-the-road/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "0 22px", border: "1.5px solid #fff", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", textDecoration: "none" }}>
-                    {"Scopri Squisitus Salotto "}
+                  <a className="sqh-2" href="salotto-on-the-road/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "7px 22px", border: "1.5px solid #fff", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", textDecoration: "none", textAlign: "left" }}>
+                    <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.15" }}>
+                      {"Scopri Squisitus Salotto"}
+                      <span style={{ fontSize: "12px", letterSpacing: ".1em", fontWeight: "600" }}>{"Bologna · 13 • 14 gennaio 2027"}</span>
+                    </span>
                     <span aria-hidden="true">
                       {"→"}
                     </span>
                   </a>
                   {" "}
-                  <button className="sqh-3" type="button" onClick={$v.scrollPastHero} style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "0 22px", border: "1.5px solid #fff", background: "transparent", color: "#fff", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", cursor: "pointer" }}>
-                    {"Scorri per Squisitus Exhibition "}
+                  <button className="sqh-3" type="button" onClick={$v.scrollPastHero} style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "7px 22px", border: "1.5px solid #fff", background: "transparent", color: "#fff", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", cursor: "pointer", textAlign: "left" }}>
+                    <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.15" }}>
+                      {"Scorri per Squisitus Exhibition"}
+                      <span style={{ fontSize: "12px", letterSpacing: ".1em", fontWeight: "600" }}>{"Roma · 1 • 2 ottobre 2027"}</span>
+                    </span>
                     <span aria-hidden="true">
                       {"↓"}
                     </span>
