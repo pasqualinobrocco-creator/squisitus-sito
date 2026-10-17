@@ -50,9 +50,9 @@ function applicaMeta(r) {
 const SEND_ERR = 'Invio non riuscito. Controlla la connessione e riprova.';
 // Shown until (or if not) the articles arrive from Supabase.
 const DEFAULT_ARTICOLI = [
-  { id: 'd1', tipo: 'articolo', testata: 'Alimentando.info', titolo: 'Marca 2026, Squisitus porta in fiera le eccellenze territoriali', link: 'https://www.alimentando.info/marca-2026-squisitus-porta-in-fiere-le-eccellenze-territoriali/', data: '2025-11-24', in_evidenza: true },
-  { id: 'd2', tipo: 'articolo', testata: 'Adnkronos', titolo: 'BSG per Squisitus, debutto a Marca by BolognaFiere', link: 'https://www.adnkronos.com/lavoro/made-in-italy/bsg-per-squisitus-debutto-a-marca-by-bolognafiere_6mhTDtm5hBLF7NiVQXwgUs', data: '2025-11-21', in_evidenza: true },
-  { id: 'd3', tipo: 'articolo', testata: 'Mediakey', titolo: 'BSG lancia Squisitus, il nuovo format dove gusto, benessere e comunicazione si incontrano creando connessioni e rete', link: 'https://mediakey.it/news/bsg-lancia-squisitus-il-nuovo-format-dove-gusto-benessere-e-comunicazione-si-incontrano-creando-connessioni-e-rete/', data: '2025-10-22', in_evidenza: true }
+  { id: 'd1', tipo: 'articolo', testata: 'Alimentando.info', titolo: 'Marca 2026, Squisitus porta in fiera le eccellenze territoriali', link: 'https://www.alimentando.info/marca-2026-squisitus-porta-in-fiere-le-eccellenze-territoriali/', data: '2025-11-24', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] },
+  { id: 'd2', tipo: 'articolo', testata: 'Adnkronos', titolo: 'BSG per Squisitus, debutto a Marca by BolognaFiere', link: 'https://www.adnkronos.com/lavoro/made-in-italy/bsg-per-squisitus-debutto-a-marca-by-bolognafiere_6mhTDtm5hBLF7NiVQXwgUs', data: '2025-11-21', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] },
+  { id: 'd3', tipo: 'articolo', testata: 'Mediakey', titolo: 'BSG lancia Squisitus, il nuovo format dove gusto, benessere e comunicazione si incontrano creando connessioni e rete', link: 'https://mediakey.it/news/bsg-lancia-squisitus-il-nuovo-format-dove-gusto-benessere-e-comunicazione-si-incontrano-creando-connessioni-e-rete/', data: '2025-10-22', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] }
 ];
 const LIVELLI = [['Platinum', 'Platinum Partner', '220px', '110px'], ['Main', 'Main Partner', '160px', '90px'], ['Official', 'Official Partner', '120px', '72px'], ['Technical', 'Technical Partner', '100px', '60px']];
 const fmtData = d => d ? d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4) : '';
@@ -540,12 +540,14 @@ export default class Site extends React.Component {
       articles: [1, 2, 3, 4].map(() => ({ testata: 'Logo testata · ' + flows[st.flow], cta: st.flow === 2 ? 'Guarda / ascolta' : 'Leggi l’articolo' })),
       routeRef: this.routeRef,
       ...(() => {
+        // each article lists the pages it appears on (panel → Rassegna stampa → "Dove compare")
+        const su = (x, pag) => (x.pagine ? x.pagine.includes(pag) : pag === 'salotto' ? !!x.link : x.in_evidenza || !x.link);
         const art = st.articoli.filter(x => x.tipo === 'articolo');
-        const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, data: fmtData(x.data), evid: x.in_evidenza }));
-        const pending = art.filter(x => !x.link);
+        const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, data: fmtData(x.data), salotto: su(x, 'salotto'), evid: su(x, 'dicono-di-noi') }));
+        const pending = art.filter(x => !x.link && su(x, 'dicono-di-noi'));
         const com = st.articoli.find(x => x.tipo === 'comunicato');
         return {
-          rassegna: usciti,
+          rassegna: usciti.filter(x => x.salotto),
           pressFeatured: usciti.filter(x => x.evid),
           pressPending: pending.slice(0, st.pendAll ? pending.length : 6).map((x, i) => ({
             testata: x.testata, titolo: x.titolo, aria: x.testata + ', ' + x.titolo + ': articolo in pubblicazione, link non ancora disponibile',

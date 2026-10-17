@@ -83,3 +83,6 @@ create policy "sito_stato lettura pubblica" on public.sito_stato for select to a
 create policy "sito_stato admin" on public.sito_stato for update to authenticated using (privato.is_admin()) with check (privato.is_admin());
 
 alter table public.sito_stato add column if not exists solo_logo boolean not null default false;
+
+-- Pagine in cui compare un articolo ('dicono-di-noi', 'salotto'); scelte nel pannello
+alter table public.articoli add column if not exists pagine text[] not null default '{}';

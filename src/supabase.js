@@ -43,7 +43,7 @@ export async function loadContent() {
   if (!supabase) return null;
   try {
     const [a, p, k] = await Promise.all([
-      supabase.from('articoli').select('id,tipo,testata,titolo,link,data,occhiello,testo,in_evidenza,ordine')
+      supabase.from('articoli').select('id,tipo,testata,titolo,link,data,occhiello,testo,in_evidenza,pagine,ordine')
         .order('data', { ascending: false, nullsFirst: false }).order('ordine'),
       supabase.from('partner').select('id,nome,livello,logo,link,ordine').order('ordine').order('nome'),
       supabase.from('presskit').select('id,cartella,titolo,descrizione,tipo,file,nome_file,dimensione,link,ordine').order('ordine').order('created_at')
