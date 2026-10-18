@@ -63,7 +63,7 @@ html[data-a11y-still] *,html[data-a11y-still] *::before,html[data-a11y-still] *:
 .sqh-16:hover{background:#A5143B !important;color:#fff !important}
 .sqh-17:hover{background:rgba(255,255,255,.12) !important;color:#fff !important}
 .sqh-18:hover{text-decoration:underline !important}
-.sqh-19:hover{color:#E3E3E3 !important}
+.sqh-19:hover{color:#fff !important}
 .sqh-20:hover{background:#fff !important;color:#2A2523 !important}
 .sqh-21:hover{border-color:#A5143B !important}
 .sqh-22:hover{background:#0B5225 !important}
@@ -116,3 +116,7 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
   border: 1px dashed rgba(255,255,255,.18); box-shadow: 0 0 0 clamp(40px, 8vw, 90px) rgba(255,255,255,.035);
   animation: sq-st-ring 90s linear infinite; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .sq-st-in, .sq-st-ring { animation: none; } }
+
+/* Gold of the "Quadrilatero del Food" section, reused across the site */
+.sq-oro-hover:hover{color:#D6B178 !important}
+.sq-oro-cta:hover{background:#E9CB98 !important;color:#241A12 !important}

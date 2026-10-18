@@ -595,7 +595,7 @@ export default class Site extends React.Component {
               align: i === 0 ? 'flex-start' : i === 2 ? 'flex-end' : 'center', ta: i === 0 ? 'left' : i === 2 ? 'right' : 'center',
               w: x.main ? '340px' : '240px', top: x.main ? '74px' : '84px', dm: '0',
               size: x.main ? '44px' : '28px', fs: x.main ? '64px' : '34px', fsm: x.main ? '48px' : '30px', ds: x.main ? '22px' : '15px',
-              dot: past ? '#fff' : x.main ? '#106B30' : 'transparent',
+              dot: past ? '#fff' : x.main ? '#D6B178' : 'transparent',
               glow: x.main ? '0 0 0 10px rgba(255,255,255,.18), 0 0 40px rgba(255,255,255,.45)' : 'none',
               badgeBg: past ? 'rgba(255,255,255,.18)' : isNext || x.main ? '#fff' : 'rgba(255,255,255,.18)',
               badgeInk: past ? '#fff' : isNext || x.main ? '#A5143B' : '#fff',
@@ -676,7 +676,7 @@ Site.prototype.render = function render() {
                 {($v.nav ?? []).map((n, $index) => (
                   <React.Fragment key={$index}>
                     {" "}
-                    <a className="sqh-0" href={n?.href} aria-current={n?.current} style={{ color: `${$v.headerInk ?? ""}`, fontFamily: "Oswald,sans-serif", fontWeight: "400", fontSize: "15px", letterSpacing: ".08em", textTransform: "uppercase", padding: "8px 0", borderBottom: `2px solid ${n?.line ?? ""}`, transition: "opacity .2s" }}>
+                    <a className="sq-oro-hover" href={n?.href} aria-current={n?.current} style={{ color: `${$v.headerInk ?? ""}`, fontFamily: "Oswald,sans-serif", fontWeight: "400", fontSize: "15px", letterSpacing: ".08em", textTransform: "uppercase", padding: "8px 0", borderBottom: `2px solid ${n?.line ?? ""}`, transition: "opacity .2s" }}>
                       {n?.label}
                     </a>
                     {" "}
@@ -685,7 +685,7 @@ Site.prototype.render = function render() {
                 {" "}
               </nav>
               {" "}
-              <a className="sqh-1" href="sali-a-bordo/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "46px", padding: "0 22px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a className="sq-oro-cta" href="sali-a-bordo/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "46px", padding: "0 22px", background: "#D6B178", color: "#241A12", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".1em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Sali a bordo "}
                 <span aria-hidden="true">
                   {"→"}
@@ -696,7 +696,7 @@ Site.prototype.render = function render() {
             {" "}
             {$v.isMobile ? (<>
               {" "}
-              <a href="sali-a-bordo/" style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", minHeight: "44px", padding: "0 14px", background: "#A5143B", color: "#fff", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase", borderRadius: "999px" }}>
+              <a className="sq-oro-cta" href="sali-a-bordo/" style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", minHeight: "44px", padding: "0 14px", background: "#D6B178", color: "#241A12", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase", borderRadius: "999px" }}>
                 {"Sali a bordo"}
               </a>
               {" "}
@@ -1006,7 +1006,7 @@ Site.prototype.render = function render() {
               {" "}
               <div style={{ flex: "1 1 360px", display: "flex", flexDirection: "column", gap: "14px" }}>
                 {" "}
-                <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#E9CB98" }}>
                   {"Conto alla rovescia"}
                 </span>
                 {" "}
@@ -1050,7 +1050,7 @@ Site.prototype.render = function render() {
                       {" "}
                       <div style={{ padding: "14px 6px", background: "rgba(0,0,0,.18)", border: "1px solid rgba(255,255,255,.35)", borderRadius: "6px", display: "flex", flexDirection: "column", alignItems: "center" }}>
                         {" "}
-                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "clamp(30px,4vw,48px)", lineHeight: "1", fontVariantNumeric: "tabular-nums" }}>
+                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "clamp(30px,4vw,48px)", lineHeight: "1", fontVariantNumeric: "tabular-nums", color: c?.l === 'secondi' ? "#E9CB98" : undefined }}>
                           {c?.v}
                         </span>
                         {" "}
@@ -1177,7 +1177,7 @@ Site.prototype.render = function render() {
                       {"del territorio"}
                     </span>
                     {", a favore del "}
-                    <span style={{ color: "transparent", WebkitTextStroke: "1.5px #fff", fontWeight: "700" }}>
+                    <span style={{ color: "transparent", WebkitTextStroke: "1.5px #E9CB98", fontWeight: "700" }}>
                       {"territorio"}
                     </span>
                   </h2>
@@ -1199,7 +1199,7 @@ Site.prototype.render = function render() {
                       {"Mens sana"}
                     </span>
                     {" in "}
-                    <span style={{ color: "transparent", WebkitTextStroke: "1.5px #fff", fontWeight: "700" }}>
+                    <span style={{ color: "transparent", WebkitTextStroke: "1.5px #E9CB98", fontWeight: "700" }}>
                       {"corpore"}
                     </span>
                     {" sano"}
@@ -1553,7 +1553,7 @@ Site.prototype.render = function render() {
               {" "}
               <div style={{ flex: "1 1 360px", display: "flex", flexDirection: "column", gap: "12px" }}>
                 {" "}
-                <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(44px,5.6vw,80px)", lineHeight: ".9" }}>
+                <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(44px,5.6vw,80px)", lineHeight: ".9", color: "#E9CB98" }}>
                   <span style={{ fontWeight: "700" }}>
                     {"Stay"}
                   </span>
@@ -1619,7 +1619,7 @@ Site.prototype.render = function render() {
                 {" "}
                 <p data-rv="" className="sq-oneline" style={{ margin: "0 0 -2px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#fff" }}>
                   <span style={{ fontWeight: "700" }}>{"Un progetto BSG"}</span>
-                  {" – Agenzia di comunicazione e marketing"}
+                  <span style={{ color: "#E9CB98" }}>{" – Agenzia di comunicazione e marketing"}</span>
                 </p>
                 <h1 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(52px,7.4vw,112px)", lineHeight: ".88" }}>
                   {"Gruppo "}
@@ -1628,7 +1628,7 @@ Site.prototype.render = function render() {
                   </span>
                   <br />
                   {"& "}
-                  <span style={{ fontWeight: "700" }}>
+                  <span style={{ fontWeight: "700", color: "#E9CB98" }}>
                     {"Squisitus"}
                   </span>
                 </h1>
@@ -1736,7 +1736,7 @@ Site.prototype.render = function render() {
                 {($v.bsgTags ?? []).map((t, $index) => (
                   <React.Fragment key={$index}>
                     {" "}
-                    <span data-rv="" style={{ minHeight: "36px", padding: "0 14px", display: "flex", alignItems: "center", border: "1px solid rgba(255,255,255,.45)", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".14em", textTransform: "uppercase" }}>
+                    <span data-rv="" style={{ minHeight: "36px", padding: "0 14px", display: "flex", alignItems: "center", border: "1px solid #D6B178", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".14em", textTransform: "uppercase", color: "#E9CB98" }}>
                       {t}
                     </span>
                     {" "}
@@ -1870,7 +1870,7 @@ Site.prototype.render = function render() {
               {" "}
               <div style={{ flex: "1 1 360px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "22px" }}>
                 {" "}
-                <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(36px,4.4vw,60px)", lineHeight: ".95", textWrap: "balance" }}>
+                <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(36px,4.4vw,60px)", lineHeight: ".95", textWrap: "balance", color: "#E9CB98" }}>
                   {"Progetta la tua visibilità "}
                   <span style={{ fontWeight: "700" }}>
                     {"sul territorio"}
@@ -1878,7 +1878,7 @@ Site.prototype.render = function render() {
                   {"."}
                 </h2>
                 {" "}
-                <a className="sqh-12" data-rv="" href="https://www.bsgsrl.it/" target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 26px", background: "#fff", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px" }}>
+                <a className="sq-oro-cta" data-rv="" href="https://www.bsgsrl.it/" target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 26px", background: "#D6B178", color: "#241A12", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px" }}>
                   {"Costruiamo insieme la tua campagna →"}
                 </a>
                 {" "}
@@ -2370,7 +2370,7 @@ Site.prototype.render = function render() {
                   {"Salotto"}
                 </span>
                 <br />
-                <span style={{ color: "transparent", WebkitTextStroke: "2px #fff", fontWeight: "700", whiteSpace: "nowrap" }}>
+                <span style={{ color: "transparent", WebkitTextStroke: "2px #E9CB98", fontWeight: "700", whiteSpace: "nowrap" }}>
                   {"on the road"}
                 </span>
               </h1>
@@ -2830,7 +2830,7 @@ Site.prototype.render = function render() {
             {" "}
             <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "32px 64px", alignItems: "center", justifyContent: "space-between" }}>
               {" "}
-              <h2 data-rv="" style={{ margin: "0", flex: "1 1 520px", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(36px,4.6vw,64px)", lineHeight: ".95", textWrap: "balance" }}>
+              <h2 data-rv="" style={{ margin: "0", flex: "1 1 520px", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(36px,4.6vw,64px)", lineHeight: ".95", textWrap: "balance", color: "#E9CB98" }}>
                 {"Sali a bordo del "}
                 <span style={{ fontWeight: "700" }}>
                   {"Salotto Squisitus"}
@@ -2840,7 +2840,7 @@ Site.prototype.render = function render() {
               {" "}
               <div data-rv="" style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                 {" "}
-                <a className="sqh-16" href="sali-a-bordo/sponsor/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 30px", background: "#fff", color: "#A5143B", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s, color .3s" }}>
+                <a className="sq-oro-cta" href="sali-a-bordo/sponsor/" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "56px", padding: "0 30px", background: "#D6B178", color: "#241A12", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "16px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", transition: "background .3s, color .3s" }}>
                   {"Diventa partner "}
                   <span aria-hidden="true">
                     {"→"}
@@ -3036,12 +3036,12 @@ Site.prototype.render = function render() {
             </div>
           </section>
         </>) : null}
-        <footer style={{ background: "#2A2523", color: "#fff", padding: "56px clamp(20px,4vw,48px) 32px" }}>
+        <footer style={{ background: "#2A2523", color: "#E9CB98", padding: "56px clamp(20px,4vw,48px) 32px" }}>
           {" "}
           <div className="sq-fgrid">
             <div className="sq-fcol">
               <img src="assets/squisitus-logo-white.svg" alt="Squisitus" style={{ height: "96px", width: "auto", alignSelf: "flex-start", marginBottom: "6px" }} />
-              <a className="sqh-18" href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", textDecoration: "none", alignSelf: "flex-start" }}>
+              <a className="sqh-18" href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".14em", textTransform: "uppercase", color: "#E9CB98", textDecoration: "none", alignSelf: "flex-start" }}>
                 {"Un progetto del "}
                 <span style={{ whiteSpace: "nowrap" }}>
                   {"Gruppo BSG ↗"}
@@ -3061,7 +3061,7 @@ Site.prototype.render = function render() {
                     {"00179 Roma"}
                   </span>
                 </span>
-                <a href="tel:+39062031223" style={{ color: "#fff", whiteSpace: "nowrap", alignSelf: "flex-start" }}>
+                <a href="tel:+39062031223" style={{ color: "#E9CB98", whiteSpace: "nowrap", alignSelf: "flex-start" }}>
                   {"+39 06 2031223"}
                 </a>
               </span>
@@ -3075,7 +3075,7 @@ Site.prototype.render = function render() {
                     {"20149 Milano"}
                   </span>
                 </span>
-                <a href="tel:+393922639937" style={{ color: "#fff", whiteSpace: "nowrap", alignSelf: "flex-start" }}>
+                <a href="tel:+393922639937" style={{ color: "#E9CB98", whiteSpace: "nowrap", alignSelf: "flex-start" }}>
                   {"+39 392 2639937"}
                 </a>
               </span>
@@ -3084,7 +3084,7 @@ Site.prototype.render = function render() {
               <span className="sq-ftit">{"Pagine"}</span>
               {($v.footerNav ?? []).map((n, $index) => (
                 <React.Fragment key={$index}>
-                  <a className="sqh-19" href={n?.href} style={{ color: "#fff", fontSize: "15px", minHeight: "30px", display: "flex", alignItems: "center", alignSelf: "flex-start" }}>
+                  <a className="sqh-19" href={n?.href} style={{ color: "#E9CB98", fontSize: "15px", minHeight: "30px", display: "flex", alignItems: "center", alignSelf: "flex-start" }}>
                     {n?.label}
                   </a>
                 </React.Fragment>
@@ -3092,21 +3092,21 @@ Site.prototype.render = function render() {
             </nav>
             <div className="sq-fcol">
               <span className="sq-ftit">{"Contatti"}</span>
-              <a href="mailto:info@bsgsrl.it" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start" }}>
+              <a href="mailto:info@bsgsrl.it" style={{ color: "#E9CB98", textDecoration: "underline", alignSelf: "flex-start" }}>
                 {"info@bsgsrl.it"}
               </a>
-              <a href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ color: "#fff", textDecoration: "underline", alignSelf: "flex-start" }}>
+              <a href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ color: "#E9CB98", textDecoration: "underline", alignSelf: "flex-start" }}>
                 {"www.bsgsrl.it"}
               </a>
               <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
               {" "}
-              <a className="sqh-20" href="https://www.facebook.com/profile.php?id=100063584168175" target="_blank" rel="noopener" aria-label="Facebook · Squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+              <a className="sqh-20" href="https://www.facebook.com/profile.php?id=100063584168175" target="_blank" rel="noopener" aria-label="Facebook · Squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#E9CB98" }}>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.3c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.2H8v3.6h2.6V22H14v-9.9h2.7l.4-3.6H14z" />
                 </svg>
               </a>
               {" "}
-              <a className="sqh-20" href="https://www.instagram.com/squisitus/" target="_blank" rel="noopener" aria-label="Instagram · @squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+              <a className="sqh-20" href="https://www.instagram.com/squisitus/" target="_blank" rel="noopener" aria-label="Instagram · @squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#E9CB98" }}>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <rect x="3" y="3" width="18" height="18" rx="5" />
                   <circle cx="12" cy="12" r="4.2" />
@@ -3114,7 +3114,7 @@ Site.prototype.render = function render() {
                 </svg>
               </a>
               {" "}
-              <a className="sqh-20" href="https://www.linkedin.com/company/squisitus/posts/" target="_blank" rel="noopener" aria-label="LinkedIn · Squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+              <a className="sqh-20" href="https://www.linkedin.com/company/squisitus/posts/" target="_blank" rel="noopener" aria-label="LinkedIn · Squisitus" style={{ width: "46px", height: "46px", borderRadius: "50%", border: "1px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", color: "#E9CB98" }}>
                 <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3V9.5zm7 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.3 0-2.9-1.8-2.9s-2.1 1.4-2.1 2.8V21h-4V9.5z" />
                 </svg>
@@ -3129,15 +3129,15 @@ Site.prototype.render = function render() {
               {"© 2026 BSG srl · P.IVA 10119151008 · Ateco 73.11.01"}
             </span>
             {" "}
-            <a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "#fff" }}>
+            <a href={PRIVACY_URL} target="_blank" rel="noopener" style={{ color: "#E9CB98" }}>
               {"Privacy Policy"}
             </a>
             {" "}
-            <a href={COOKIE_URL} target="_blank" rel="noopener" style={{ color: "#fff" }}>
+            <a href={COOKIE_URL} target="_blank" rel="noopener" style={{ color: "#E9CB98" }}>
               {"Cookie Policy"}
             </a>
             {" "}
-            <button type="button" onClick={$v.reopenCookie} style={{ background: "none", border: "0", color: "#fff", padding: "0", cursor: "pointer", textDecoration: "underline", fontSize: "13px" }}>
+            <button type="button" onClick={$v.reopenCookie} style={{ background: "none", border: "0", color: "#E9CB98", padding: "0", cursor: "pointer", textDecoration: "underline", fontSize: "13px" }}>
               {"Modifica consenso cookie"}
             </button>
             {" "}
