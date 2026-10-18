@@ -2934,6 +2934,9 @@ Site.prototype.render = function render() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "22px" }}>
                     <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B", fontWeight: "700" }}>{"Accredito stampa"}</span>
                     <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", fontSize: "clamp(28px,3vw,38px)", textTransform: "uppercase", lineHeight: "1" }}>{"Richiedi l'"}<span style={{ fontWeight: "700" }}>{"accredito"}</span></h2>
+                    <p style={{ margin: "6px 0 0", fontSize: "15px", lineHeight: "1.55", color: "#5F564D" }}>
+                      {"L'accredito è valido per la "}<b style={{ color: "#3C3C3B" }}>{"fiera Squisitus Roma 2027"}</b>{" · Palazzo dei Congressi, 1 • 2 ottobre 2027."}
+                    </p>
                   </div>
                 ) : null}
                 {$v.pressOpen ? (<>
