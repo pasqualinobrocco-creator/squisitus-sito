@@ -38,10 +38,11 @@ input,select,textarea,button{font:inherit}
 @keyframes sq-bsgyear{from{opacity:0;transform:translateX(12%)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){[data-rv]{opacity:1!important;transform:none!important;transition:none!important}}
 html[data-a11y-still] [data-rv]{opacity:1!important;transform:none!important}
-html[data-a11y-big] body{zoom:1.15}
-html[data-a11y-contrast] body{filter:contrast(1.25) saturate(1.1)}
+html[data-a11y-big]{zoom:1.15}
+html[data-a11y-contrast]{filter:contrast(1.25) saturate(1.1)}
 html[data-a11y-links] a{text-decoration:underline!important;text-underline-offset:3px}
-html[data-a11y-still] *,html[data-a11y-still] *::before,html[data-a11y-still] *::after{animation:none!important;transition:none!important}
+/* "Ferma animazioni": every animation jumps to its final frame (animation:none would leave fade-ins at opacity 0) */
+html[data-a11y-still] *,html[data-a11y-still] *::before,html[data-a11y-still] *::after{animation-duration:1ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:0s!important;transition-delay:0s!important;scroll-behavior:auto!important}
 
 /* style-hover */
 .sqh-0:hover{opacity:.65 !important}
