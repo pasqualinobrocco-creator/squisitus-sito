@@ -668,7 +668,7 @@ Site.prototype.render = function render() {
           <div className="sq-hdr" data-sq-anim="" style={{ maxWidth: "1320px", margin: "0 auto", padding: "10px clamp(16px,4vw,48px)", display: "flex", alignItems: "center", gap: "clamp(10px,2vw,24px)", minHeight: "76px" }}>
             {" "}
             <a href="./" aria-label="Squisitus — homepage" style={{ display: "flex", alignItems: "center", flexShrink: "0" }}>
-              <img src="assets/squisitus-logo-h-white.svg" alt="Squisitus" style={{ display: `${$v.logoWhiteD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
+              <img src="assets/squisitus-logo-h-bianco.svg" alt="Squisitus" style={{ display: `${$v.logoWhiteD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
               <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" style={{ display: `${$v.logoColorD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
             </a>
             {" "}
@@ -723,7 +723,7 @@ Site.prototype.render = function render() {
             {" "}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "60px" }}>
               {" "}
-              <img src="assets/squisitus-logo-h-white.svg" alt="Squisitus" style={{ height: "44px", width: "auto" }} />
+              <img src="assets/squisitus-logo-h-bianco.svg" alt="Squisitus" style={{ height: "44px", width: "auto" }} />
               {" "}
               <button type="button" onClick={$v.toggleMenu} aria-label="Chiudi menu" style={{ width: "48px", height: "48px", border: "1px solid rgba(255,255,255,.5)", background: "transparent", color: "#fff", borderRadius: "999px", fontSize: "22px", cursor: "pointer" }}>
                 {"✕"}
@@ -3025,7 +3025,6 @@ Site.prototype.render = function render() {
           {" "}
           <div className="sq-fgrid">
             <div className="sq-fcol">
-              <img src="assets/squisitus-logo-white.svg" alt="Squisitus" style={{ height: "96px", width: "auto", alignSelf: "flex-start", marginBottom: "6px" }} />
               <a className="sqh-18" href="https://www.bsgsrl.it" target="_blank" rel="noopener" style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", letterSpacing: ".14em", textTransform: "uppercase", color: "#E9CB98", textDecoration: "none", alignSelf: "flex-start" }}>
                 {"Un progetto del "}
                 <span style={{ whiteSpace: "nowrap" }}>
