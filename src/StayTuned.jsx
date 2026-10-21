@@ -40,7 +40,7 @@ export default function StayTuned({ stato }) {
     <main className="sq-st" style={{ minHeight: '100svh', background: RED, display: 'grid', placeItems: 'center', overflow: 'hidden', position: 'relative', padding: 16 }}>
       <span aria-hidden="true" className="sq-st-ring" style={{ top: '50%' }} />
       <h1 style={{ margin: 0, position: 'relative' }}>
-        <img src="assets/squisitus-logo-white.svg" alt="Squisitus" className="sq-st-in" style={{ display: 'block', width: 'min(clamp(200px, 30vw, 340px), 55svh)', height: 'auto' }} />
+        <img src="assets/squisitus-logo-verticale.svg" alt="Squisitus" className="sq-st-in" style={{ display: 'block', width: 'min(clamp(200px, 30vw, 340px), 55svh)', height: 'auto' }} />
       </h1>
     </main>
   );
@@ -50,7 +50,7 @@ export default function StayTuned({ stato }) {
       <span aria-hidden="true" className="sq-st-ring" />
       <section style={{ display: 'grid', placeItems: 'center', textAlign: 'center', padding: '48px 16px 24px', position: 'relative' }}>
         <div style={{ display: 'grid', justifyItems: 'center', gap: 'clamp(18px, 3vw, 28px)', maxWidth: 820 }}>
-          <img src="assets/squisitus-logo-white.svg" alt="Squisitus" className="sq-st-in" style={{ width: 'clamp(150px, 22vw, 230px)', height: 'auto' }} />
+          <img src="assets/squisitus-logo-verticale.svg" alt="Squisitus" className="sq-st-in" style={{ width: 'clamp(150px, 22vw, 230px)', height: 'auto' }} />
           <p className="sq-st-in" style={{ margin: 0, fontFamily: 'Oswald,sans-serif', fontWeight: 600, fontSize: 'clamp(12px, 1.4vw, 14px)', letterSpacing: '.28em', textTransform: 'uppercase', opacity: .85, animationDelay: '.15s' }}>
             Roma · 1 • 2 ottobre 2027 · Palazzo dei Congressi
           </p>
