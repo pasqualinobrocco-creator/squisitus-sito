@@ -52,7 +52,7 @@ export default function StayTuned({ stato }) {
         <div style={{ display: 'grid', justifyItems: 'center', gap: 'clamp(18px, 3vw, 28px)', maxWidth: 820 }}>
           <img src="assets/squisitus-logo-verticale.svg" alt="Squisitus" className="sq-st-in" style={{ width: 'clamp(150px, 22vw, 230px)', height: 'auto' }} />
           <p className="sq-st-in" style={{ margin: 0, fontFamily: 'Oswald,sans-serif', fontWeight: 600, fontSize: 'clamp(12px, 1.4vw, 14px)', letterSpacing: '.28em', textTransform: 'uppercase', opacity: .85, animationDelay: '.15s' }}>
-            Roma · 1 • 2 ottobre 2027 · Palazzo dei Congressi
+            Roma · 5 • 6 novembre 2027 · La Nuvola – Roma Convention Center
           </p>
           <h1 className="sq-st-in" style={{ margin: 0, fontFamily: 'Oswald,sans-serif', fontWeight: 700, fontSize: 'clamp(56px, 13vw, 150px)', lineHeight: .9, letterSpacing: '.02em', textTransform: 'uppercase', animationDelay: '.3s' }}>
             Stay tuned

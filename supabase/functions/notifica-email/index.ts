@@ -40,7 +40,7 @@ function layout(titolo: string, intro: string, righe: [string, unknown][] = [], 
 ${tab ? `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-top:1px solid #E3DFDA;margin-bottom:18px">${tab}</table>` : ''}
 ${cta ? `<a href="${esc(cta[1])}" style="display:inline-block;background:#A5143B;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold;font-size:14px">${esc(cta[0])}</a>` : ''}
 </td></tr>
-<tr><td style="padding:16px 28px;background:#FAF8F5;color:#6E665E;font-size:12px">Squisitus Roma 2027 · 1 • 2 ottobre · Palazzo dei Congressi</td></tr>
+<tr><td style="padding:16px 28px;background:#FAF8F5;color:#6E665E;font-size:12px">Squisitus Roma 2027 · 5 • 6 novembre · La Nuvola – Roma Convention Center</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
@@ -87,7 +87,7 @@ function emailPer(tabella: string, r: Record<string, any>, cfg: Record<string, a
       html: layout('Nuova richiesta di accredito', 'Un giornalista ha chiesto l’accredito stampa per Squisitus Roma 2027.', dati, ['Valuta nel pannello', PANNELLO + '#/accrediti']) });
     if (conferma) out.push({ to: [r.email], reply_to: rispondi,
       subject: 'Richiesta di accredito ricevuta · Squisitus',
-      html: layout(`Grazie, ${r.nome}`, 'Abbiamo ricevuto la tua richiesta di accredito stampa per Squisitus Roma 2027 (1 • 2 ottobre 2027, Palazzo dei Congressi). Dopo la verifica ti confermeremo l’accredito via email.', dati) });
+      html: layout(`Grazie, ${r.nome}`, 'Abbiamo ricevuto la tua richiesta di accredito stampa per Squisitus Roma 2027 (5 • 6 novembre 2027, La Nuvola – Roma Convention Center). Dopo la verifica ti confermeremo l’accredito via email.', dati) });
   }
 
   if (tabella === 'newsletter') {

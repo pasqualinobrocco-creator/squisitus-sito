@@ -13,7 +13,7 @@ const I = {
   expo: "M3 21V9l9-5 9 5v12M3 21h18M8 21v-7h8v7",
   sponsor: "M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"
 };
-const TARGET = new Date('2027-10-01T09:00:00+02:00').getTime();
+const TARGET = new Date('2027-11-05T09:00:00+01:00').getTime();
 const EMPTY = { azienda: '', referente: '', email: '', telefono: '', categoria: '', stand: '4×3 m', livello: 'Da valutare', messaggio: '', privacy: false, newsletter: false };
 const pad = n => String(n).padStart(2, '0');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -283,7 +283,7 @@ export default class Site extends React.Component {
       h('circle', { cx, cy, r: 9, fill: W }),
       h('text', { x: lx, y: cy + 5, textAnchor: anchor, fill: W, transform: mobile ? `rotate(-90 ${cx} ${cy})` : undefined, style: { fontFamily: 'Oswald, sans-serif', fontSize: mobile ? 26 : 15, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase' } }, 'Ingresso')));
     door(16, 288, 3.4, 34, 'start');
-    return h('svg', { key: (this.planKey || 0) + (mobile ? 'm' : 'd'), 'data-sq-anim': '', viewBox: mobile ? '0 0 580 1207' : '0 0 1207 580', role: 'img', 'aria-label': 'Planimetria del Palazzo dei Congressi: salone centrale con isole e file di stand espositivi, auditorium con platea, foyer con area tavoli e ingresso sul lato sinistro. Planimetria prototipo non ufficiale', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, mobile ? h('g', { transform: 'translate(580 0) rotate(90)' }, els) : els);
+    return h('svg', { key: (this.planKey || 0) + (mobile ? 'm' : 'd'), 'data-sq-anim': '', viewBox: mobile ? '0 0 580 1207' : '0 0 1207 580', role: 'img', 'aria-label': 'Planimetria indicativa dell’area espositiva: salone centrale con isole e file di stand espositivi, auditorium con platea, foyer con area tavoli e ingresso sul lato sinistro. Planimetria prototipo non ufficiale', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, mobile ? h('g', { transform: 'translate(580 0) rotate(90)' }, els) : els);
   }
   skipIntro = () => {
     if (this.state.ph >= 6) return;
@@ -480,10 +480,10 @@ export default class Site extends React.Component {
       ],
       touchpoints: ['Ristoranti', 'Botteghe', 'Eventi serali', 'Iniziative dei partner'],
       quad: [
-        { t: 'Palazzo dei Congressi', x: '28%', y: '30%', c: '#A5143B', size: '26px' },
+        { t: 'Palazzo dei Congressi', x: '28%', y: '30%', c: '#106B30', size: '18px' },
         { t: 'Salone delle Fontane', x: '72%', y: '22.5%', c: '#106B30', size: '18px' },
         { t: 'Spazio Novecento', x: '78%', y: '72.5%', c: '#106B30', size: '18px' },
-        { t: 'La Nuvola', x: '24%', y: '77.5%', c: '#106B30', size: '18px' }
+        { t: 'La Nuvola', x: '24%', y: '77.5%', c: '#A5143B', size: '26px' }
       ],
       renderTabs: ['Planimetria', 'Render'].map((t, i) => { const sel = st.renderTab === i; return { t, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#1C1714' : '#fff', on: () => this.setState({ renderTab: i }) }; }),
       renderLabel: st.renderTab === 0 ? '[ Planimetria prototipo · versione architetto da fornire ]' : '[ Video-render o visual immersivo · in attesa materiali architetto ]',
@@ -580,7 +580,7 @@ export default class Site extends React.Component {
         const S = [
           { t: 'Bologna', tag: 'Prima tappa', ev: 'Marca by BolognaFiere', when: '14 • 15 gennaio 2026', d: new Date('2026-01-14T09:00:00+01:00').getTime(), e: new Date('2026-01-15T20:00:00+01:00').getTime() },
           { t: 'Bologna', tag: 'Seconda tappa', ev: 'Marca by BolognaFiere', when: '13 • 14 gennaio 2027', d: new Date('2027-01-13T09:00:00+01:00').getTime(), e: new Date('2027-01-14T20:00:00+01:00').getTime() },
-          { t: 'Roma', tag: 'Edizione romana', ev: 'Palazzo dei Congressi', when: '1 • 2 ottobre 2027', d: TARGET, e: new Date('2027-10-02T20:00:00+02:00').getTime(), main: true }
+          { t: 'Roma', tag: 'Edizione romana', ev: 'La Nuvola – Roma Convention Center', when: '5 • 6 novembre 2027', d: TARGET, e: new Date('2027-11-06T20:00:00+01:00').getTime(), main: true }
         ];
         const d0 = S[0].d, span = S[2].d - d0, pos = t => Math.max(0, Math.min(1, (t - d0) / span));
         const dd = t => Math.max(0, Math.ceil((t - now) / 864e5));
@@ -760,7 +760,7 @@ Site.prototype.render = function render() {
               </a>
               {" "}
               <p style={{ margin: "8px 0 0", fontSize: "14px", textAlign: "center", opacity: ".85" }}>
-                {"1 • 2 ottobre 2027 · Roma, Palazzo dei Congressi"}
+                {"5 • 6 novembre 2027 · Roma, La Nuvola – Roma Convention Center"}
               </p>
               {" "}
             </div>
@@ -804,7 +804,7 @@ Site.prototype.render = function render() {
                   <button className="sqh-3" type="button" onClick={$v.scrollPastHero} style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "48px", padding: "7px 22px", border: "1.5px solid #fff", background: "transparent", color: "#fff", fontFamily: "Oswald,sans-serif", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", borderRadius: "999px", cursor: "pointer", textAlign: "left" }}>
                     <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.15" }}>
                       {"Scorri per Squisitus Exhibition"}
-                      <span style={{ fontSize: "12px", letterSpacing: ".1em", fontWeight: "600" }}>{"Roma · 1 • 2 ottobre 2027"}</span>
+                      <span style={{ fontSize: "12px", letterSpacing: ".1em", fontWeight: "600" }}>{"Roma · 5 • 6 novembre 2027"}</span>
                     </span>
                     <span aria-hidden="true">
                       {"↓"}
@@ -823,7 +823,7 @@ Site.prototype.render = function render() {
                 {" "}
                 <h1 style={{ margin: "0", opacity: `${$v.o4 ?? ""}`, transform: `translateY(${$v.y4 ?? ""})`, transition: "opacity .8s ease-out, transform .9s cubic-bezier(.22,1,.36,1)" }}>
                   <span style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>
-                    {"Squisitus Roma 2027 – Food Exhibition al Palazzo dei Congressi"}
+                    {"Squisitus – Food Exhibition, Roma 5 • 6 novembre 2027 alla Nuvola – Roma Convention Center"}
                   </span>
                   <svg aria-hidden="true" viewBox="-1 471 403 82" style={{ display: "block", height: "clamp(32px,min(6.4vw,9svh),84px)", width: "auto" }}>
                     <g>
@@ -857,7 +857,7 @@ Site.prototype.render = function render() {
                 </p>
                 {" "}
                 <p style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "400", fontSize: "clamp(14px,1.4vw,18px)", letterSpacing: ".14em", textTransform: "uppercase", textWrap: "balance", maxWidth: "100%", opacity: `${$v.o5 ?? ""}`, transform: `translateY(${$v.y5 ?? ""})`, transition: "opacity .7s ease-out, transform .8s cubic-bezier(.22,1,.36,1)" }}>
-                  {"Roma · Palazzo dei Congressi · "}<span style={{ whiteSpace: "nowrap" }}>{"1 • 2 Ottobre 2027"}</span>
+                  {"Roma · La Nuvola – Roma Convention Center · "}<span style={{ whiteSpace: "nowrap" }}>{"5 • 6 Novembre 2027"}</span>
                 </p>
                 {" "}
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", opacity: `${$v.o6 ?? ""}`, transform: `translateY(${$v.y6 ?? ""})`, transition: "opacity .7s ease-out, transform .8s cubic-bezier(.22,1,.36,1)", pointerEvents: `${$v.pe6 ?? ""}` }}>
@@ -935,7 +935,7 @@ Site.prototype.render = function render() {
                   </p>
                   {" "}
                   <p style={{ margin: "0", fontSize: "17px", lineHeight: "1.6", maxWidth: "52ch", opacity: ".92" }}>
-                    {"Due giornate al Palazzo dei Congressi: la prima dedicata al business tra imprese, buyer e territori, la seconda aperta al pubblico."}
+                    {"Due giornate alla Nuvola – Roma Convention Center: la prima dedicata al business tra imprese, buyer e territori, la seconda aperta al pubblico."}
                   </p>
                   {" "}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "6px" }}>
@@ -995,9 +995,9 @@ Site.prototype.render = function render() {
                   {"Conto alla rovescia"}
                 </span>
                 {" "}
-                <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(40px,5vw,68px)", lineHeight: ".92" }}>
+                <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(34px,4.2vw,58px)", lineHeight: ".92" }}>
                   <span style={{ fontWeight: "700" }}>
-                    {"1 • 2 ottobre"}
+                    {"5 • 6 novembre"}
                   </span>
                   {" 2027"}
                 </h2>
@@ -1056,7 +1056,7 @@ Site.prototype.render = function render() {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" aria-hidden="true">
                       <path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0" />
                     </svg>
-                    {"Roma, Palazzo dei Congressi · EUR"}
+                    {"Roma, La Nuvola – Roma Convention Center · EUR"}
                   </span>
                   {" "}
                   <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1257,7 +1257,7 @@ Site.prototype.render = function render() {
                   </h2>
                   {" "}
                   <p data-rv="" style={{ margin: "0", fontSize: "18px", lineHeight: "1.65", maxWidth: "48ch", textWrap: "pretty" }}>
-                    {"Squisitus esce dal Palazzo dei Congressi e dà vita al Quadrilatero del Food: un ecosistema esperienziale diffuso che coinvolge altre tre location dell’EUR con eventi pensati ad hoc. Un percorso di turismo enogastronomico tra sapori, cultura, ospitalità e nuove connessioni."}
+                    {"Squisitus esce dalla Nuvola – Roma Convention Center e dà vita al Quadrilatero del Food: un ecosistema esperienziale diffuso che coinvolge altre tre location dell’EUR con eventi pensati ad hoc. Un percorso di turismo enogastronomico tra sapori, cultura, ospitalità e nuove connessioni."}
                   </p>
                   {" "}
                   <p data-rv="" style={{ margin: "8px 0 0", paddingTop: "24px", borderTop: "1px solid rgba(214,177,120,.5)", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "clamp(22px,2.3vw,30px)", lineHeight: "1.2", textTransform: "uppercase", color: "#E9CB98", maxWidth: "26ch", textWrap: "balance" }}>
@@ -1423,7 +1423,7 @@ Site.prototype.render = function render() {
                     </span>
                     {" "}
                     <span style={{ fontFamily: "'Bodoni Moda',serif", fontStyle: "italic", fontWeight: "400", textTransform: "none", fontSize: ".5em", letterSpacing: "0" }}>
-                      {"Palazzo dei Congressi"}
+                      {"La Nuvola – Roma Convention Center"}
                     </span>
                   </h2>
                   {" "}
@@ -2361,7 +2361,7 @@ Site.prototype.render = function render() {
               </h1>
               {" "}
               <p data-rv="" style={{ margin: "0", fontSize: "18px", lineHeight: "1.6", maxWidth: "62ch", textWrap: "pretty" }}>
-                {"Squisitus è un viaggio attraverso territori, eccellenze ed esperienze. Un percorso itinerante che prende vita con Squisitus – Il Salotto On The Road, tappa dopo tappa, per approdare al primo grande appuntamento espositivo: Squisitus Exhibition Roma, l’1 e 2 ottobre 2027."}
+                {"Squisitus è un viaggio attraverso territori, eccellenze ed esperienze. Un percorso itinerante che prende vita con Squisitus – Il Salotto On The Road, tappa dopo tappa, per approdare al primo grande appuntamento espositivo: Squisitus Exhibition Roma, il 5 e 6 novembre 2027."}
               </p>
               {" "}
               <p data-rv="" style={{ margin: "0", fontSize: "18px", lineHeight: "1.6", maxWidth: "62ch", textWrap: "pretty" }}>
@@ -2532,11 +2532,11 @@ Site.prototype.render = function render() {
                     <span style={{ fontWeight: "700", color: "#A5143B" }}>
                       {"Roma"}
                     </span>
-                    {" · 1 • 2 ottobre 2027"}
+                    {" · 5 • 6 novembre 2027"}
                   </span>
                   {" "}
                   <span style={{ fontSize: "15px" }}>
-                    {"Palazzo dei Congressi, EUR"}
+                    {"La Nuvola – Roma Convention Center, EUR"}
                   </span>
                   {" "}
                 </div>
@@ -2881,7 +2881,7 @@ Site.prototype.render = function render() {
                 </h1>
                 {" "}
                 <p data-rv="" style={{ margin: "0", fontSize: "17px", lineHeight: "1.6", opacity: ".92" }}>
-                  {"Sei un giornalista? Richiedi l'accredito stampa per Squisitus Roma 2027, 1 • 2 ottobre 2027 al Palazzo dei Congressi. Dopo la verifica ti confermeremo l'accredito via email."}
+                  {"Sei un giornalista? Richiedi l'accredito stampa per Squisitus Roma 2027, 5 • 6 novembre 2027 alla Nuvola – Roma Convention Center. Dopo la verifica ti confermeremo l'accredito via email."}
                 </p>
                 {" "}
                 <button type="button" onClick={$v.vaiAlKit} className="sqh-3" style={{ alignSelf: "flex-start", marginTop: "6px", display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "52px", padding: "0 24px", border: "1.5px solid #fff", background: "transparent", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", cursor: "pointer" }}>
@@ -2920,7 +2920,7 @@ Site.prototype.render = function render() {
                     <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B", fontWeight: "700" }}>{"Accredito stampa"}</span>
                     <h2 style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", fontSize: "clamp(28px,3vw,38px)", textTransform: "uppercase", lineHeight: "1" }}>{"Richiedi l'"}<span style={{ fontWeight: "700" }}>{"accredito"}</span></h2>
                     <p style={{ margin: "6px 0 0", fontSize: "15px", lineHeight: "1.55", color: "#5F564D" }}>
-                      {"L'accredito è valido per la "}<b style={{ color: "#3C3C3B" }}>{"fiera Squisitus Roma 2027"}</b>{" · Palazzo dei Congressi, 1 • 2 ottobre 2027."}
+                      {"L'accredito è valido per la "}<b style={{ color: "#3C3C3B" }}>{"fiera Squisitus Roma 2027"}</b>{" · La Nuvola – Roma Convention Center, 5 • 6 novembre 2027."}
                     </p>
                   </div>
                 ) : null}
@@ -3132,13 +3132,13 @@ Site.prototype.render = function render() {
           <div style={{ maxWidth: "1320px", margin: "0 auto", padding: "8px clamp(12px,4vw,48px)", display: "flex", alignItems: "center", gap: "16px", minHeight: "60px" }}>
             {" "}
             <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "20px", letterSpacing: ".04em" }}>
-              {"1 • 2.10.2027"}
+              {"5 • 6.11.2027"}
             </span>
             {" "}
             <span style={{ width: "1px", height: "24px", background: "rgba(255,255,255,.35)" }} />
             {" "}
             <span style={{ fontSize: "14px", flex: "1", minWidth: "0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {"Roma · Palazzo dei Congressi"}
+              {"Roma · La Nuvola"}
             </span>
             {" "}
             <a href="sali-a-bordo/espositore/" style={{ minHeight: "44px", padding: "0 18px", display: "flex", alignItems: "center", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".08em", textTransform: "uppercase" }}>
