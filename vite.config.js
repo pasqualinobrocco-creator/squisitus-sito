@@ -7,7 +7,10 @@ import { ROUTES, SITE_URL, urlOf, jsonLd } from './src/routes.js';
 // BASE_PATH: '/' when the site is on its own domain (squisitus.it), '/squisitus-sito/' on the GitHub Pages preview.
 // NOINDEX=true keeps a preview out of Google (the canonical tags already point to SITE_URL).
 const BASE = process.env.BASE_PATH || '/';
-const NOINDEX = process.env.NOINDEX === 'true';
+// STAGING=true (deploy/pubblica.sh staging): staging.squisitus.it, never indexed, no "Stay tuned" page.
+const STAGING = process.env.STAGING === 'true';
+const NOINDEX = process.env.NOINDEX === 'true' || STAGING;
+if (STAGING) process.env.VITE_STAGING = 'true';
 // ADMIN_PATH (only in .env.local, never committed): secret folder of the management panel, e.g. "gestione-abc123".
 // Without it the panel is not built at all (GitHub Pages preview, builds from the repository).
 const ADMIN = (loadEnv('production', __dirname, '').ADMIN_PATH || process.env.ADMIN_PATH || '').replace(/^\/+|\/+$/g, '');

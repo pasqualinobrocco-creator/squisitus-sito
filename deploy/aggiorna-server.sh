@@ -16,6 +16,12 @@ BACKUP_DIR="/var/backups/squisitus"
 [ "$(id -u)" -eq 0 ] || { echo "Va eseguito come root (con sudo)."; exit 1; }
 command -v nginx >/dev/null || { echo "nginx non trovato su questo server."; exit 1; }
 
+# secondo argomento "staging": installa in /var/www/squisitus/staging (staging.squisitus.it, vedi crea-staging.sh)
+DOVE="${2:-produzione}"
+if [ "$DOVE" = staging ]; then
+  ROOT=/var/www/squisitus/staging; BACKUP_DIR="$BACKUP_DIR/staging"
+  [ -d "$ROOT" ] || { echo "Lo staging non è ancora configurato: esegui prima deploy/crea-staging.sh sul server."; exit 1; }
+else
 # cartella del sito: il "root" del blocco server di squisitus.it (altrimenti quello di default)
 ROOT="$(nginx -T 2>/dev/null | awk '
   /^[ \t]*server[ \t]*\{/ && depth==0 { insrv=1; root=""; match_=0 }
@@ -25,6 +31,7 @@ ROOT="$(nginx -T 2>/dev/null | awk '
   { depth+=o-c; if (insrv && depth==0) { if (match_ && root!="") { print root; exit } insrv=0 } }')"
 [ -n "$ROOT" ] || ROOT="$(nginx -T 2>/dev/null | awk '$1=="root" { gsub(";","",$2); print $2; exit }')"
 [ -n "$ROOT" ] || ROOT="/var/www/html"
+fi
 case "$ROOT" in /|/etc*|/usr*|/bin*|/root*|"") echo "Cartella del sito non sicura: '$ROOT'. Mi fermo."; exit 1;; esac
 echo "→ Cartella del sito: $ROOT"
 
@@ -62,7 +69,7 @@ CONF="$(nginx -T 2>/dev/null | awk '
 [ -n "$CONF" ] && CONF="$(readlink -f "$CONF")"  # sites-enabled is usually a link to sites-available
 # il blocco "location / { … }" deve provare file, poi la pagina della cartella, poi 404
 # (prima rimandava tutto alla home o a un'app Node, "@app", che il sito statico non usa)
-if [ -n "$CONF" ] && [ -f "$CONF" ] && ! grep -q 'try_files $uri $uri/index.html' "$CONF"; then
+if [ "$DOVE" != staging ] && [ -n "$CONF" ] && [ -f "$CONF" ] && ! grep -q 'try_files $uri $uri/index.html' "$CONF"; then
   cp -a "$CONF" "$BACKUP_DIR/nginx-$(basename "$CONF")-$STAMP.bak"
   perl -0pi -e 's#(location\s+/\s*\{[^\}]*?)try_files[^;]*;#$1try_files \$uri \$uri/index.html \$uri/ =404;#' "$CONF"
   grep -q 'error_page 404 /404.html' "$CONF" || perl -0pi -e 's{(server_name[^;]*squisitus\.it[^;]*;)}{$1\n    error_page 404 /404.html;}' "$CONF"
@@ -75,5 +82,5 @@ if [ -n "$CONF" ] && [ -f "$CONF" ] && ! grep -q 'try_files $uri $uri/index.html
 fi
 
 nginx -t && systemctl reload nginx
-echo "✓ Sito aggiornato. Apri https://www.squisitus.it"
+[ "$DOVE" = staging ] && echo "✓ Staging aggiornato. Apri https://staging.squisitus.it" || echo "✓ Sito aggiornato. Apri https://www.squisitus.it"
 echo "  Per tornare alla versione precedente: rm -rf $ROOT/* && tar -xzf $BACKUP_DIR/sito-$STAMP.tar.gz -C $ROOT"

@@ -62,3 +62,10 @@ Le pagine hanno indirizzi veri (`/un-progetto-bsg/`, `/sali-a-bordo/sponsor/`, `
 - Il server deve servire `cartella/index.html` per gli indirizzi con la barra finale (GitHub Pages, Netlify, Apache e Nginx lo fanno di default)
 
 Se Supabase non risponde, il sito mostra comunque i 3 articoli di default e i riquadri segnaposto dei partner.
+
+## Staging (staging.squisitus.it)
+Versione di prova del sito, protetta da nome utente e password e mai indicizzata da Google. Mostra sempre il sito completo (niente pagina "Stay tuned") con l'etichetta "Staging". Usa lo stesso database Supabase della produzione: i contenuti gestiti dal pannello (articoli, partner, press kit…) sono gli stessi, e i moduli compilati in staging arrivano davvero.
+
+- Prima volta: `bash deploy/configura-staging.sh` (crea lo staging sul server e chiede utente e password per entrarci).
+- Lavoro sulle novità nel ramo git `staging`: `git checkout staging`, modifiche, `git commit`, poi `bash deploy/pubblica.sh staging`.
+- Quando lo staging è approvato: `git checkout main && git merge staging && git push`, poi `bash deploy/pubblica.sh` (produzione, solo dal ramo `main`).
