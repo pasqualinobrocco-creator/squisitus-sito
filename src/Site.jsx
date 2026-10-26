@@ -673,7 +673,7 @@ Site.prototype.render = function render() {
             {" "}
             <a href="./" aria-label="Squisitus — homepage" style={{ display: "flex", alignItems: "center", flexShrink: "0" }}>
               <img src="assets/squisitus-logo-h-bianco.svg" alt="Squisitus" style={{ display: `${$v.logoWhiteD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
-              <img src="assets/squisitus-logo-h-color.svg" alt="Squisitus" style={{ display: `${$v.logoColorD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
+              <img src="assets/squisitus-logo-orizzontale.svg" alt="Squisitus" style={{ display: `${$v.logoColorD ?? ""}`, height: "clamp(50px,6.6vw,90px)", width: "auto" }} />
             </a>
             {" "}
             {$v.isDesk ? (<>
