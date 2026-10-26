@@ -37,6 +37,13 @@ export function presskitUrl(path, nome) {
   return url + '/storage/v1/object/public/presskit/' + path.split('/').map(encodeURIComponent).join('/') + '?download=' + encodeURIComponent(nome || '');
 }
 
+// Preview image of a press kit item: a site path (/assets/…), a full URL or a file in the "presskit" bucket.
+export function presskitAnteprima(v) {
+  if (!v) return '';
+  if (/^(https?:)?\/\//.test(v) || v.startsWith('/')) return v;
+  return url + '/storage/v1/object/public/presskit/' + v.split('/').map(encodeURIComponent).join('/');
+}
+
 // Press articles and partners managed from the Supabase dashboard (only published rows are readable).
 // Resolves to null when Supabase is not configured or the request fails, so the site keeps its defaults.
 export async function loadContent() {
@@ -46,7 +53,7 @@ export async function loadContent() {
       supabase.from('articoli').select('id,tipo,testata,titolo,link,data,occhiello,testo,in_evidenza,pagine,ordine')
         .order('data', { ascending: false, nullsFirst: false }).order('ordine'),
       supabase.from('partner').select('id,nome,livello,logo,link,ordine').order('ordine').order('nome'),
-      supabase.from('presskit').select('id,cartella,titolo,descrizione,tipo,file,nome_file,dimensione,link,ordine').order('ordine').order('created_at')
+      supabase.from('presskit').select('id,cartella,titolo,descrizione,tipo,file,nome_file,dimensione,link,ordine,comunicato_id,anteprima').order('ordine').order('created_at')
     ]);
     if (a.error || p.error || k.error) throw a.error || p.error || k.error;
     return { articoli: a.data, partner: p.data, presskit: k.data };

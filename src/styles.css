@@ -121,3 +121,13 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
 /* Gold of the "Quadrilatero del Food" section, reused across the site */
 .sq-oro-hover:hover{color:#D6B178 !important}
 .sq-oro-cta:hover{background:#E9CB98 !important;color:#241A12 !important}
+
+/* "Coming soon" in Dicono di noi: cards fade in, placeholder lines shimmer, a pulsing dot */
+@keyframes sq-cs-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes sq-cs-shimmer { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+@keyframes sq-cs-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: .35; } }
+.sq-cs-card { animation: sq-cs-in .9s cubic-bezier(.22,1,.36,1) both; }
+.sq-cs-line { display: block; height: 14px; border-radius: 3px;
+  background: linear-gradient(90deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.08) 35%, rgba(233,203,152,.38) 50%, rgba(255,255,255,.08) 65%, rgba(255,255,255,.08) 100%);
+  background-size: 250% 100%; animation: sq-cs-shimmer 2.2s ease-in-out infinite; }
+.sq-cs-dot { width: 9px; height: 9px; border-radius: 50%; background: #E9CB98; animation: sq-cs-pulse 1.6s ease-in-out infinite; }

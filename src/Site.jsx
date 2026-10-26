@@ -2,7 +2,7 @@
 // This file is now the source of the site: do not re-run the converter over it.
 /* eslint-disable */
 import React from 'react';
-import { saveForm, loadContent, mediaUrl, presskitUrl } from './supabase.js';
+import { saveForm, loadContent, mediaUrl, presskitUrl, presskitAnteprima } from './supabase.js';
 import { collegaConsenso, apriPreferenzeCookie, tracciaPagina } from './analytics.js';
 import { ROUTES, SITE_URL, routeFor, hrefFor, urlOf } from './routes.js';
 import Moodboard from './Moodboard.jsx';
@@ -625,19 +625,35 @@ export default class Site extends React.Component {
         { tag: 'Rassegna stampa', t: 'Ne hanno parlato', s: 'Articoli e servizi sulla prima tappa.', img: 'Foto · ritagli stampa' },
         { tag: 'Territorio', t: 'Visibilità alle aziende', s: 'Le realtà territoriali protagoniste.', img: 'Foto · aziende ospiti' }
       ],
-      // press kit grouped by folder, in the order the folders first appear
-      kitCartelle: st.presskit.reduce((out, x) => {
-        let g = out.find(c => c.nome === x.cartella);
-        if (!g) out.push(g = { nome: x.cartella, voci: [] });
-        // files kept with the site (assets/press/…) are downloads too, like the ones uploaded to the press kit
-        const file = x.tipo === 'file' || /(^|\/)assets\/press\//.test(x.link || '');
-        const kb = x.dimensione ? (x.dimensione > 1048576 ? (x.dimensione / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(x.dimensione / 1024)) + ' KB') : '';
-        g.voci.push({ id: x.id, titolo: x.titolo, descrizione: x.descrizione, file,
-          href: x.tipo === 'file' ? presskitUrl(x.file, x.nome_file) : x.link,
-          etichetta: file ? 'Scarica' : 'Apri il link',
-          meta: file ? [(x.nome_file || x.link || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : x.link.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] });
-        return out;
-      }, []),
+      // press kit: logos first (the most requested), then the numbered press releases with the materials
+      // linked to each one (panel → Press kit → "Collega a un comunicato"), then any other folder
+      ...(() => {
+        const voce = x => {
+          // files kept with the site (/assets/press/…) are downloads too, like the ones uploaded to the press kit
+          const file = x.tipo === 'file' || /(^|\/)assets\/press\//.test(x.link || '');
+          const kb = x.dimensione ? (x.dimensione > 1048576 ? (x.dimensione / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(x.dimensione / 1024)) + ' KB') : '';
+          return { id: x.id, titolo: x.titolo, descrizione: x.descrizione, file, anteprima: presskitAnteprima(x.anteprima),
+            href: x.tipo === 'file' ? presskitUrl(x.file, x.nome_file) : x.link, nome: x.nome_file || '',
+            etichetta: file ? 'Scarica' : 'Apri il link',
+            meta: file ? [(x.nome_file || x.link || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : (x.link || '').replace(/^https?:\/\/(www\.)?/, '').split('/')[0] };
+        };
+        const isLoghi = c => /^(loghi|logo|marchio|marchi)$/i.test((c || '').trim());
+        const isCom = c => /^comunicat/i.test((c || '').trim());
+        const kit = st.presskit;
+        const allegati = id => kit.filter(x => x.comunicato_id === id).map(voce);
+        const sciolti = kit.filter(x => !x.comunicato_id);
+        const altre = sciolti.filter(x => !isLoghi(x.cartella) && !isCom(x.cartella)).reduce((out, x) => {
+          let g = out.find(c => c.nome === x.cartella);
+          if (!g) out.push(g = { nome: x.cartella, voci: [] });
+          g.voci.push(voce(x));
+          return out;
+        }, []);
+        return {
+          kitLoghi: sciolti.filter(x => isLoghi(x.cartella)).map(voce),
+          kitComunicati: sciolti.filter(x => isCom(x.cartella)).map((x, i) => ({ ...voce(x), numero: String(i + 1).padStart(2, '0'), allegati: allegati(x.id) })),
+          kitCartelle: altre
+        };
+      })(),
       kitVuoto: st.kitPronto && !st.presskit.length,
       contatto: st.contatto, copiato: st.copiato,
       apriContatto: () => this.setState({ contatto: true, copiato: false }),
@@ -2281,6 +2297,44 @@ Site.prototype.render = function render() {
             </div>
           </section>
           ) : null}
+          {/* nothing published yet: placeholder cards with a "coming soon" animation, in the style of "Articoli in pubblicazione" */}
+          {$v.isPressReview && !$v.pressPending?.length && !$v.pressFeatured?.length ? (
+          <section data-screen-label="P3c Coming soon" style={{ background: "#1C1714", color: "#fff", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
+            <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "36px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                  <div data-rv="" style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#E9CB98" }}>
+                    <span className="sq-cs-dot" aria-hidden="true" />
+                    <span style={{ fontWeight: "700" }}>{"Coming soon"}</span>
+                    <span style={{ width: "48px", height: "1px", background: "#E9CB98" }} />
+                  </div>
+                  <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(40px,5vw,68px)", lineHeight: ".92" }}>
+                    {"Nuove uscite "}<span style={{ fontWeight: "700" }}>{"in arrivo"}</span>
+                  </h2>
+                </div>
+                <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6", opacity: ".85" }}>
+                  {"A breve qui troverai i nuovi comunicati e gli articoli delle testate che raccontano Squisitus."}
+                </p>
+              </div>
+              <ul aria-label="Uscite in preparazione" style={{ listStyle: "none", margin: "0", padding: "0", display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,260px),1fr))", gap: "1px", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.16)" }}>
+                {["Comunicato 02", "Testata", "Testata", "Testata"].map((t, i) => (
+                  <li key={i} className="sq-cs-card" style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: "14px", minHeight: "210px", padding: "26px 24px", background: "#1C1714", animationDelay: (i * .15) + "s" }}>
+                    <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "14px", letterSpacing: ".2em", textTransform: "uppercase", opacity: ".55" }}>{t}</span>
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "92%", animationDelay: (i * .2) + "s" }} />
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "74%", animationDelay: (i * .2 + .1) + "s" }} />
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "48%", animationDelay: (i * .2 + .2) + "s" }} />
+                    <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#E9CB98" }}>{"In uscita"}</span>
+                      <span style={{ position: "relative", height: "3px", background: "rgba(255,255,255,.18)", borderRadius: "2px", overflow: "hidden" }}>
+                        <span style={{ position: "absolute", top: "0", bottom: "0", left: "0", width: "40%", background: "#A5143B", borderRadius: "2px", animation: "sq-loadbar 1.6s ease-in-out " + (i * .3) + "s infinite" }} />
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          ) : null}
           {$v.pressPending?.length ? (
           <section data-screen-label="P3c In arrivo" style={{ background: "#1C1714", color: "#fff", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
             {" "}
@@ -2425,7 +2479,7 @@ Site.prototype.render = function render() {
               {" "}
               <div data-rv="" style={{ marginTop: "40px", position: "relative", aspectRatio: "16/9", background: "#1C1714", borderRadius: "6px", overflow: "hidden" }}>
                 {" "}
-                <iframe src="https://player.vimeo.com/video/1198007063?h=d0527c0bd9&autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0&dnt=1" title="Il Salotto di Squisitus · Marca Bologna" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" allowFullScreen="allowfullscreen" loading="lazy" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", border: "0" }} />
+                <iframe src="https://player.vimeo.com/video/1236811202?autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0&dnt=1" title="Il Salotto di Squisitus · Marca Bologna" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" allowFullScreen="allowfullscreen" loading="lazy" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", border: "0" }} />
                 {" "}
               </div>
               {" "}
@@ -3019,6 +3073,68 @@ Site.prototype.render = function render() {
                 <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6" }}>{"Comunicati, immagini e loghi di Squisitus da scaricare liberamente per articoli e servizi."}</p>
               </div>
               {$v.kitVuoto ? <p data-rv="" style={{ margin: "0", padding: "28px", background: "#fff", borderRadius: "6px", fontSize: "17px" }}>{"Il press kit sarà disponibile a breve."}</p> : null}
+              {$v.kitLoghi?.length ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <h3 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "clamp(24px,2.4vw,30px)", letterSpacing: ".04em", textTransform: "uppercase" }}>{"Loghi e "}<span style={{ color: "#A5143B" }}>{"marchio"}</span></h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,360px),1fr))", gap: "18px" }}>
+                  {$v.kitLoghi.map(v => (
+                    <a key={v.id} data-rv="" className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
+                      style={{ display: "flex", flexDirection: "column", background: "#fff", color: "#3C3C3B", borderRadius: "8px", overflow: "hidden", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
+                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "clamp(160px,18vw,220px)", padding: "24px 32px", background: "#FBFAF7", borderBottom: "1px solid #EEE9E2" }}>
+                        {v.anteprima ? <img src={v.anteprima} alt="" loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "40px", color: "#A5143B" }}>{(v.meta || '').split(' ')[0]}</span>}
+                      </span>
+                      <span style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "20px 22px" }}>
+                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "21px", lineHeight: "1.2", textTransform: "uppercase" }}>{v.titolo}</span>
+                        {v.descrizione ? <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>{v.descrizione}</span> : null}
+                        <span style={{ marginTop: "6px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                          <span style={{ fontSize: "12px", letterSpacing: ".06em", color: "#5F564D" }}>{v.meta}</span>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 18px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                            {v.etichetta}<span aria-hidden="true">{v.file ? "↓" : "↗"}</span>
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+              ) : null}
+              {$v.kitComunicati?.length ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <h3 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "20px", letterSpacing: ".06em", textTransform: "uppercase" }}>{"Comunicati stampa"}</h3>
+                {$v.kitComunicati.map(v => (
+                  <article key={v.id} data-rv="" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 24px", alignItems: "start", padding: "24px", background: "#fff", borderRadius: "8px", boxShadow: "0 1px 0 #E3E3E3" }}>
+                    <span style={{ gridRow: "span 2", display: "flex", flexDirection: "column", alignItems: "center", minWidth: "84px", fontFamily: "Oswald,sans-serif", color: "#A5143B", textTransform: "uppercase" }}>
+                      <span style={{ fontSize: "12px", letterSpacing: ".2em" }}>{"Comunicato"}</span>
+                      <span style={{ fontSize: "54px", fontWeight: "700", lineHeight: "1" }}>{v.numero}</span>
+                    </span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxWidth: "62ch" }}>
+                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "21px", lineHeight: "1.2", textTransform: "uppercase" }}>{v.titolo}</span>
+                        {v.descrizione ? <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>{v.descrizione}</span> : null}
+                      </div>
+                      <a className="sqh-1" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "44px", padding: "0 20px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none", whiteSpace: "nowrap" }}>
+                        {v.etichetta + " · " + v.meta}<span aria-hidden="true">{v.file ? "↓" : "↗"}</span>
+                      </a>
+                    </div>
+                    {v.allegati.length ? (
+                    <div style={{ gridColumn: "2", display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "10px", paddingTop: "14px", borderTop: "1px solid #EEE9E2" }}>
+                      {v.allegati.map(m => (
+                        <a key={m.id} className="sqh-14" href={m.href} target={m.file ? undefined : "_blank"} rel={m.file ? undefined : "noopener"} download={m.file ? (m.nome || "") : undefined}
+                          style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 14px 8px 8px", background: "#F4F1EC", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", transition: "transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
+                          {m.anteprima ? <img src={m.anteprima} alt="" loading="lazy" style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "4px" }} /> : null}
+                          <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                            <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.titolo}</span>
+                            <span style={{ fontSize: "12px", color: "#5F564D" }}>{m.meta}{" · "}<span style={{ color: "#A5143B", fontWeight: "700" }}>{m.etichetta}{m.file ? " ↓" : " ↗"}</span></span>
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+              ) : null}
               {($v.kitCartelle ?? []).map(c => (
                 <div key={c.nome} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   <h3 data-rv="" style={{ margin: "0", display: "flex", alignItems: "center", gap: "10px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "20px", letterSpacing: ".06em", textTransform: "uppercase" }}>
@@ -3027,7 +3143,7 @@ Site.prototype.render = function render() {
                   </h3>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,280px),1fr))", gap: "14px" }}>
                     {c.voci.map(v => (
-                      <a key={v.id} data-rv="" className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? "" : undefined}
+                      <a key={v.id} data-rv="" className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
                         style={{ display: "flex", flexDirection: "column", gap: "10px", minHeight: "150px", padding: "22px 22px 20px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
                         <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "19px", lineHeight: "1.2", textTransform: "uppercase", letterSpacing: ".02em" }}>{v.titolo}</span>
                         {v.descrizione ? <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>{v.descrizione}</span> : null}

@@ -86,3 +86,10 @@ alter table public.sito_stato add column if not exists solo_logo boolean not nul
 
 -- Pagine in cui compare un articolo ('dicono-di-noi', 'salotto'); scelte nel pannello
 alter table public.articoli add column if not exists pagine text[] not null default '{}';
+
+-- Press kit: materiali collegati a un comunicato, anteprima, file pubblicati con il sito (/assets/…)
+alter table public.presskit add column if not exists comunicato_id bigint references public.presskit(id) on delete set null;
+alter table public.presskit add column if not exists anteprima text;
+alter table public.presskit drop constraint if exists presskit_check;
+alter table public.presskit add constraint presskit_check check (
+  (tipo = 'file' and file is not null) or (tipo = 'link' and link ~* '^(https?://|/assets/)'));

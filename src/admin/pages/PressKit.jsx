@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { db } from '../client.js';
 import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
-const CARTELLE = ['Comunicati stampa', 'Immagini', 'Loghi', 'Video', 'Documenti'];
+// On the site "Loghi" comes first (big cards with a preview), then "Comunicati stampa" numbered 01, 02… in the
+// order set here, each with the materials linked to it; the other folders follow.
+const CARTELLE = ['Loghi', 'Comunicati stampa', 'Immagini', 'Video', 'Documenti'];
 const MAX = 50 * 1024 * 1024; // bucket limit
 const peso = n => !n ? '' : n > 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
 const slug = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '') || 'file';
@@ -15,7 +17,7 @@ export default function PressKit() {
   const cartelle = [...new Set([...CARTELLE, ...rows.map(r => r.cartella)])];
   const vis = rows.filter(r => !cartella || r.cartella === cartella);
   return (
-    <Page title="Press kit" subtitle="Materiali scaricabili nella pagina Press: file caricati qui o link esterni (Drive, WeTransfer, Dropbox…)."
+    <Page title="Press kit" subtitle="Materiali scaricabili nella pagina Press. In alto i Loghi, poi i Comunicati stampa numerati (01, 02…) con i materiali collegati a ciascuno, poi le altre cartelle."
       actions={<>
         <button className="btn" onClick={() => setEdit({ tipo: 'link' })}>+ Aggiungi link</button>
         <button className="btn primary" onClick={() => setEdit({ tipo: 'file' })}>+ Carica file</button>
@@ -30,18 +32,20 @@ export default function PressKit() {
         { key: 'cartella', label: 'Cartella', render: r => <span className="badge red">{r.cartella}</span> },
         { key: 'titolo', label: 'Titolo', render: r => <b>{r.titolo}</b> },
         { key: 'tipo', label: 'Tipo', render: r => r.tipo === 'file' ? <span>{(r.nome_file || '').split('.').pop().toUpperCase()} · {peso(r.dimensione)}</span> : <a href={r.link} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>Link ↗</a> },
+        { key: 'col', label: 'Collegato a', render: r => { const c = rows.find(x => x.id === r.comunicato_id); return c ? <span className="badge">{c.titolo}</span> : ''; } },
         { key: 'ordine', label: 'Ordine' },
         { key: 'pubblicato', label: 'Sul sito', render: r => <Si v={r.pubblicato} si="Visibile" no="Nascosto" /> }
       ]} />
-      {edit && <Editor val={edit} cartelle={cartelle} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); reload(); }} />}
+      {edit && <Editor val={edit} cartelle={cartelle} comunicati={rows.filter(r => /^comunicat/i.test(r.cartella) && !r.comunicato_id && r.id !== edit.id)} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); reload(); }} />}
     </Page>
   );
 }
 
-function Editor({ val, cartelle, onClose, onSaved }) {
+function Editor({ val, cartelle, comunicati, onClose, onSaved }) {
   const nuovo = !val.id;
   const file = val.tipo === 'file';
-  const [f, setF] = useState({ cartella: val.cartella || 'Comunicati stampa', titolo: val.titolo || '', descrizione: val.descrizione || '', link: val.link || '', ordine: val.ordine ?? 0, pubblicato: val.pubblicato ?? true });
+  const [f, setF] = useState({ cartella: val.cartella || 'Comunicati stampa', titolo: val.titolo || '', descrizione: val.descrizione || '', link: val.link || '', ordine: val.ordine ?? 0, pubblicato: val.pubblicato ?? true, comunicato_id: val.comunicato_id ?? '', anteprima: val.anteprima || '' });
+  const [prev, setPrev] = useState(null); // new preview image to upload
   const [files, setFiles] = useState([]);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState('');
@@ -63,9 +67,12 @@ function Editor({ val, cartelle, onClose, onSaved }) {
     if (!f.cartella.trim()) return setErr('Indica la cartella.');
     if (file && nuovo && !files.length) return setErr('Scegli almeno un file.');
     if (files.some(x => x.size > MAX)) return setErr('Ogni file deve pesare al massimo 50 MB (per file più grandi usa un link).');
-    if (!file && !/^https?:\/\//.test(f.link.trim())) return setErr('Il link deve iniziare con https://');
+    if (!file && !/^(https?:\/\/|\/assets\/)/.test(f.link.trim())) return setErr('Il link deve iniziare con https://');
     if (!multipli && !f.titolo.trim() && !(file && files[0])) return setErr('Il titolo è obbligatorio.');
-    const base = { cartella: f.cartella.trim(), descrizione: f.descrizione.trim() || null, ordine: Number(f.ordine) || 0, pubblicato: f.pubblicato };
+    let anteprima = f.anteprima.trim() || null;
+    if (prev) { try { setBusy('Carico l’anteprima…'); anteprima = (await carica(prev)).file; } catch (x) { setBusy(''); return setErr(x.message || String(x)); } }
+    const base = { cartella: f.cartella.trim(), descrizione: f.descrizione.trim() || null, ordine: Number(f.ordine) || 0, pubblicato: f.pubblicato,
+      comunicato_id: f.comunicato_id ? Number(f.comunicato_id) : null, anteprima };
     try {
       if (file && files.length) {
         // one item per file; with several files the title comes from the file name
@@ -118,6 +125,18 @@ function Editor({ val, cartelle, onClose, onSaved }) {
         {!file && <Field label="Link *" full hint="Ad esempio una cartella Google Drive, Dropbox o WeTransfer. Sul sito si apre in una nuova finestra."><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>}
         {!multipli && <Field label={file ? 'Titolo' : 'Titolo *'} full hint={file ? 'Se lo lasci vuoto uso il nome del file.' : undefined}><input value={f.titolo} onChange={set('titolo')} placeholder={file ? 'es. Comunicato stampa – presentazione' : 'es. Foto ad alta risoluzione (cartella Drive)'} /></Field>}
         <Field label="Descrizione (facoltativa)" full><input value={f.descrizione} onChange={set('descrizione')} /></Field>
+        {comunicati.length > 0 && (
+          <Field label="Collega a un comunicato (facoltativo)" full hint="Per foto, video o allegati di un comunicato: sul sito compaiono sotto quel comunicato invece che nella loro cartella.">
+            <select value={f.comunicato_id} onChange={set('comunicato_id')}>
+              <option value="">Nessuno</option>
+              {comunicati.map((c, i) => <option key={c.id} value={c.id}>{c.titolo}</option>)}
+            </select>
+          </Field>
+        )}
+        <Field label="Anteprima (facoltativa)" full hint={'Immagine mostrata nella scheda (consigliata per i Loghi e per le foto). ' + (f.anteprima ? 'Attuale: ' + f.anteprima.split('/').pop() : 'Nessuna')}>
+          <input type="file" accept="image/*" onChange={e => setPrev(e.target.files[0] || null)} />
+          {f.anteprima && !prev && <label className="check" style={{ marginTop: 6 }}><input type="checkbox" checked={false} onChange={() => setF(x => ({ ...x, anteprima: '' }))} /> Togli l’anteprima</label>}
+        </Field>
         <label className="check full"><input type="checkbox" checked={f.pubblicato} onChange={set('pubblicato')} /> Visibile sul sito</label>
         {err && <div className="err full" role="alert">{err}</div>}
       </form>
