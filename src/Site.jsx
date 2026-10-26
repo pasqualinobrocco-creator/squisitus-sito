@@ -100,7 +100,7 @@ export default class Site extends React.Component {
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
     flow: 0, renderTab: 0, ph: REDUCED ? 6 : 0, barHidden: true, heroP: 0,
-    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, contatto: false, copiato: false, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
+    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, contatto: false, copiato: false, docAperto: null, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
     const r = currentRoute();
@@ -677,6 +677,9 @@ export default class Site extends React.Component {
       })(),
       kitVuoto: st.kitPronto && !st.presskit.length,
       contatto: st.contatto, copiato: st.copiato,
+      // PDF press release shown in a popup ("Visualizza il comunicato")
+      docAperto: st.docAperto, apriDoc: d => { document.body.style.overflow = 'hidden'; this.setState({ docAperto: d }); },
+      chiudiDoc: () => { document.body.style.overflow = ''; this.setState({ docAperto: null }); },
       apriContatto: () => this.setState({ contatto: true, copiato: false }),
       chiudiContatto: () => this.setState({ contatto: false }),
       copiaEmail: () => { const ok = () => this.setState({ copiato: true }); navigator.clipboard ? navigator.clipboard.writeText('info@bsgsrl.it').then(ok, ok) : ok(); },
@@ -2241,10 +2244,17 @@ Site.prototype.render = function render() {
               {/* with a file (panel → Rassegna stampa → link) only the short introduction and the download; otherwise the full text */}
               {$v.comunicato?.file ? (
               <div data-rv="" style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+                {/\.pdf$/i.test($v.comunicato.file) ? (
+                <button type="button" className="sqh-1" onClick={() => $v.apriDoc({ titolo: $v.comunicato.titolo, src: $v.comunicato.file, nome: $v.comunicato.nomeFile })} aria-haspopup="dialog" style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 28px", border: "0", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", cursor: "pointer" }}>
+                  {"Visualizza il comunicato "}<span aria-hidden="true">{"↗"}</span>
+                </button>
+                ) : (
                 <a className="sqh-1" href={$v.comunicato.file} download={$v.comunicato.nomeFile} style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 28px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none" }}>
                   {"Scarica il comunicato "}<span aria-hidden="true">{"↓"}</span>
                 </a>
-                <span style={{ fontSize: "14px", color: "#5F564D" }}>{$v.comunicato.formato}</span>
+                )}
+                {/\.pdf$/i.test($v.comunicato.file) ? <a href={$v.comunicato.file} download={$v.comunicato.nomeFile} style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", color: "#A5143B" }}>{"Scarica PDF ↓"}</a> : null}
+                {/\.pdf$/i.test($v.comunicato.file) ? null : <span style={{ fontSize: "14px", color: "#5F564D" }}>{$v.comunicato.formato}</span>}
               </div>
               ) : (<>
               <div data-rv="" style={{ height: "1px", background: "#3C3C3B" }} />
@@ -2940,6 +2950,19 @@ Site.prototype.render = function render() {
             </div>
           </section>
         </>) : null}
+        {$v.docAperto ? (
+          <div role="dialog" aria-modal="true" aria-label={$v.docAperto.titolo} onMouseDown={e => e.target === e.currentTarget && $v.chiudiDoc()} onKeyDown={e => e.key === 'Escape' && $v.chiudiDoc()}
+            style={{ position: "fixed", inset: "0", zIndex: "95", background: "rgba(28,23,20,.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(8px,3vw,32px)", animation: "sq-fadein .25s ease-out both" }}>
+            <div style={{ width: "min(1000px,100%)", height: "min(92svh,1200px)", background: "#fff", borderRadius: "10px", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 30px 80px rgba(0,0,0,.4)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px 10px 20px", borderBottom: "1px solid #E3E3E3" }}>
+                <span style={{ flex: "1", minWidth: "0", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".06em", textTransform: "uppercase", color: "#3C3C3B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{$v.docAperto.titolo}</span>
+                <a href={$v.docAperto.src} download={$v.docAperto.nome} style={{ display: "inline-flex", alignItems: "center", minHeight: "40px", padding: "0 16px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "13px", letterSpacing: ".1em", textTransform: "uppercase", textDecoration: "none", whiteSpace: "nowrap" }}>{"Scarica PDF ↓"}</a>
+                <button type="button" onClick={$v.chiudiDoc} aria-label="Chiudi" autoFocus style={{ flexShrink: "0", width: "40px", height: "40px", borderRadius: "999px", border: "1px solid #E3E3E3", background: "#fff", cursor: "pointer", fontSize: "18px" }}>{"✕"}</button>
+              </div>
+              <iframe src={$v.docAperto.src + "#view=FitH"} title={$v.docAperto.titolo} style={{ flex: "1", width: "100%", border: "0", background: "#F4F1EC" }} />
+            </div>
+          </div>
+        ) : null}
         {$v.contatto ? (
           <div role="dialog" aria-modal="true" aria-label="Scrivici" onMouseDown={e => e.target === e.currentTarget && $v.chiudiContatto()} onKeyDown={e => e.key === 'Escape' && $v.chiudiContatto()}
             style={{ position: "fixed", inset: "0", zIndex: "90", background: "rgba(28,23,20,.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
