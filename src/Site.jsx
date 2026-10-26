@@ -562,7 +562,10 @@ export default class Site extends React.Component {
             enter: () => this.setState({ pendHover: i }), leave: () => this.setState(y => y.pendHover === i ? { pendHover: -1 } : null)
           })),
           pressMoreShow: !st.pendAll && pending.length > 6,
-          comunicato: com ? { data: fmtData(com.data), titolo: com.titolo, occhiello: com.occhiello, paragrafi: (com.testo || '').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean) } : null
+          comunicato: com ? { data: fmtData(com.data), titolo: com.titolo, occhiello: com.occhiello,
+            file: com.link || null, nomeFile: com.link ? decodeURIComponent(com.link.split('/').pop().split('?')[0]) : undefined,
+            formato: com.link ? ({ docx: 'Documento Word', doc: 'Documento Word', pdf: 'PDF' }[(com.link.split('?')[0].split('.').pop() || '').toLowerCase()] || 'File') : '',
+            paragrafi: (com.testo || '').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean) } : null
         };
       })(),
       galCols: isMobile ? 'repeat(2,minmax(0,1fr))' : 'repeat(12,minmax(0,1fr))', galRow: isMobile ? '110px' : 'clamp(44px,5.4vw,68px)',
@@ -2197,13 +2200,22 @@ Site.prototype.render = function render() {
                 {$v.comunicato.occhiello}
               </p> : null}
               {" "}
+              {/* with a file (panel → Rassegna stampa → link) only the short introduction and the download; otherwise the full text */}
+              {$v.comunicato?.file ? (
+              <div data-rv="" style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+                <a className="sqh-1" href={$v.comunicato.file} download={$v.comunicato.nomeFile} style={{ display: "inline-flex", alignItems: "center", gap: "10px", minHeight: "54px", padding: "0 28px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", textDecoration: "none" }}>
+                  {"Scarica il comunicato "}<span aria-hidden="true">{"↓"}</span>
+                </a>
+                <span style={{ fontSize: "14px", color: "#5F564D" }}>{$v.comunicato.formato}</span>
+              </div>
+              ) : (<>
               <div data-rv="" style={{ height: "1px", background: "#3C3C3B" }} />
-              {" "}
               <div data-rv="" style={{ columns: "2 340px", columnGap: "56px", fontSize: "17px", lineHeight: "1.7" }}>
                 {($v.comunicato?.paragrafi ?? []).map((t, i) => (
                   <p key={i} style={{ margin: "0 0 1.1em", breakInside: "avoid", whiteSpace: "pre-line" }}>{t}</p>
                 ))}
               </div>
+              </>)}
             </article>
           </section>
           ) : null}

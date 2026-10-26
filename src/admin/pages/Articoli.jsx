@@ -88,7 +88,7 @@ function Editor({ val, onClose, onSaved }) {
         <Field label="Data di uscita"><input type="date" value={f.data} onChange={set('data')} /></Field>
         <Field label="Testata *" full><input value={f.testata} onChange={set('testata')} placeholder="es. Corriere della Sera" /></Field>
         <Field label="Titolo *" full><input value={f.titolo} onChange={set('titolo')} /></Field>
-        <Field label="Link all’articolo" full hint="Lascia vuoto se non è ancora uscito: comparirà tra gli “Articoli in pubblicazione”."><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>
+        <Field label={com ? "File da scaricare (link)" : "Link all’articolo"} full hint={com ? "Link al file del comunicato (es. dal press kit). Se c’è, sul sito compaiono solo il sottotitolo e il pulsante “Scarica il comunicato”; se è vuoto, il testo integrale." : "Lascia vuoto se non è ancora uscito: comparirà tra gli “Articoli in pubblicazione”."}><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>
         {com && <Field label="Occhiello" full><input value={f.occhiello} onChange={set('occhiello')} /></Field>}
         {com && <Field label="Testo integrale" full hint="Separa i paragrafi con una riga vuota."><textarea value={f.testo} onChange={set('testo')} rows={8} /></Field>}
         <Field label="Ordine" hint="A parità di data, i numeri più bassi vengono prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
