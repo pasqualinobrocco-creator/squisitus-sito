@@ -227,63 +227,67 @@ export default class Site extends React.Component {
       h('circle', { r: 7, fill: '#fff' }, h('animateMotion', { dur: '9s', begin: '3s', repeatCount: 'indefinite', path: d }))));
     return h('svg', { 'data-sq-anim': '', viewBox: '0 0 1131 1391', 'aria-hidden': 'true', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' } }, kids);
   }
+  // Exhibitor map of La Nuvola – Roma Convention Center (traced from the organisers' floor plan, coordinates in
+  // the drawing's pixels): walls are drawn, then the stands pop in from the entrance side, then the areas
+  // (welcome, tasting, networking, meeting, lounge) and the entrance/exit arrows.
   // mobile: the plan is rotated 90° (portrait) so it fills a phone screen without side scrolling
   buildPlan(mobile) {
-    const h = React.createElement, W = '#fff', E = 'cubic-bezier(.22,1,.36,1)', GOLD = '#F3C46B';
+    const h = React.createElement, W = '#fff', E = 'cubic-bezier(.22,1,.36,1)';
+    const VW = 1600, VH = 770, OY = 190; // drawing area: x 0–1600, y 190–960
     const els = []; let k = 0;
-    const wall = (d, delay, dur = 1.2, w = 1.6, op = 1) => els.push(h('path', { key: 'w' + k++, d, fill: 'none', stroke: W, strokeOpacity: op, strokeWidth: w, pathLength: 1, strokeDasharray: '1 1', strokeLinejoin: 'round', vectorEffect: 'non-scaling-stroke', style: { animation: 'sq-draw ' + dur + 's ' + E + ' ' + delay + 's both' } }));
+    const wall = (d, delay, dur = 1.2, w = 1.6, op = 1, dash) => els.push(h('path', { key: 'w' + k++, d, fill: 'none', stroke: W, strokeOpacity: op, strokeWidth: w, pathLength: 1, strokeDasharray: '1 1', strokeLinejoin: 'round', vectorEffect: 'non-scaling-stroke', style: { animation: 'sq-draw ' + dur + 's ' + E + ' ' + delay + 's both' } }));
     const R = (x, y, w, hh) => 'M' + x + ' ' + y + 'h' + w + 'v' + hh + 'h' + -w + 'Z';
-    const tAt = x => 1.5 + Math.max(0, (x - 380) / 640) * 1.6;
-    const cell = (x, y, w, hh, fill, op = .94) => els.push(h('rect', { key: 's' + k++, x, y, width: w, height: hh, rx: 1.2, fill, fillOpacity: op, style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-pop .55s ' + E + ' ' + tAt(x).toFixed(2) + 's both' } }));
-    const grid = (x, y, cw, ch, cols, rows, fill, op) => { for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cell(x + c * cw + .8, y + r * ch + .8, cw - 1.6, ch - 1.6, fill, op); };
-    // building shell
-    wall('M22 12H1185a12 12 0 0 1 12 12V245l-12 6v74l12 6V556a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V331l12-6v-74l-12-6V24a12 12 0 0 1 12-12Z', .05, 1.8, 2.2);
-    [[20, 24, 352, 36], [466, 24, 106, 36], [598, 24, 296, 36], [912, 24, 128, 36], [1044, 24, 142, 36]].forEach(([x, y, w, hh], i) => { wall(R(x, y, w, hh), .35 + i * .06, .8, 1.1, .75); wall(R(x, 576 - y - hh, w, hh), .4 + i * .06, .8, 1.1, .75); });
-    wall('M20 62H1150M20 90H1150M20 488H1150M20 516H1150', .5, 1.3, 1.1, .7);
-    for (let i = 1; i < 13; i++) { const x = 20 + i * 24.2; wall('M' + x + ' 62v28', .9 + i * .02, .3, 1, .55); wall('M' + x + ' 488v28', .9 + i * .02, .3, 1, .55); }
-    wall(R(22, 92, 292, 396), .7, 1.1, 1.4);
-    for (let i = 0; i < 6; i++) wall('M' + (316 + i * 3.6) + ' 92V488', .9 + i * .03, .7, .8, .5);
-    for (let i = 0; i < 8; i++) { const x = 382 + i * 10; wall('M' + x + ' 14l10 38l10-38M' + x + ' 524l10 38l10-38', 1 + i * .03, .5, .9, .45); }
-    wall(R(398, 92, 314, 396), .8, 1.2, 1.8);
-    wall(R(724, 92, 186, 396), .9, 1.2, 1.4);
-    wall(R(736, 168, 168, 242), 1.1, 1, 1.2);
-    wall('M762 238q-14 54 0 108', 1.4, .6, 1.4);
-    wall(R(910, 92, 92, 396), 1, 1.1, 1.4);
-    wall(R(1032, 92, 154, 396), 1.05, 1.1, 1.4);
-    // central hall stands
-    cell(402, 98, 62, 14, W); grid(494, 97, 15.5, 14, 12, 1, GOLD, .95);
-    grid(478, 112, 15, 15, 1, 2, GOLD, .95); grid(681, 112, 15, 15, 1, 2, GOLD, .95);
-    [518, 570, 622].forEach(x => grid(x, 127, 15.5, 20, 2, 2, GOLD, .95));
-    cell(402, 170, 20, 14, W); cell(402, 398, 20, 14, W); cell(402, 468, 62, 14, W);
-    grid(407, 207, 16, 15.5, 1, 3, W, .7); grid(449, 223, 15.5, 15.5, 1, 2, W, .7); cell(465, 205, 14, 14, W, .7);
-    grid(407, 276, 16, 15.5, 1, 2, W, .7); grid(449, 276, 15.5, 15.5, 1, 2, W, .7);
-    grid(407, 328, 16, 15.5, 1, 3, GOLD, .9); grid(449, 328, 15.5, 15.5, 1, 2, GOLD, .9); cell(466, 362, 14, 14, GOLD, .9);
-    [190, 328].forEach(y => grid(487, y, 15.5, 15.5, 1, 4, W)); grid(487, 276, 15.5, 15.5, 1, 2, W);
-    [518, 570, 622].forEach(x => { grid(x, 190, 15.5, 15.5, 2, 4, W); grid(x, 276, 15.5, 15.5, 2, 2, W); grid(x, 328, 15.5, 15.5, 2, 4, W); });
-    grid(668, 198, 16, 15.5, 1, 12, W);
-    cell(468, 412, 14, 20, W); grid(484, 412, 15, 20, 1, 1, '#9FD9B4', .95);
-    [518, 570, 622].forEach(x => grid(x, 412, 15.5, 21, 2, 2, '#9FD9B4', .95));
-    grid(477, 439, 15, 15, 1, 2, '#9FD9B4', .95); grid(680, 439, 15, 15, 1, 2, '#9FD9B4', .95);
-    grid(492, 470, 15.5, 15, 12, 1, '#9FD9B4', .95);
-    // auditorium
-    grid(732, 150, 15.8, 15, 11, 1, '#9FD9B4', .8); grid(732, 412, 15.8, 15, 11, 1, GOLD, .8);
-    cell(706, 170, 19, 14, '#9FD9B4', .9); cell(706, 397, 19, 14, GOLD, .9);
-    for (let bx = 0; bx < 3; bx++) for (let by = 0; by < 3; by++) for (let r = 0; r < 5; r++) {
-      const x = 780 + bx * 40, y = 234 + by * 38 + r * 6;
-      els.push(h('path', { key: 'seat' + k++, d: 'M' + x + ' ' + y + 'h33', stroke: W, strokeOpacity: .6, strokeWidth: 3, strokeDasharray: '2.2 1.2', style: { animation: 'sq-fadein .5s ease-out ' + (2.4 + bx * .12 + by * .08 + r * .03).toFixed(2) + 's both' } }));
-    }
-    // foyer
-    grid(913, 162, 15.5, 15.5, 1, 16, W);
-    [225, 318].forEach(y => grid(944, y, 15.5, 15.5, 2, 2, GOLD));
-    for (let c = 0; c < 3; c++) for (let r = 0; r < 11; r++) { if (r === 3 || r === 7) continue; const cx = 950 + c * 18, cy = 155 + r * 23; if (cy > 222 && cy < 262 && c < 2) continue; if (cy > 312 && cy < 352 && c < 2) continue;
-      els.push(h('ellipse', { key: 'tb' + k++, cx, cy, rx: 4.5, ry: 7, fill: 'none', stroke: W, strokeOpacity: .7, strokeWidth: 1.2, style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-pop .5s ' + E + ' ' + (2.9 + r * .04 + c * .05).toFixed(2) + 's both' } })); }
-    // entrances
-    const door = (cx, cy, d, lx, anchor) => els.push(h('g', { key: 'd' + k++, style: { animation: 'sq-fadein .8s ease-out ' + d + 's both' } },
-      [0, 1.3].map((dl, q) => h('circle', { key: q, cx, cy, r: 30, fill: 'rgba(255,255,255,.2)', style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-halo 2.6s ease-out ' + (d + dl) + 's infinite' } })),
-      h('circle', { cx, cy, r: 9, fill: W }),
-      h('text', { x: lx, y: cy + 5, textAnchor: anchor, fill: W, transform: mobile ? `rotate(-90 ${cx} ${cy})` : undefined, style: { fontFamily: 'Oswald, sans-serif', fontSize: mobile ? 26 : 15, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase' } }, 'Ingresso')));
-    door(16, 288, 3.4, 34, 'start');
-    return h('svg', { key: (this.planKey || 0) + (mobile ? 'm' : 'd'), 'data-sq-anim': '', viewBox: mobile ? '0 0 580 1207' : '0 0 1207 580', role: 'img', 'aria-label': 'Planimetria indicativa dell’area espositiva: salone centrale con isole e file di stand espositivi, auditorium con platea, foyer con area tavoli e ingresso sul lato sinistro. Planimetria prototipo non ufficiale', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, mobile ? h('g', { transform: 'translate(580 0) rotate(90)' }, els) : els);
+    // stands appear from the entrance (left) towards the lounge (right)
+    const tAt = x => 1.4 + Math.max(0, (x - 140) / 1340) * 1.7;
+    const cell = (x, y, w, hh) => els.push(h('rect', { key: 's' + k++, x: x + 1.2, y: y + 1.2, width: w - 2.4, height: hh - 2.4, rx: 1.5, fill: W, fillOpacity: .9, style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-pop .55s ' + E + ' ' + tAt(x).toFixed(2) + 's both' } }));
+    // a block of stands split in cols × rows cells
+    const block = (x1, y1, x2, y2, cols, rows) => { const cw = (x2 - x1) / cols, ch = (y2 - y1) / rows; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cell(x1 + c * cw, y1 + r * ch, cw, ch); };
+    // island of stands around an empty centre
+    const ring = (x1, y1, x2, y2, hx1, hy1, hx2, hy2, cols, siderows) => {
+      block(x1, y1, x2, hy1, cols, 1); block(x1, hy2, x2, y2, cols, 1);
+      block(x1, hy1, hx1, hy2, 1, siderows); block(hx2, hy1, x2, hy2, 1, siderows);
+    };
+    // building: hall, service strips with stairs above and below, escalators on the left
+    wall('M135 203H1578V940H135V720M135 660V500M135 470V203', .05, 1.8, 2.2);
+    wall('M0 145H1600M0 203H135M1578 203H1600M0 940H135M1578 940H1600M0 1000H1600', .3, 1.4, 1.1, .7);
+    for (let i = 0; i < 12; i++) { const x = 230 + i * 112; wall(R(x, 152, 70, 44), .45 + i * .04, .6, 1, .55); wall(R(x, 948, 70, 44), .5 + i * .04, .6, 1, .55); }
+    wall('M138 237H1575M138 905H1575', .7, 1.2, 1, .4);
+    wall(R(0, 380, 250, 82), .8, .9, 1.3, .85); wall(R(0, 678, 250, 42), .85, .9, 1.3, .85);
+    for (let i = 1; i < 6; i++) wall('M0 ' + (380 + i * 13.6) + 'H232', .95 + i * .03, .5, .8, .45);
+    wall('M0 699H232', 1, .5, .8, .45);
+    wall(R(558, 278, 177, 210), .9, 1, 1.2, .6); wall(R(622, 340, 50, 85), 1.1, .7, 1, .6);
+    // stands
+    block(145, 240, 558, 275, 9, 1); block(145, 275, 180, 370, 1, 2);
+    block(523, 275, 558, 522, 1, 5); block(558, 488, 735, 522, 4, 1); block(735, 240, 770, 522, 1, 6);
+    ring(387, 304, 493, 522, 423, 340, 458, 488, 3, 3);
+    ring(198, 490, 340, 655, 235, 528, 305, 618, 3, 2);
+    ring(387, 568, 493, 698, 423, 605, 458, 662, 3, 1);
+    ring(387, 743, 493, 905, 423, 790, 458, 860, 3, 2);
+    [[800, 522], [900, 522], [1000, 475], [1100, 475], [1200, 475], [1300, 475], [1397, 522]].forEach(([x, y2]) => block(x, 240, x + 71, y2, 2, Math.round((y2 - 240) / 47)));
+    [523, 900, 1000, 1397].forEach(x => block(x, 568, x + 71, 698, 2, 3));
+    block(624, 665, 869, 698, 5, 1);
+    [186, 287, 523, 624, 800, 900, 1000, 1100, 1200, 1300, 1397].forEach(x => block(x, 743, x + 71, 905, 2, 3));
+    // areas: soft coloured shapes with their name
+    const area = (d, fill, label, lx, ly, delay, vertical, fs = 26) => els.push(h('g', { key: 'a' + k++, style: { animation: 'sq-fadein 1s ease-out ' + delay + 's both' } },
+      h('path', { d, fill, fillOpacity: .95, style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-pop .9s ' + E + ' ' + delay + 's both' } }),
+      h('text', { x: lx, y: ly, textAnchor: 'middle', fill: '#3C3C3B', transform: vertical ? `rotate(-90 ${lx} ${ly})` : mobile ? `rotate(-90 ${lx} ${ly - 8})` : undefined,
+        style: { fontFamily: 'Oswald, sans-serif', fontSize: mobile ? fs * 1.3 : fs, fontWeight: 600, letterSpacing: '.12em', textTransform: 'uppercase' } },
+        // on the narrow mobile plan a long name goes on two lines ("Net-" / "working")
+        Array.isArray(label) ? (mobile ? label.map((t, i) => h('tspan', { key: i, x: lx, dy: i ? '1.05em' : '-.45em' }, t)) : label.join('')) : label)));
+    area('M210 318c40-30 130-32 165-6 25 18 2 60 0 92-2 40 20 78-20 90-40 12-70-20-95-46-24-24-90-20-90-60 0-30 10-56 40-70Z', '#F7EE7A', 'Welcome', 290, 340, 3.2);
+    area('M612 572c30-36 160-32 220-26 50 6 60 60 40 90-24 34-140 24-200 20-50-4-82-40-60-84Z', '#F28E95', 'Tasting', 745, 608, 3.4);
+    area('M676 724c24-32 116-34 136 0 18 30 10 76-40 86-52 10-112-46-96-86Z', '#D2CBC4', ['Net', 'working'], 744, 772, 3.55, false, 18);
+    area('M1100 530c40-40 190-40 250-20 40 14 36 70 30 120-6 50-40 90-100 94-80 6-170-6-190-60-14-40-20-100 10-134Z', '#A9D3C9', 'Meeting', 1240, 640, 3.7);
+    area('M1490 250c28-40 60-10 62 40 4 140 6 300-6 520-4 80-50 110-68 40-10-200-14-460 12-600Z', '#F6C3CB', 'Lounge', 1522, 560, 3.85, true);
+    // entrance and exit (escalators), with a pulsing halo
+    const way = (cx, cy, d, label, dir, fill, ly) => els.push(h('g', { key: 'e' + k++, style: { animation: 'sq-fadein .8s ease-out ' + d + 's both' } },
+      [0, 1.3].map((dl, q) => h('circle', { key: q, cx, cy, r: 34, fill: 'rgba(255,255,255,.22)', style: { transformBox: 'fill-box', transformOrigin: 'center', animation: 'sq-halo 2.6s ease-out ' + (d + dl) + 's infinite' } })),
+      h('path', { d: dir > 0 ? `M${cx - 10} ${cy - 13}L${cx + 14} ${cy}L${cx - 10} ${cy + 13}Z` : `M${cx + 10} ${cy - 13}L${cx - 14} ${cy}L${cx + 10} ${cy + 13}Z`, fill }),
+      h('text', { x: 118, y: ly, textAnchor: 'middle', fill: W, transform: mobile ? `rotate(-90 118 ${ly - 7})` : undefined, style: { fontFamily: 'Oswald, sans-serif', fontSize: mobile ? 30 : 20, fontWeight: 600, letterSpacing: '.14em', textTransform: 'uppercase' } }, label)));
+    way(275, 421, 4.1, 'Ingresso', 1, W, 362);
+    way(275, 699, 4.3, 'Uscita', -1, W, 752);
+    const g = h('g', { transform: (mobile ? `translate(${VH} 0) rotate(90) ` : '') + `translate(0 ${-OY})` }, els);
+    return h('svg', { key: (this.planKey || 0) + (mobile ? 'm' : 'd'), 'data-sq-anim': '', viewBox: mobile ? `0 0 ${VH} ${VW}` : `0 0 ${VW} ${VH}`, role: 'img', 'aria-label': 'Planimetria indicativa della Nuvola – Roma Convention Center: ingresso e uscita dalle scale mobili a sinistra, area welcome, file di stand espositivi, area tasting, networking, meeting e lounge sul lato destro. Planimetria indicativa', style: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' } }, g);
   }
   skipIntro = () => {
     if (this.state.ph >= 6) return;
@@ -421,7 +425,7 @@ export default class Site extends React.Component {
       planRef: this.planRef, quadRef: this.quadRef,
       quadAnim: st.quadOn ? (this._quad || (this._quad = this.buildQuad())) : null,
       quadScale: st.quadOn && !REDUCED ? 1.04 : 1,
-      plan: st.planOn ? (this._planFor === (this.planKey || 0) + ':' + isMobile && this._plan ? this._plan : (this._planFor = (this.planKey || 0) + ':' + isMobile, this._plan = this.buildPlan(isMobile))) : React.createElement('div', { style: { aspectRatio: isMobile ? '.48' : '1.6' } }),
+      plan: st.planOn ? (this._planFor === (this.planKey || 0) + ':' + isMobile && this._plan ? this._plan : (this._planFor = (this.planKey || 0) + ':' + isMobile, this._plan = this.buildPlan(isMobile))) : React.createElement('div', { style: { aspectRatio: isMobile ? '.48' : '2.08' } }),
       replayPlan: () => { this.planKey = (this.planKey || 0) + 1; this.setState({ planOn: true, planTick: this.planKey }); },
       bsgTags: ['Dal 1991', 'Indipendenti', 'Crossmediale', 'Chiavi in mano', 'Roma · Milano'],
       bsgBrands: [
@@ -1449,7 +1453,7 @@ Site.prototype.render = function render() {
               <div style={{ marginTop: "14px", display: "flex", flexWrap: "wrap", gap: "10px 24px", alignItems: "center", fontSize: "14px" }}>
                 {" "}
                 <span style={{ padding: "6px 12px", background: "#A5143B", borderRadius: "3px", fontWeight: "700" }}>
-                  {"PLANIMETRIA PROTOTIPO NON UFFICIALE"}
+                  {"PLANIMETRIA INDICATIVA"}
                 </span>
                 {" "}
                 <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1459,8 +1463,15 @@ Site.prototype.render = function render() {
                 {" "}
                 <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#fff", boxShadow: "0 0 0 5px rgba(255,255,255,.3)" }} />
-                  {"Ingresso"}
+                  {"Ingresso e uscita"}
                 </span>
+                {" "}
+                {[["#F7EE7A", "Welcome"], ["#F28E95", "Tasting"], ["#D2CBC4", "Networking"], ["#A9D3C9", "Meeting"], ["#F6C3CB", "Lounge"]].map(([c, t]) => (
+                  <span key={t} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ width: "16px", height: "16px", borderRadius: "50%", background: c }} />
+                    {t}
+                  </span>
+                ))}
                 {" "}
                 {$v.isMobile ? <span style={{ opacity: ".8" }}>{"Pianta ruotata in verticale: l'ingresso è in alto."}</span> : null}
                 {" "}
