@@ -629,12 +629,13 @@ export default class Site extends React.Component {
       kitCartelle: st.presskit.reduce((out, x) => {
         let g = out.find(c => c.nome === x.cartella);
         if (!g) out.push(g = { nome: x.cartella, voci: [] });
-        const file = x.tipo === 'file';
+        // files kept with the site (assets/press/…) are downloads too, like the ones uploaded to the press kit
+        const file = x.tipo === 'file' || /(^|\/)assets\/press\//.test(x.link || '');
         const kb = x.dimensione ? (x.dimensione > 1048576 ? (x.dimensione / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(x.dimensione / 1024)) + ' KB') : '';
         g.voci.push({ id: x.id, titolo: x.titolo, descrizione: x.descrizione, file,
-          href: file ? presskitUrl(x.file, x.nome_file) : x.link,
+          href: x.tipo === 'file' ? presskitUrl(x.file, x.nome_file) : x.link,
           etichetta: file ? 'Scarica' : 'Apri il link',
-          meta: file ? [(x.nome_file || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : x.link.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] });
+          meta: file ? [(x.nome_file || x.link || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : x.link.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] });
         return out;
       }, []),
       kitVuoto: st.kitPronto && !st.presskit.length,
