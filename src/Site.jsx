@@ -50,9 +50,9 @@ function applicaMeta(r) {
 const SEND_ERR = 'Invio non riuscito. Controlla la connessione e riprova.';
 // Shown until (or if not) the articles arrive from Supabase.
 const DEFAULT_ARTICOLI = [
-  { id: 'd1', tipo: 'articolo', testata: 'Alimentando.info', titolo: 'Marca 2026, Squisitus porta in fiera le eccellenze territoriali', link: 'https://www.alimentando.info/marca-2026-squisitus-porta-in-fiere-le-eccellenze-territoriali/', data: '2025-11-24', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] },
-  { id: 'd2', tipo: 'articolo', testata: 'Adnkronos', titolo: 'BSG per Squisitus, debutto a Marca by BolognaFiere', link: 'https://www.adnkronos.com/lavoro/made-in-italy/bsg-per-squisitus-debutto-a-marca-by-bolognafiere_6mhTDtm5hBLF7NiVQXwgUs', data: '2025-11-21', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] },
-  { id: 'd3', tipo: 'articolo', testata: 'Mediakey', titolo: 'BSG lancia Squisitus, il nuovo format dove gusto, benessere e comunicazione si incontrano creando connessioni e rete', link: 'https://mediakey.it/news/bsg-lancia-squisitus-il-nuovo-format-dove-gusto-benessere-e-comunicazione-si-incontrano-creando-connessioni-e-rete/', data: '2025-10-22', in_evidenza: true, pagine: ['salotto', 'dicono-di-noi'] }
+  { id: 'd1', tipo: 'articolo', testata: 'Alimentando.info', titolo: 'Marca 2026, Squisitus porta in fiera le eccellenze territoriali', link: 'https://www.alimentando.info/marca-2026-squisitus-porta-in-fiere-le-eccellenze-territoriali/', data: '2025-11-24', in_evidenza: true, pagine: ['salotto'] },
+  { id: 'd2', tipo: 'articolo', testata: 'Adnkronos', titolo: 'BSG per Squisitus, debutto a Marca by BolognaFiere', link: 'https://www.adnkronos.com/lavoro/made-in-italy/bsg-per-squisitus-debutto-a-marca-by-bolognafiere_6mhTDtm5hBLF7NiVQXwgUs', data: '2025-11-21', in_evidenza: true, pagine: ['salotto'] },
+  { id: 'd3', tipo: 'articolo', testata: 'Mediakey', titolo: 'BSG lancia Squisitus, il nuovo format dove gusto, benessere e comunicazione si incontrano creando connessioni e rete', link: 'https://mediakey.it/news/bsg-lancia-squisitus-il-nuovo-format-dove-gusto-benessere-e-comunicazione-si-incontrano-creando-connessioni-e-rete/', data: '2025-10-22', in_evidenza: true, pagine: ['salotto'] }
 ];
 const LIVELLI = [['Platinum', 'Platinum Partner', '220px', '110px'], ['Main', 'Main Partner', '160px', '90px'], ['Official', 'Official Partner', '120px', '72px'], ['Technical', 'Technical Partner', '100px', '60px']];
 const fmtData = d => d ? d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4) : '';
@@ -2201,7 +2201,7 @@ Site.prototype.render = function render() {
               {" "}
               <div data-rv="" style={{ columns: "2 340px", columnGap: "56px", fontSize: "17px", lineHeight: "1.7" }}>
                 {($v.comunicato?.paragrafi ?? []).map((t, i) => (
-                  <p key={i} style={{ margin: "0 0 1.1em", breakInside: "avoid" }}>{t}</p>
+                  <p key={i} style={{ margin: "0 0 1.1em", breakInside: "avoid", whiteSpace: "pre-line" }}>{t}</p>
                 ))}
               </div>
             </article>
