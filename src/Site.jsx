@@ -64,6 +64,25 @@ const TAGLINE = "<path fill=\"#FFFFFF\" d=\"M66.9,571.52h2.9v7.09h7.88v-7.09h2.9
 const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 const clamp01 = v => Math.max(0, Math.min(1, v));
 
+// Small download card of the press kit (documents, logos, materials of a press release): preview, title, format and size.
+function KitChip({ v, soft }) {
+  return (
+    <a className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
+      style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "min(100%,260px)", padding: "8px 16px 8px 8px", background: soft ? "#F4F1EC" : "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: soft ? "none" : "0 1px 0 #E3E3E3", transition: "transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
+      <span style={{ flexShrink: "0", width: "64px", height: "64px", display: "flex", alignItems: "center", justifyContent: "center", background: soft ? "#fff" : "#FBFAF7", borderRadius: "4px", overflow: "hidden" }}>
+        {v.anteprima
+          ? <img src={v.anteprima} alt="" loading="lazy" style={/\.(jpe?g)$/i.test(v.anteprima) ? { width: "100%", height: "100%", objectFit: "cover" } : { maxWidth: "86%", maxHeight: "86%", objectFit: "contain" }} />
+          : <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "13px", letterSpacing: ".08em", color: "#A5143B" }}>{(v.meta || "").split(" ")[0]}</span>}
+      </span>
+      <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <span style={{ fontSize: "14px", fontWeight: "700", lineHeight: "1.3" }}>{v.titolo}</span>
+        {v.descrizione ? <span style={{ fontSize: "12px", color: "#5F564D" }}>{v.descrizione}</span> : null}
+        <span style={{ fontSize: "12px", color: "#5F564D" }}>{v.meta}{" · "}<span style={{ color: "#A5143B", fontWeight: "700" }}>{v.etichetta}{v.file ? " ↓" : " ↗"}</span></span>
+      </span>
+    </a>
+  );
+}
+
 export default class Site extends React.Component {
   loadA11y() {
     let v = {}; try { v = JSON.parse(localStorage.getItem('sq-a11y') || '{}'); } catch (e) {}
@@ -625,7 +644,7 @@ export default class Site extends React.Component {
         { tag: 'Rassegna stampa', t: 'Ne hanno parlato', s: 'Articoli e servizi sulla prima tappa.', img: 'Foto · ritagli stampa' },
         { tag: 'Territorio', t: 'Visibilità alle aziende', s: 'Le realtà territoriali protagoniste.', img: 'Foto · aziende ospiti' }
       ],
-      // press kit: logos first (the most requested), then the numbered press releases with the materials
+      // press kit: timeless documents (company profile) and the logos first, as small downloads, then the numbered press releases with the materials
       // linked to each one (panel → Press kit → "Collega a un comunicato"), then any other folder
       ...(() => {
         const voce = x => {
@@ -638,17 +657,19 @@ export default class Site extends React.Component {
             meta: file ? [(x.nome_file || x.link || '').split('.').pop().toUpperCase(), kb].filter(Boolean).join(' · ') : (x.link || '').replace(/^https?:\/\/(www\.)?/, '').split('/')[0] };
         };
         const isLoghi = c => /^(loghi|logo|marchio|marchi)$/i.test((c || '').trim());
+        const isDoc = c => /^document/i.test((c || '').trim());
         const isCom = c => /^comunicat/i.test((c || '').trim());
         const kit = st.presskit;
         const allegati = id => kit.filter(x => x.comunicato_id === id).map(voce);
         const sciolti = kit.filter(x => !x.comunicato_id);
-        const altre = sciolti.filter(x => !isLoghi(x.cartella) && !isCom(x.cartella)).reduce((out, x) => {
+        const altre = sciolti.filter(x => !isLoghi(x.cartella) && !isCom(x.cartella) && !isDoc(x.cartella)).reduce((out, x) => {
           let g = out.find(c => c.nome === x.cartella);
           if (!g) out.push(g = { nome: x.cartella, voci: [] });
           g.voci.push(voce(x));
           return out;
         }, []);
         return {
+          kitDocumenti: sciolti.filter(x => isDoc(x.cartella)).map(voce),
           kitLoghi: sciolti.filter(x => isLoghi(x.cartella)).map(voce),
           kitComunicati: sciolti.filter(x => isCom(x.cartella)).map((x, i) => ({ ...voce(x), numero: String(i + 1).padStart(2, '0'), allegati: allegati(x.id) })),
           kitCartelle: altre
@@ -3073,31 +3094,14 @@ Site.prototype.render = function render() {
                 <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6" }}>{"Comunicati, immagini e loghi di Squisitus da scaricare liberamente per articoli e servizi."}</p>
               </div>
               {$v.kitVuoto ? <p data-rv="" style={{ margin: "0", padding: "28px", background: "#fff", borderRadius: "6px", fontSize: "17px" }}>{"Il press kit sarà disponibile a breve."}</p> : null}
-              {$v.kitLoghi?.length ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <h3 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "clamp(24px,2.4vw,30px)", letterSpacing: ".04em", textTransform: "uppercase" }}>{"Loghi e "}<span style={{ color: "#A5143B" }}>{"marchio"}</span></h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,360px),1fr))", gap: "18px" }}>
-                  {$v.kitLoghi.map(v => (
-                    <a key={v.id} data-rv="" className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
-                      style={{ display: "flex", flexDirection: "column", background: "#fff", color: "#3C3C3B", borderRadius: "8px", overflow: "hidden", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
-                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "clamp(160px,18vw,220px)", padding: "24px 32px", background: "#FBFAF7", borderBottom: "1px solid #EEE9E2" }}>
-                        {v.anteprima ? <img src={v.anteprima} alt="" loading="lazy" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "40px", color: "#A5143B" }}>{(v.meta || '').split(' ')[0]}</span>}
-                      </span>
-                      <span style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "20px 22px" }}>
-                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "21px", lineHeight: "1.2", textTransform: "uppercase" }}>{v.titolo}</span>
-                        {v.descrizione ? <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#5F564D" }}>{v.descrizione}</span> : null}
-                        <span style={{ marginTop: "6px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-                          <span style={{ fontSize: "12px", letterSpacing: ".06em", color: "#5F564D" }}>{v.meta}</span>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 18px", background: "#A5143B", color: "#fff", borderRadius: "999px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                            {v.etichetta}<span aria-hidden="true">{v.file ? "↓" : "↗"}</span>
-                          </span>
-                        </span>
-                      </span>
-                    </a>
-                  ))}
+              {[["Documenti", $v.kitDocumenti], ["Marchi", $v.kitLoghi]].map(([nome, voci]) => voci?.length ? (
+              <div key={nome} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <h3 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "20px", letterSpacing: ".06em", textTransform: "uppercase" }}>{nome}</h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                  {voci.map(v => <KitChip key={v.id} v={v} />)}
                 </div>
               </div>
-              ) : null}
+              ) : null)}
               {$v.kitComunicati?.length ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <h3 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "20px", letterSpacing: ".06em", textTransform: "uppercase" }}>{"Comunicati stampa"}</h3>
@@ -3119,16 +3123,7 @@ Site.prototype.render = function render() {
                     </div>
                     {v.allegati.length ? (
                     <div style={{ gridColumn: "2", display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "10px", paddingTop: "14px", borderTop: "1px solid #EEE9E2" }}>
-                      {v.allegati.map(m => (
-                        <a key={m.id} className="sqh-14" href={m.href} target={m.file ? undefined : "_blank"} rel={m.file ? undefined : "noopener"} download={m.file ? (m.nome || "") : undefined}
-                          style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 14px 8px 8px", background: "#F4F1EC", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", transition: "transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
-                          {m.anteprima ? <img src={m.anteprima} alt="" loading="lazy" style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "4px" }} /> : null}
-                          <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                            <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.titolo}</span>
-                            <span style={{ fontSize: "12px", color: "#5F564D" }}>{m.meta}{" · "}<span style={{ color: "#A5143B", fontWeight: "700" }}>{m.etichetta}{m.file ? " ↓" : " ↗"}</span></span>
-                          </span>
-                        </a>
-                      ))}
+                      {v.allegati.map(m => <KitChip key={m.id} v={m} soft />)}
                     </div>
                     ) : null}
                   </article>

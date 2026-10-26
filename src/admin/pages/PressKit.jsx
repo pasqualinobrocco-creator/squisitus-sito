@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { db } from '../client.js';
 import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '../ui.jsx';
 
-// On the site "Loghi" comes first (big cards with a preview), then "Comunicati stampa" numbered 01, 02… in the
-// order set here, each with the materials linked to it; the other folders follow.
-const CARTELLE = ['Loghi', 'Comunicati stampa', 'Immagini', 'Video', 'Documenti'];
+// On the site "Documenti" (e.g. the company profile) and "Marchi" come first as small downloads, then
+// "Comunicati stampa" numbered 01, 02… in the order set here, each with the materials linked to it; other folders follow.
+const CARTELLE = ['Documenti', 'Marchi', 'Comunicati stampa', 'Immagini', 'Video'];
 const MAX = 50 * 1024 * 1024; // bucket limit
 const peso = n => !n ? '' : n > 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
 const slug = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '') || 'file';
@@ -17,7 +17,7 @@ export default function PressKit() {
   const cartelle = [...new Set([...CARTELLE, ...rows.map(r => r.cartella)])];
   const vis = rows.filter(r => !cartella || r.cartella === cartella);
   return (
-    <Page title="Press kit" subtitle="Materiali scaricabili nella pagina Press. In alto i Loghi, poi i Comunicati stampa numerati (01, 02…) con i materiali collegati a ciascuno, poi le altre cartelle."
+    <Page title="Press kit" subtitle="Materiali scaricabili nella pagina Press. In alto Documenti (es. company profile) e Marchi, poi i Comunicati stampa numerati (01, 02…) con i materiali collegati a ciascuno, poi le altre cartelle."
       actions={<>
         <button className="btn" onClick={() => setEdit({ tipo: 'link' })}>+ Aggiungi link</button>
         <button className="btn primary" onClick={() => setEdit({ tipo: 'file' })}>+ Carica file</button>
@@ -133,7 +133,7 @@ function Editor({ val, cartelle, comunicati, onClose, onSaved }) {
             </select>
           </Field>
         )}
-        <Field label="Anteprima (facoltativa)" full hint={'Immagine mostrata nella scheda (consigliata per i Loghi e per le foto). ' + (f.anteprima ? 'Attuale: ' + f.anteprima.split('/').pop() : 'Nessuna')}>
+        <Field label="Anteprima (facoltativa)" full hint={'Immagine mostrata nella scheda (consigliata per marchi e foto). ' + (f.anteprima ? 'Attuale: ' + f.anteprima.split('/').pop() : 'Nessuna')}>
           <input type="file" accept="image/*" onChange={e => setPrev(e.target.files[0] || null)} />
           {f.anteprima && !prev && <label className="check" style={{ marginTop: 6 }}><input type="checkbox" checked={false} onChange={() => setF(x => ({ ...x, anteprima: '' }))} /> Togli l’anteprima</label>}
         </Field>
