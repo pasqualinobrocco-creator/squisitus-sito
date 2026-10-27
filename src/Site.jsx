@@ -84,9 +84,11 @@ function KitChip({ v, soft }) {
 }
 
 export default class Site extends React.Component {
+  // The accessibility button was removed from the site: clear any option a visitor had switched on before,
+  // otherwise it would stay active with no way to turn it off.
   loadA11y() {
-    let v = {}; try { v = JSON.parse(localStorage.getItem('sq-a11y') || '{}'); } catch (e) {}
-    this.applyA11y(v); return v;
+    try { localStorage.removeItem('sq-a11y'); } catch (e) {}
+    this.applyA11y({}); return {};
   }
   applyA11y(v) {
     const el = document.documentElement;
@@ -3304,72 +3306,6 @@ Site.prototype.render = function render() {
             </a>
             {" "}
           </div>
-        </div>
-        <div style={{ position: "fixed", left: "clamp(12px,2vw,24px)", bottom: `${$v.a11yBottom ?? ""}`, zIndex: "65", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "10px", transition: "bottom .45s cubic-bezier(.22,1,.36,1)" }}>
-          {" "}
-          {$v.a11yOpen ? (<>
-            {" "}
-            <div role="dialog" aria-label="Opzioni di accessibilità" style={{ width: "min(300px,calc(100vw - 24px))", background: "#fff", color: "#3C3C3B", borderRadius: "8px", boxShadow: "0 18px 50px rgba(0,0,0,.28)", padding: "18px", display: "flex", flexDirection: "column", gap: "8px" }}>
-              {" "}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-                {" "}
-                <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "20px", textTransform: "uppercase" }}>
-                  {"Accessibilità"}
-                </span>
-                {" "}
-                <button type="button" aria-label="Chiudi" onClick={$v.toggleA11y} style={{ width: "44px", height: "44px", border: "0", background: "transparent", color: "#3C3C3B", fontSize: "24px", cursor: "pointer" }}>
-                  {"×"}
-                </button>
-                {" "}
-              </div>
-              {" "}
-              <button className="sqh-21" type="button" role="switch" aria-checked={$v.a11y?.big} onClick={$v.a11yT?.big} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", minHeight: "48px", padding: "0 14px", border: "1px solid #E3E3E3", borderRadius: "6px", background: "#fff", color: "#3C3C3B", font: "inherit", fontSize: "15px", cursor: "pointer", textAlign: "left" }}>
-                {"Testo più grande"}
-                <span style={{ width: "40px", height: "22px", borderRadius: "999px", background: `${$v.a11yC?.big ?? ""}`, position: "relative", flexShrink: "0", transition: "background .2s" }}>
-                  <span style={{ position: "absolute", top: "3px", left: `${$v.a11yX?.big ?? ""}`, width: "16px", height: "16px", borderRadius: "50%", background: "#fff", transition: "left .2s" }} />
-                </span>
-              </button>
-              {" "}
-              <button className="sqh-21" type="button" role="switch" aria-checked={$v.a11y?.contrast} onClick={$v.a11yT?.contrast} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", minHeight: "48px", padding: "0 14px", border: "1px solid #E3E3E3", borderRadius: "6px", background: "#fff", color: "#3C3C3B", font: "inherit", fontSize: "15px", cursor: "pointer", textAlign: "left" }}>
-                {"Contrasto elevato"}
-                <span style={{ width: "40px", height: "22px", borderRadius: "999px", background: `${$v.a11yC?.contrast ?? ""}`, position: "relative", flexShrink: "0", transition: "background .2s" }}>
-                  <span style={{ position: "absolute", top: "3px", left: `${$v.a11yX?.contrast ?? ""}`, width: "16px", height: "16px", borderRadius: "50%", background: "#fff", transition: "left .2s" }} />
-                </span>
-              </button>
-              {" "}
-              <button className="sqh-21" type="button" role="switch" aria-checked={$v.a11y?.links} onClick={$v.a11yT?.links} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", minHeight: "48px", padding: "0 14px", border: "1px solid #E3E3E3", borderRadius: "6px", background: "#fff", color: "#3C3C3B", font: "inherit", fontSize: "15px", cursor: "pointer", textAlign: "left" }}>
-                {"Evidenzia i link"}
-                <span style={{ width: "40px", height: "22px", borderRadius: "999px", background: `${$v.a11yC?.links ?? ""}`, position: "relative", flexShrink: "0", transition: "background .2s" }}>
-                  <span style={{ position: "absolute", top: "3px", left: `${$v.a11yX?.links ?? ""}`, width: "16px", height: "16px", borderRadius: "50%", background: "#fff", transition: "left .2s" }} />
-                </span>
-              </button>
-              {" "}
-              <button className="sqh-21" type="button" role="switch" aria-checked={$v.a11y?.still} onClick={$v.a11yT?.still} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", minHeight: "48px", padding: "0 14px", border: "1px solid #E3E3E3", borderRadius: "6px", background: "#fff", color: "#3C3C3B", font: "inherit", fontSize: "15px", cursor: "pointer", textAlign: "left" }}>
-                {"Ferma le animazioni"}
-                <span style={{ width: "40px", height: "22px", borderRadius: "999px", background: `${$v.a11yC?.still ?? ""}`, position: "relative", flexShrink: "0", transition: "background .2s" }}>
-                  <span style={{ position: "absolute", top: "3px", left: `${$v.a11yX?.still ?? ""}`, width: "16px", height: "16px", borderRadius: "50%", background: "#fff", transition: "left .2s" }} />
-                </span>
-              </button>
-              {" "}
-              <button type="button" onClick={$v.resetA11y} style={{ marginTop: "4px", minHeight: "44px", border: "0", background: "transparent", color: "#A5143B", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "14px", letterSpacing: ".12em", textTransform: "uppercase", cursor: "pointer", textDecoration: "underline" }}>
-                {"Ripristina"}
-              </button>
-              {" "}
-            </div>
-            {" "}
-          </>) : null}
-          {" "}
-          <button className="sqh-22" type="button" aria-label="Opzioni di accessibilità" aria-expanded={$v.a11yOpen} onClick={$v.toggleA11y} style={{ width: "52px", height: "52px", borderRadius: "50%", border: "2px solid #fff", background: "#106B30", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.28)" }}>
-            {" "}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="4.5" r="1.8" fill="currentColor" stroke="none" />
-              <path d="M5 8.5l7 1.5 7-1.5" />
-              <path d="M12 10v4.5" />
-              <path d="M12 14.5l-3 6" />
-              <path d="M12 14.5l3 6" />
-            </svg>
-            {" "}
-          </button>
         </div>
       </div>
     </>
