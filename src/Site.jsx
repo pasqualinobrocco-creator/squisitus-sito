@@ -2297,6 +2297,44 @@ Site.prototype.render = function render() {
             </article>
           </section>
           ) : null}
+          {/* no article in publication: placeholder cards with a "coming soon" animation, in the style of "Articoli in pubblicazione" */}
+          {$v.isPressReview && !$v.pressPending?.length ? (
+          <section data-screen-label="P3c Coming soon" style={{ background: "#1C1714", color: "#fff", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
+            <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "36px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                  <div data-rv="" style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#E9CB98" }}>
+                    <span className="sq-cs-dot" aria-hidden="true" />
+                    <span style={{ fontWeight: "700" }}>{"Coming soon"}</span>
+                    <span style={{ width: "48px", height: "1px", background: "#E9CB98" }} />
+                  </div>
+                  <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(40px,5vw,68px)", lineHeight: ".92" }}>
+                    {"Nuove uscite "}<span style={{ fontWeight: "700" }}>{"in arrivo"}</span>
+                  </h2>
+                </div>
+                <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6", opacity: ".85" }}>
+                  {"A breve qui troverai i nuovi comunicati e gli articoli delle testate che raccontano Squisitus."}
+                </p>
+              </div>
+              <ul aria-label="Uscite in preparazione" style={{ listStyle: "none", margin: "0", padding: "0", display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,260px),1fr))", gap: "1px", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.16)" }}>
+                {["Comunicato 02", "Testata", "Testata", "Testata"].map((t, i) => (
+                  <li key={i} className="sq-cs-card" style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: "14px", minHeight: "210px", padding: "26px 24px", background: "#1C1714", animationDelay: (i * .15) + "s" }}>
+                    <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "14px", letterSpacing: ".2em", textTransform: "uppercase", opacity: ".55" }}>{t}</span>
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "92%", animationDelay: (i * .2) + "s" }} />
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "74%", animationDelay: (i * .2 + .1) + "s" }} />
+                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "48%", animationDelay: (i * .2 + .2) + "s" }} />
+                    <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#E9CB98" }}>{"In uscita"}</span>
+                      <span style={{ position: "relative", height: "3px", background: "rgba(255,255,255,.18)", borderRadius: "2px", overflow: "hidden" }}>
+                        <span style={{ position: "absolute", top: "0", bottom: "0", left: "0", width: "40%", background: "#A5143B", borderRadius: "2px", animation: "sq-loadbar 1.6s ease-in-out " + (i * .3) + "s infinite" }} />
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          ) : null}
           {$v.pressFeatured?.length ? (
           <section data-screen-label="P3b In evidenza" style={{ background: "#F4F1EC", color: "#3C3C3B", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
             {" "}
@@ -2359,44 +2397,6 @@ Site.prototype.render = function render() {
                 {" "}
               </div>
               {" "}
-            </div>
-          </section>
-          ) : null}
-          {/* no article in publication: placeholder cards with a "coming soon" animation, in the style of "Articoli in pubblicazione" */}
-          {$v.isPressReview && !$v.pressPending?.length ? (
-          <section data-screen-label="P3c Coming soon" style={{ background: "#1C1714", color: "#fff", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
-            <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "36px" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", alignItems: "flex-end", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                  <div data-rv="" style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#E9CB98" }}>
-                    <span className="sq-cs-dot" aria-hidden="true" />
-                    <span style={{ fontWeight: "700" }}>{"Coming soon"}</span>
-                    <span style={{ width: "48px", height: "1px", background: "#E9CB98" }} />
-                  </div>
-                  <h2 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(40px,5vw,68px)", lineHeight: ".92" }}>
-                    {"Nuove uscite "}<span style={{ fontWeight: "700" }}>{"in arrivo"}</span>
-                  </h2>
-                </div>
-                <p data-rv="" style={{ margin: "0", maxWidth: "44ch", fontSize: "16px", lineHeight: "1.6", opacity: ".85" }}>
-                  {"A breve qui troverai i nuovi comunicati e gli articoli delle testate che raccontano Squisitus."}
-                </p>
-              </div>
-              <ul aria-label="Uscite in preparazione" style={{ listStyle: "none", margin: "0", padding: "0", display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,260px),1fr))", gap: "1px", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.16)" }}>
-                {["Comunicato 02", "Testata", "Testata", "Testata"].map((t, i) => (
-                  <li key={i} className="sq-cs-card" style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: "14px", minHeight: "210px", padding: "26px 24px", background: "#1C1714", animationDelay: (i * .15) + "s" }}>
-                    <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "14px", letterSpacing: ".2em", textTransform: "uppercase", opacity: ".55" }}>{t}</span>
-                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "92%", animationDelay: (i * .2) + "s" }} />
-                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "74%", animationDelay: (i * .2 + .1) + "s" }} />
-                    <span aria-hidden="true" className="sq-cs-line" style={{ width: "48%", animationDelay: (i * .2 + .2) + "s" }} />
-                    <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
-                      <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "13px", letterSpacing: ".2em", textTransform: "uppercase", color: "#E9CB98" }}>{"In uscita"}</span>
-                      <span style={{ position: "relative", height: "3px", background: "rgba(255,255,255,.18)", borderRadius: "2px", overflow: "hidden" }}>
-                        <span style={{ position: "absolute", top: "0", bottom: "0", left: "0", width: "40%", background: "#A5143B", borderRadius: "2px", animation: "sq-loadbar 1.6s ease-in-out " + (i * .3) + "s infinite" }} />
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
             </div>
           </section>
           ) : null}
@@ -2489,7 +2489,7 @@ Site.prototype.render = function render() {
             <div style={{ display: "flex", flexDirection: "column", gap: "20px", justifyContent: "center" }}>
               {" "}
               <span data-rv="" style={{ fontFamily: "'Pinyon Script',cursive", fontSize: "38px", lineHeight: "1" }}>
-                {"un salotto in movimento"}
+                {"uno stand salotto in movimento con una selezione di partner"}
               </span>
               {" "}
               <h1 data-rv="" style={{ margin: "0", fontFamily: "Oswald,sans-serif", fontWeight: "300", textTransform: "uppercase", fontSize: "clamp(52px,5.8vw,92px)", lineHeight: ".88" }}>
