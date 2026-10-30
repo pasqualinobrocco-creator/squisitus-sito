@@ -579,12 +579,12 @@ export default class Site extends React.Component {
         // each article lists the pages it appears on (panel → Rassegna stampa → "Dove compare")
         const su = (x, pag) => (x.pagine ? x.pagine.includes(pag) : pag === 'salotto' ? !!x.link : x.in_evidenza || !x.link);
         const art = st.articoli.filter(x => x.tipo === 'articolo');
-        const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, data: fmtData(x.data), salotto: su(x, 'salotto'), evid: su(x, 'dicono-di-noi') }));
+        const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, estratto: x.occhiello, ordine: x.ordine || 0, data: fmtData(x.data), salotto: su(x, 'salotto'), evid: su(x, 'dicono-di-noi') }));
         const pending = art.filter(x => !x.link && su(x, 'dicono-di-noi'));
         const com = st.articoli.find(x => x.tipo === 'comunicato');
         return {
           rassegna: usciti.filter(x => x.salotto),
-          pressFeatured: usciti.filter(x => x.evid),
+          pressFeatured: usciti.filter(x => x.evid).sort((a, b) => a.ordine - b.ordine),
           pressPending: pending.slice(0, st.pendAll ? pending.length : 6).map((x, i) => ({
             testata: x.testata, titolo: x.titolo, aria: x.testata + ', ' + x.titolo + ': articolo in pubblicazione, link non ancora disponibile',
             bg: st.pendHover === i ? '#2A2320' : '#1C1714', ovY: st.pendHover === i ? '0' : '101%',
@@ -2308,7 +2308,7 @@ Site.prototype.render = function render() {
                   {" "}
                   <div data-rv="" style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#A5143B" }}>
                     <span style={{ fontWeight: "700" }}>
-                      {"In evidenza"}
+                      {"Rassegna stampa"}
                     </span>
                     <span style={{ width: "48px", height: "1px", background: "#A5143B" }} />
                   </div>
@@ -2329,10 +2329,13 @@ Site.prototype.render = function render() {
                 {($v.pressFeatured ?? []).map((p, $index) => (
                   <React.Fragment key={$index}>
                     {" "}
-                    <a className="sqh-14" data-rv="" href={p?.href} target="_blank" rel="noopener" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "18px", minHeight: "300px", padding: "30px 28px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
+                    <a className="sqh-14" data-rv="" href={p?.href} target="_blank" rel="noopener" aria-label={(p?.testata ?? "") + ": " + (p?.titolo ?? "") + " (si apre il sito della testata)"} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "18px", minHeight: "300px", padding: "30px 28px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
                       {" "}
-                      <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "15px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B" }}>
-                        {p?.testata}
+                      <span style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "space-between", gap: "6px 14px" }}>
+                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "15px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B" }}>
+                          {p?.testata}
+                        </span>
+                        {p?.data ? <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".14em", textTransform: "uppercase", color: "#6E665E" }}>{p.data}</span> : null}
                       </span>
                       {" "}
                       <span style={{ width: "40px", height: "2px", background: "#A5143B" }} />
@@ -2341,10 +2344,11 @@ Site.prototype.render = function render() {
                         {p?.titolo}
                       </h3>
                       {" "}
+                      {p?.estratto ? <p style={{ margin: "0", fontSize: "16px", lineHeight: "1.6", color: "#5F564D", textWrap: "pretty" }}>{p.estratto}</p> : null}
                       <span style={{ marginTop: "auto", display: "inline-flex", alignItems: "center", gap: "8px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", color: "#A5143B" }}>
-                        {"Leggi l'articolo "}
+                        {"Leggi su " + (p?.testata ?? "") + " "}
                         <span aria-hidden="true">
-                          {"→"}
+                          {"↗"}
                         </span>
                       </span>
                       {" "}
@@ -2358,8 +2362,8 @@ Site.prototype.render = function render() {
             </div>
           </section>
           ) : null}
-          {/* nothing published yet: placeholder cards with a "coming soon" animation, in the style of "Articoli in pubblicazione" */}
-          {$v.isPressReview && !$v.pressPending?.length && !$v.pressFeatured?.length ? (
+          {/* no article in publication: placeholder cards with a "coming soon" animation, in the style of "Articoli in pubblicazione" */}
+          {$v.isPressReview && !$v.pressPending?.length ? (
           <section data-screen-label="P3c Coming soon" style={{ background: "#1C1714", color: "#fff", padding: "clamp(64px,8vw,110px) clamp(20px,4vw,48px)" }}>
             <div style={{ maxWidth: "1240px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "36px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", alignItems: "flex-end", justifyContent: "space-between" }}>

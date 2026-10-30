@@ -63,7 +63,7 @@ function Editor({ val, onClose, onSaved }) {
     if (f.link && !/^https?:\/\//.test(f.link.trim())) return setErr('Il link deve iniziare con https://');
     setBusy(true);
     const row = { tipo: f.tipo, testata: f.testata.trim(), titolo: f.titolo.trim(), link: f.link.trim() || null, data: f.data || null,
-      pagine: com ? ['dicono-di-noi'] : f.pagine, in_evidenza: !com && f.pagine.includes('dicono-di-noi'), occhiello: com ? f.occhiello.trim() || null : null, testo: com ? f.testo.trim() || null : null,
+      pagine: com ? ['dicono-di-noi'] : f.pagine, in_evidenza: !com && f.pagine.includes('dicono-di-noi'), occhiello: f.occhiello.trim() || null, testo: com ? f.testo.trim() || null : null,
       ordine: Number(f.ordine) || 0, pubblicato: f.pubblicato };
     const { error } = val.id ? await db.from('articoli').update(row).eq('id', val.id) : await db.from('articoli').insert(row);
     setBusy(false);
@@ -89,9 +89,10 @@ function Editor({ val, onClose, onSaved }) {
         <Field label="Testata *" full><input value={f.testata} onChange={set('testata')} placeholder="es. Corriere della Sera" /></Field>
         <Field label="Titolo *" full><input value={f.titolo} onChange={set('titolo')} /></Field>
         <Field label={com ? "File da scaricare (link)" : "Link all’articolo"} full hint={com ? "Link al file del comunicato (es. dal press kit). Se c’è, sul sito compaiono solo il sottotitolo e il pulsante “Scarica il comunicato”; se è vuoto, il testo integrale." : "Lascia vuoto se non è ancora uscito: comparirà tra gli “Articoli in pubblicazione”."}><input type="url" value={f.link} onChange={set('link')} placeholder="https://" /></Field>
-        {com && <Field label="Occhiello" full><input value={f.occhiello} onChange={set('occhiello')} /></Field>}
+        {com ? <Field label="Occhiello" full><input value={f.occhiello} onChange={set('occhiello')} /></Field>
+          : <Field label="Breve estratto" full hint="Due righe sotto il titolo nella rassegna stampa di “Dicono di noi”."><textarea value={f.occhiello} onChange={set('occhiello')} rows={2} /></Field>}
         {com && <Field label="Testo integrale" full hint="Separa i paragrafi con una riga vuota."><textarea value={f.testo} onChange={set('testo')} rows={8} /></Field>}
-        <Field label="Ordine" hint="A parità di data, i numeri più bassi vengono prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
+        <Field label="Ordine" hint="In “Dicono di noi” la rassegna segue questo ordine (1 = più importante); altrove, a parità di data, i numeri più bassi vengono prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
         <div className="field" style={{ justifyContent: 'center' }}>
           <label className="check"><input type="checkbox" checked={f.pubblicato} onChange={set('pubblicato')} /> Visibile sul sito</label>
         </div>
