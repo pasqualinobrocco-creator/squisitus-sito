@@ -530,7 +530,7 @@ export default class Site extends React.Component {
         this.setState(res.ok || res.duplicate ? { sending: null, nlDone: true } : { sending: null, nlErr: SEND_ERR });
       },
       nlLabel: st.sending === 'nl' ? 'Invio…' : 'Iscriviti →', nlBusy: st.sending === 'nl',
-      paths: [['espositore', 'Sono un espositore', 'Bologna e/o Roma · spazi 3×3 / 3×4 m'], ['sponsor', 'Sono uno sponsor', 'Livelli Platinum, Main, Official, Technical']].map(([k, t, s]) => {
+      paths: [['espositore', 'Diventa espositore', 'Bologna e/o Roma · spazi 3×3 / 3×4 m'], ['sponsor', 'Diventa sponsor', 'Livelli Platinum, Main, Official, Technical']].map(([k, t, s]) => {
         const sel = path === k;
         return { t, s, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#A5143B' : '#fff', bd: sel ? '#fff' : 'rgba(255,255,255,.45)', dot: sel ? '#A5143B' : 'transparent', on: () => { history.replaceState(null, '', BASE + hrefFor('sali-a-bordo', k)); applicaMeta(currentRoute()); this.setState({ path: k, errors: {} }); } };
       }),
