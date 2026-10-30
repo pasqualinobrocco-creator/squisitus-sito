@@ -70,7 +70,7 @@ function emailPer(tabella: string, r: Record<string, any>, cfg: Record<string, a
   if (tabella === 'richieste') {
     const espo = r.tipo === 'espositore';
     const dati: [string, unknown][] = [['Tipo', r.tipo], ['Azienda', r.azienda], ['Referente', r.referente], ['Email', r.email], ['Telefono', r.telefono],
-      ...(espo ? [['Categoria', r.categoria], ['Stand', r.stand]] as [string, unknown][] : [['Livello', r.livello]] as [string, unknown][]),
+      ...(espo ? [['Tappe', (r.tappe || []).join(' + ')], ['Categoria', r.categoria], ['Stand a Roma', r.stand]] as [string, unknown][] : [['Livello', r.livello]] as [string, unknown][]),
       ['Messaggio', r.messaggio], ['Newsletter', sn(r.newsletter)]];
     if (cfg.notifica_richieste && team.length) out.push({ to: team, reply_to: r.email,
       subject: `Nuova richiesta ${r.tipo}: ${r.azienda}`,

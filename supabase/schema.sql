@@ -93,3 +93,7 @@ alter table public.presskit add column if not exists anteprima text;
 alter table public.presskit drop constraint if exists presskit_check;
 alter table public.presskit add constraint presskit_check check (
   (tipo = 'file' and file is not null) or (tipo = 'link' and link ~* '^(https?://|/assets/)'));
+
+-- Richieste espositori: tappe scelte (Bologna, Roma o entrambe); lo stand si chiede solo per Roma
+alter table public.richieste add column if not exists tappe text[];
+alter table public.richieste add constraint richieste_tappe_check check (tappe is null or (cardinality(tappe) between 1 and 2 and tappe <@ array['Bologna','Roma']));

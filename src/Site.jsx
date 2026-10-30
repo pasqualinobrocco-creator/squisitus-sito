@@ -14,7 +14,7 @@ const I = {
   sponsor: "M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"
 };
 const TARGET = new Date('2027-11-05T09:00:00+01:00').getTime();
-const EMPTY = { azienda: '', referente: '', email: '', telefono: '', categoria: '', stand: '4×3 m', livello: 'Da valutare', messaggio: '', privacy: false, newsletter: false };
+const EMPTY = { azienda: '', referente: '', email: '', telefono: '', categoria: '', tappe: [], stand: '3×3 m', livello: 'Da valutare', messaggio: '', privacy: false, newsletter: false };
 const pad = n => String(n).padStart(2, '0');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // iubenda (sito 4718486): pagine pubbliche della Privacy e della Cookie Policy
@@ -421,6 +421,7 @@ export default class Site extends React.Component {
     if (!EMAIL.test(f.email)) e.email = 'Email non valida';
     if (!/^\+?[\d\s]{7,}$/.test(f.telefono.trim())) e.telefono = 'Numero non valido';
     if (expo && !f.categoria) e.categoria = 'Seleziona una categoria';
+    if (expo && !(f.tappe || []).length) e.tappe = 'Scegli almeno una tappa';
     if (!f.privacy) e.privacy = 'Il consenso privacy è necessario per inviare la richiesta';
     return e;
   }
@@ -529,7 +530,7 @@ export default class Site extends React.Component {
         this.setState(res.ok || res.duplicate ? { sending: null, nlDone: true } : { sending: null, nlErr: SEND_ERR });
       },
       nlLabel: st.sending === 'nl' ? 'Invio…' : 'Iscriviti →', nlBusy: st.sending === 'nl',
-      paths: [['espositore', 'Sono un espositore', 'Spazio espositivo indicativo 4×3 / 3×4 m'], ['sponsor', 'Sono uno sponsor', 'Livelli Platinum, Main, Official, Technical']].map(([k, t, s]) => {
+      paths: [['espositore', 'Sono un espositore', 'Bologna e/o Roma · spazi 3×3 / 3×4 m'], ['sponsor', 'Sono uno sponsor', 'Livelli Platinum, Main, Official, Technical']].map(([k, t, s]) => {
         const sel = path === k;
         return { t, s, sel: sel ? 'true' : 'false', bg: sel ? '#fff' : 'transparent', ink: sel ? '#A5143B' : '#fff', bd: sel ? '#fff' : 'rgba(255,255,255,.45)', dot: sel ? '#A5143B' : 'transparent', on: () => { history.replaceState(null, '', BASE + hrefFor('sali-a-bordo', k)); applicaMeta(currentRoute()); this.setState({ path: k, errors: {} }); } };
       }),
@@ -540,7 +541,14 @@ export default class Site extends React.Component {
       categorie: ['Prodotti da forno', 'Lattiero-caseario', 'Salumi e carni', 'Olio e condimenti', 'Vino e bevande', 'Dolciario', 'Ortofrutta', 'Healthy e sport nutrition', 'Horeca e food service', 'Consorzio / ente territoriale', 'Altro'],
       onCategoria: e => this.setField('categoria', e.target.value),
       catErr: errors.categoria || '', catBorder: errors.categoria ? '#A5143B' : '#B9B2A9',
-      stands: [['4×3 m', '48px', '36px'], ['3×4 m', '36px', '48px'], ['Da valutare', '40px', '40px']].map(([t, wd, ht]) => {
+      // exhibitor: Bologna (Salotto at Marca), Roma (the exhibition) or both; the stand size is asked only for Roma
+      tappe: [['Bologna', 'Salotto Squisitus · Marca by BolognaFiere', '13 • 14 gennaio 2027'], ['Roma', 'Squisitus Exhibition · La Nuvola', '5 • 6 novembre 2027']].map(([t, ev, when]) => {
+        const sel = (form.tappe || []).includes(t);
+        return { t, ev, when, sel: sel ? 'true' : 'false', bd: sel ? '#A5143B' : '#B9B2A9', bg: sel ? '#FBF1F4' : '#fff', box: sel ? '#A5143B' : '#fff',
+          on: () => this.setField('tappe', sel ? form.tappe.filter(x => x !== t) : [...(form.tappe || []), t].sort()) };
+      }),
+      tappeErr: errors.tappe || '', romaSel: (form.tappe || []).includes('Roma'),
+      stands: [['3×3 m', '40px', '40px'], ['3×4 m', '40px', '52px'], ['Da valutare', '44px', '44px']].map(([t, wd, ht]) => {
         const sel = form.stand === t;
         return { t, w: wd, h: ht, sel: sel ? 'true' : 'false', bd: sel ? '#A5143B' : '#B9B2A9', bg: sel ? '#FBF1F4' : '#fff', fill: sel ? 'rgba(165,20,59,.15)' : 'transparent', on: () => this.setField('stand', t) };
       }),
@@ -558,7 +566,7 @@ export default class Site extends React.Component {
         this.setState({ sending: 'form', errors: {} });
         const res = await saveForm('richieste', {
           tipo: expo ? 'espositore' : 'sponsor', azienda: form.azienda.trim(), referente: form.referente.trim(), email: form.email.trim(), telefono: form.telefono.trim(),
-          categoria: expo ? form.categoria : null, stand: expo ? form.stand : null, livello: expo ? null : form.livello,
+          categoria: expo ? form.categoria : null, tappe: expo ? form.tappe : null, stand: expo && form.tappe.includes('Roma') ? form.stand : null, livello: expo ? null : form.livello,
           messaggio: form.messaggio.trim() || null, newsletter: !!form.newsletter, privacy: !!form.privacy
         });
         this.setState(res.ok ? { sending: null, sent: true } : { sending: null, errors: { _send: SEND_ERR } });
@@ -2076,9 +2084,28 @@ Site.prototype.render = function render() {
                       </label>
                       {" "}
                       <fieldset style={{ gridColumn: "1/-1", border: "0", margin: "0", padding: "0", display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <legend style={{ fontSize: "13px", fontWeight: "700", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: "10px" }}>
+                          {"A quale tappa vuoi partecipare? *"}
+                        </legend>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "10px" }}>
+                          {($v.tappe ?? []).map(t => (
+                            <button key={t.t} type="button" role="checkbox" aria-checked={t.sel} onClick={t.on} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "14px 16px", border: `1.5px solid ${t.bd}`, background: t.bg, borderRadius: "6px", cursor: "pointer", textAlign: "left", font: "inherit", color: "#3C3C3B" }}>
+                              <span aria-hidden="true" style={{ flexShrink: "0", width: "20px", height: "20px", marginTop: "2px", borderRadius: "4px", border: `1.5px solid ${t.bd}`, background: t.box, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: "700" }}>{t.sel === 'true' ? "✓" : ""}</span>
+                              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "19px", textTransform: "uppercase", letterSpacing: ".04em" }}>{t.t}</span>
+                                <span style={{ fontSize: "13px", color: "#5F564D" }}>{t.ev}</span>
+                                <span style={{ fontSize: "13px", fontWeight: "700", color: "#A5143B" }}>{t.when}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                        <span style={{ fontSize: "13px", color: "#A5143B", minHeight: "16px" }}>{$v.tappeErr || "Puoi sceglierne una o entrambe."}</span>
+                      </fieldset>
+                      {$v.romaSel ? (
+                      <fieldset style={{ gridColumn: "1/-1", border: "0", margin: "0", padding: "0", display: "flex", flexDirection: "column", gap: "10px" }}>
                         {" "}
                         <legend style={{ fontSize: "13px", fontWeight: "700", letterSpacing: ".06em", textTransform: "uppercase", marginBottom: "10px" }}>
-                          {"Spazio espositivo indicativo"}
+                          {"Spazio espositivo a Roma"}
                         </legend>
                         {" "}
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: "10px" }}>
@@ -2102,6 +2129,7 @@ Site.prototype.render = function render() {
                         </div>
                         {" "}
                       </fieldset>
+                      ) : null}
                       {" "}
                     </>) : null}
                     {" "}
