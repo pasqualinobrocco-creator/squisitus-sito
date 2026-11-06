@@ -132,17 +132,8 @@ html[data-a11y-still] .sq-phs .sq-ph,html[data-a11y-still] img[data-rv].sq-ph{op
   background-size: 250% 100%; animation: sq-cs-shimmer 2.2s ease-in-out infinite; }
 .sq-cs-dot { width: 9px; height: 9px; border-radius: 50%; background: #E9CB98; animation: sq-cs-pulse 1.6s ease-in-out infinite; }
 
-/* "Dicono di noi": compact press review rows under the featured cards */
-.sq-rs-row { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto 20px; align-items: baseline; gap: 6px 24px; padding: 16px 4px; color: #3C3C3B; text-decoration: none; }
-.sq-rs-testata { font-family: Oswald, sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: #A5143B; }
-.sq-rs-testo { font-size: 16px; line-height: 1.5; color: #5F564D; text-wrap: pretty; }
-.sq-rs-data { font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #6E665E; white-space: nowrap; }
-.sq-rs-freccia { color: #A5143B; transition: transform .3s ease; }
-a.sq-rs-row:hover .sq-rs-freccia, a.sq-rs-row:focus-visible .sq-rs-freccia { transform: translate(3px, -3px); }
-a.sq-rs-row:hover .sq-rs-testo { color: #3C3C3B; }
-@media (max-width: 760px) {
-  .sq-rs-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .sq-rs-testo { grid-column: 1 / -1; grid-row: 2; }
-  .sq-rs-data { grid-column: 2; grid-row: 1; }
-  .sq-rs-freccia { display: none; }
-}
+/* "Dicono di noi": press review pagination */
+.sq-pag { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.sq-pag button { min-width: 46px; height: 46px; padding: 0 10px; border: 1px solid #A5143B; border-radius: 999px; background: transparent; color: #A5143B; font-family: Oswald, sans-serif; font-weight: 600; font-size: 16px; cursor: pointer; transition: background .25s ease, color .25s ease; }
+.sq-pag button:hover:not(:disabled), .sq-pag button[aria-current="page"] { background: #A5143B; color: #fff; }
+.sq-pag button:disabled { opacity: .35; cursor: default; }

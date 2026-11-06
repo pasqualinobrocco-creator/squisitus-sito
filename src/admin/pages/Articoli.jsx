@@ -4,8 +4,8 @@ import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '..
 
 // Pages an article can appear on (the site reads the "pagine" column).
 const PAGINE = [
-  ['dicono-di-noi', 'Dicono di noi', 'Con il link va in “Ne parlano” (i primi 5 per ordine in evidenza, gli altri in elenco); senza link tra gli “Articoli in pubblicazione”.'],
-  ['cartaceo', 'Uscita su carta', 'In fondo a “Ne parlano”, senza link: per i quotidiani cartacei.'],
+  ['dicono-di-noi', 'Dicono di noi', 'Con il link va in “Ne parlano” (i primi 5 per ordine in evidenza, gli altri nelle pagine sotto); senza link tra gli “Articoli in pubblicazione”.'],
+  ['cartaceo', 'Uscita su carta', 'Dopo gli articoli di “Ne parlano”, senza link: per i quotidiani cartacei.'],
   ['salotto', 'Salotto on the Road', 'Nella sezione “Ne hanno parlato”: compare solo quando c’è il link.'],
 ];
 const NOME = Object.fromEntries(PAGINE);

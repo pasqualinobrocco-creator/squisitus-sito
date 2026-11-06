@@ -65,6 +65,27 @@ const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: red
 const clamp01 = v => Math.max(0, Math.min(1, v));
 
 // Small download card of the press kit (documents, logos, materials of a press release): preview, title, format and size.
+// a press review box: links to the outlet's site; print-only outlets have no link
+const PRESS_PER_PAGINA = 6;
+
+function RassegnaBox({ p, evid, reveal }) {
+  const stile = { position: "relative", display: "flex", flexDirection: "column", gap: "18px", minHeight: evid ? "300px" : "260px", padding: "30px 28px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", borderTop: evid ? "4px solid #A5143B" : "0", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" };
+  const corpo = (<>
+    {evid ? <span style={{ alignSelf: "flex-start", padding: "4px 10px", background: "#A5143B", color: "#fff", borderRadius: "3px", fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "12px", letterSpacing: ".18em", textTransform: "uppercase" }}>{"In evidenza"}</span> : null}
+    <span style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "space-between", gap: "6px 14px" }}>
+      <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "15px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B" }}>{p.testata}</span>
+      {p.data ? <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".14em", textTransform: "uppercase", color: "#6E665E" }}>{p.data}</span> : null}
+    </span>
+    <span style={{ width: "40px", height: "2px", background: "#A5143B" }} />
+    <h3 style={{ margin: "0", fontFamily: "'Bodoni Moda',serif", fontWeight: "400", fontSize: "clamp(22px,2vw,27px)", lineHeight: "1.25", textWrap: "pretty" }}>{p.titolo}</h3>
+    {p.estratto ? <p style={{ margin: "0", fontSize: "16px", lineHeight: "1.6", color: "#5F564D", textWrap: "pretty" }}>{p.estratto}</p> : null}
+    {p.href ? <span style={{ marginTop: "auto", display: "inline-flex", alignItems: "center", gap: "8px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", color: "#A5143B" }}>{"Leggi su " + p.testata + " "}<span aria-hidden="true">{"↗"}</span></span> : null}
+  </>);
+  return p.href
+    ? <a className="sqh-14" data-rv={reveal ? "" : undefined} href={p.href} target="_blank" rel="noopener" aria-label={p.testata + ": " + p.titolo + " (si apre il sito della testata)"} style={stile}>{corpo}</a>
+    : <div style={stile}>{corpo}</div>;
+}
+
 function KitChip({ v, soft }) {
   return (
     <a className="sqh-14" href={v.href} target={v.file ? undefined : "_blank"} rel={v.file ? undefined : "noopener"} download={v.file ? (v.nome || "") : undefined}
@@ -102,7 +123,7 @@ export default class Site extends React.Component {
     nl: { email: '', privacy: false, ticket: false }, nlErr: '', nlDone: false,
     a11y: this.loadA11y(), a11yOpen: false,
     flow: 0, renderTab: 0, ph: REDUCED ? 6 : 0, barHidden: true, heroP: 0,
-    pendHover: -1, pendAll: false, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, contatto: false, copiato: false, docAperto: null, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
+    pendHover: -1, pendAll: false, pressPag: 0, articoli: DEFAULT_ARTICOLI, partner: [], presskit: [], kitPronto: false, contatto: false, copiato: false, docAperto: null, mixOn: false, mixPct: 0, press: { nome: '', testata: '', email: '', ruolo: '', privacy: false }, pErrors: {}, pressSent: false
   };
   parseHash() {
     const r = currentRoute();
@@ -582,13 +603,23 @@ export default class Site extends React.Component {
         const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, estratto: x.occhiello, ordine: x.ordine || 0, data: fmtData(x.data), salotto: su(x, 'salotto'), evid: su(x, 'dicono-di-noi') }));
         const pending = art.filter(x => !x.link && su(x, 'dicono-di-noi'));
         const com = st.articoli.find(x => x.tipo === 'comunicato');
-        // "Dicono di noi": the first five by panel order are the featured cards, the others a compact list
+        // "Dicono di noi": the first five by panel order are featured, the others are paged below them
         const stampa = usciti.filter(x => x.evid).sort((a, b) => a.ordine - b.ordine);
         return {
           rassegna: usciti.filter(x => x.salotto),
           pressFeatured: stampa.slice(0, 5),
-          pressAltri: stampa.slice(5),
-          pressCartaceo: art.filter(x => x.pagine?.includes('cartaceo')).sort((a, b) => (a.ordine || 0) - (b.ordine || 0)),
+          ...(() => {
+            const carta = art.filter(x => x.pagine?.includes('cartaceo')).sort((a, b) => (a.ordine || 0) - (b.ordine || 0));
+            const altri = [...stampa.slice(5), ...carta.map(x => ({ id: x.id, testata: x.testata, titolo: x.titolo, estratto: x.occhiello }))];
+            const tot = Math.ceil(altri.length / PRESS_PER_PAGINA);
+            const pag = Math.min(st.pressPag, Math.max(tot - 1, 0));
+            const vai = n => this.setState({ pressPag: n }, () => document.getElementById('altre-uscite')?.scrollIntoView());
+            return {
+              pressAltri: altri.slice(pag * PRESS_PER_PAGINA, (pag + 1) * PRESS_PER_PAGINA),
+              pressPag: tot > 1 ? { pagine: Array.from({ length: tot }, (_, n) => ({ n: n + 1, attiva: n === pag, on: () => vai(n) })),
+                prima: pag > 0 ? () => vai(pag - 1) : null, dopo: pag < tot - 1 ? () => vai(pag + 1) : null } : null
+            };
+          })(),
           pressPending: pending.slice(0, st.pendAll ? pending.length : 6).map((x, i) => ({
             testata: x.testata, titolo: x.titolo, aria: x.testata + ', ' + x.titolo + ': articolo in pubblicazione, link non ancora disponibile',
             bg: st.pendHover === i ? '#2A2320' : '#1C1714', ovY: st.pendHover === i ? '0' : '101%',
@@ -2367,60 +2398,27 @@ Site.prototype.render = function render() {
               </div>
               {" "}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: "20px" }}>
-                {" "}
-                {($v.pressFeatured ?? []).map((p, $index) => (
-                  <React.Fragment key={$index}>
-                    {" "}
-                    <a className="sqh-14" data-rv="" href={p?.href} target="_blank" rel="noopener" aria-label={(p?.testata ?? "") + ": " + (p?.titolo ?? "") + " (si apre il sito della testata)"} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "18px", minHeight: "300px", padding: "30px 28px", background: "#fff", color: "#3C3C3B", borderRadius: "6px", textDecoration: "none", boxShadow: "0 1px 0 #E3E3E3", transition: "opacity .7s ease-out, transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1)" }}>
-                      {" "}
-                      <span style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "space-between", gap: "6px 14px" }}>
-                        <span style={{ fontFamily: "Oswald,sans-serif", fontWeight: "700", fontSize: "15px", letterSpacing: ".2em", textTransform: "uppercase", color: "#A5143B" }}>
-                          {p?.testata}
-                        </span>
-                        {p?.data ? <span style={{ fontFamily: "Oswald,sans-serif", fontSize: "13px", letterSpacing: ".14em", textTransform: "uppercase", color: "#6E665E" }}>{p.data}</span> : null}
-                      </span>
-                      {" "}
-                      <span style={{ width: "40px", height: "2px", background: "#A5143B" }} />
-                      {" "}
-                      <h3 style={{ margin: "0", fontFamily: "'Bodoni Moda',serif", fontWeight: "400", fontSize: "clamp(22px,2vw,27px)", lineHeight: "1.25", textWrap: "pretty" }}>
-                        {p?.titolo}
-                      </h3>
-                      {" "}
-                      {p?.estratto ? <p style={{ margin: "0", fontSize: "16px", lineHeight: "1.6", color: "#5F564D", textWrap: "pretty" }}>{p.estratto}</p> : null}
-                      <span style={{ marginTop: "auto", display: "inline-flex", alignItems: "center", gap: "8px", fontFamily: "Oswald,sans-serif", fontWeight: "600", fontSize: "15px", letterSpacing: ".12em", textTransform: "uppercase", color: "#A5143B" }}>
-                        {"Leggi su " + (p?.testata ?? "") + " "}
-                        <span aria-hidden="true">
-                          {"↗"}
-                        </span>
-                      </span>
-                      {" "}
-                    </a>
-                    {" "}
-                  </React.Fragment>
-                ))}
-                {" "}
+                {($v.pressFeatured ?? []).map(p => <RassegnaBox key={p.id} p={p} evid reveal />)}
               </div>
-              {$v.pressAltri?.length || $v.pressCartaceo?.length ? (
-              <ul aria-label="Altre uscite" style={{ listStyle: "none", margin: "0", padding: "0", borderTop: "1px solid #D9D2C8" }}>
-                {($v.pressAltri ?? []).map(p => (
-                  <li key={p.id} style={{ borderBottom: "1px solid #D9D2C8" }}>
-                    <a className="sq-rs-row" href={p.href} target="_blank" rel="noopener" aria-label={p.testata + ": " + p.titolo + " (si apre il sito della testata)"}>
-                      <span className="sq-rs-testata">{p.testata}</span>
-                      <span className="sq-rs-testo">{p.estratto || p.titolo}</span>
-                      <span className="sq-rs-data">{p.data}</span>
-                      <span aria-hidden="true" className="sq-rs-freccia">{"↗"}</span>
-                    </a>
-                  </li>
-                ))}
-                {($v.pressCartaceo ?? []).map(p => (
-                  <li key={p.id} style={{ borderBottom: "1px solid #D9D2C8" }}>
-                    <div className="sq-rs-row">
-                      <span className="sq-rs-testata">{p.testata}</span>
-                      <span className="sq-rs-testo">{p.occhiello || p.titolo}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              {$v.pressAltri?.length ? (
+              <div id="altre-uscite" style={{ display: "flex", flexDirection: "column", gap: "24px", marginTop: "28px", scrollMarginTop: "110px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px", fontFamily: "Oswald,sans-serif", fontSize: "14px", letterSpacing: ".24em", textTransform: "uppercase", color: "#A5143B" }}>
+                  <span style={{ fontWeight: "700" }}>{"Altre uscite"}</span>
+                  <span style={{ width: "48px", height: "1px", background: "#A5143B" }} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,300px),1fr))", gap: "20px" }}>
+                  {$v.pressAltri.map(p => <RassegnaBox key={p.id} p={p} />)}
+                </div>
+                {$v.pressPag ? (
+                <nav aria-label="Pagine della rassegna stampa" className="sq-pag">
+                  <button type="button" onClick={$v.pressPag.prima} disabled={!$v.pressPag.prima} aria-label="Pagina precedente">{"←"}</button>
+                  {$v.pressPag.pagine.map(x => (
+                    <button key={x.n} type="button" onClick={x.on} aria-label={"Pagina " + x.n} aria-current={x.attiva ? "page" : undefined}>{x.n}</button>
+                  ))}
+                  <button type="button" onClick={$v.pressPag.dopo} disabled={!$v.pressPag.dopo} aria-label="Pagina successiva">{"→"}</button>
+                </nav>
+                ) : null}
+              </div>
               ) : null}
               {" "}
             </div>
