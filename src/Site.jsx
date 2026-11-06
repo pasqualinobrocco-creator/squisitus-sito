@@ -582,9 +582,13 @@ export default class Site extends React.Component {
         const usciti = art.filter(x => x.link).map(x => ({ id: x.id, href: x.link, testata: x.testata, titolo: x.titolo, estratto: x.occhiello, ordine: x.ordine || 0, data: fmtData(x.data), salotto: su(x, 'salotto'), evid: su(x, 'dicono-di-noi') }));
         const pending = art.filter(x => !x.link && su(x, 'dicono-di-noi'));
         const com = st.articoli.find(x => x.tipo === 'comunicato');
+        // "Dicono di noi": the first five by panel order are the featured cards, the others a compact list
+        const stampa = usciti.filter(x => x.evid).sort((a, b) => a.ordine - b.ordine);
         return {
           rassegna: usciti.filter(x => x.salotto),
-          pressFeatured: usciti.filter(x => x.evid).sort((a, b) => a.ordine - b.ordine),
+          pressFeatured: stampa.slice(0, 5),
+          pressAltri: stampa.slice(5),
+          pressCartaceo: art.filter(x => x.pagine?.includes('cartaceo')).sort((a, b) => (a.ordine || 0) - (b.ordine || 0)),
           pressPending: pending.slice(0, st.pendAll ? pending.length : 6).map((x, i) => ({
             testata: x.testata, titolo: x.titolo, aria: x.testata + ', ' + x.titolo + ': articolo in pubblicazione, link non ancora disponibile',
             bg: st.pendHover === i ? '#2A2320' : '#1C1714', ovY: st.pendHover === i ? '0' : '101%',
@@ -2396,6 +2400,28 @@ Site.prototype.render = function render() {
                 ))}
                 {" "}
               </div>
+              {$v.pressAltri?.length || $v.pressCartaceo?.length ? (
+              <ul aria-label="Altre uscite" style={{ listStyle: "none", margin: "0", padding: "0", borderTop: "1px solid #D9D2C8" }}>
+                {($v.pressAltri ?? []).map(p => (
+                  <li key={p.id} style={{ borderBottom: "1px solid #D9D2C8" }}>
+                    <a className="sq-rs-row" href={p.href} target="_blank" rel="noopener" aria-label={p.testata + ": " + p.titolo + " (si apre il sito della testata)"}>
+                      <span className="sq-rs-testata">{p.testata}</span>
+                      <span className="sq-rs-testo">{p.estratto || p.titolo}</span>
+                      <span className="sq-rs-data">{p.data}</span>
+                      <span aria-hidden="true" className="sq-rs-freccia">{"↗"}</span>
+                    </a>
+                  </li>
+                ))}
+                {($v.pressCartaceo ?? []).map(p => (
+                  <li key={p.id} style={{ borderBottom: "1px solid #D9D2C8" }}>
+                    <div className="sq-rs-row">
+                      <span className="sq-rs-testata">{p.testata}</span>
+                      <span className="sq-rs-testo">{p.occhiello || p.titolo}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              ) : null}
               {" "}
             </div>
           </section>

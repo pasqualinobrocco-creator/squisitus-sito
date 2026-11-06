@@ -4,7 +4,8 @@ import { Field, Modal, Page, Si, Table, useConfirm, useRows, useToast } from '..
 
 // Pages an article can appear on (the site reads the "pagine" column).
 const PAGINE = [
-  ['dicono-di-noi', 'Dicono di noi', 'Con il link va in “Ne parlano”; senza link tra gli “Articoli in pubblicazione”.'],
+  ['dicono-di-noi', 'Dicono di noi', 'Con il link va in “Ne parlano” (i primi 5 per ordine in evidenza, gli altri in elenco); senza link tra gli “Articoli in pubblicazione”.'],
+  ['cartaceo', 'Uscita su carta', 'In fondo a “Ne parlano”, senza link: per i quotidiani cartacei.'],
   ['salotto', 'Salotto on the Road', 'Nella sezione “Ne hanno parlato”: compare solo quando c’è il link.'],
 ];
 const NOME = Object.fromEntries(PAGINE);
@@ -92,7 +93,7 @@ function Editor({ val, onClose, onSaved }) {
         {com ? <Field label="Occhiello" full><input value={f.occhiello} onChange={set('occhiello')} /></Field>
           : <Field label="Breve estratto" full hint="Due righe sotto il titolo nella rassegna stampa di “Dicono di noi”."><textarea value={f.occhiello} onChange={set('occhiello')} rows={2} /></Field>}
         {com && <Field label="Testo integrale" full hint="Separa i paragrafi con una riga vuota."><textarea value={f.testo} onChange={set('testo')} rows={8} /></Field>}
-        <Field label="Ordine" hint="In “Dicono di noi” la rassegna segue questo ordine (1 = più importante); altrove, a parità di data, i numeri più bassi vengono prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
+        <Field label="Ordine" hint="In “Dicono di noi” la rassegna segue questo ordine: 1-5 sono le schede in evidenza. Altrove, a parità di data, i numeri più bassi vengono prima."><input type="number" value={f.ordine} onChange={set('ordine')} /></Field>
         <div className="field" style={{ justifyContent: 'center' }}>
           <label className="check"><input type="checkbox" checked={f.pubblicato} onChange={set('pubblicato')} /> Visibile sul sito</label>
         </div>
