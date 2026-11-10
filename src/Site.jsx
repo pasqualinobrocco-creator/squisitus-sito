@@ -562,7 +562,7 @@ export default class Site extends React.Component {
       onCategoria: e => this.setField('categoria', e.target.value),
       catErr: errors.categoria || '', catBorder: errors.categoria ? '#A5143B' : '#B9B2A9',
       // exhibitor: Bologna (Salotto at Marca) is full, so Roma is the only stop and is always selected
-      tappe: [['Roma', 'Squisitus Exhibition · La Nuvola', '5 • 6 novembre 2027', false], ['Bologna', 'Salotto Squisitus · Marca by BolognaFiere', '13 • 14 gennaio 2027', true]]
+      tappe: [['Roma', 'Squisitus Exhibition · La Nuvola', '5 • 6 novembre 2027', false]]
         .map(([t, ev, when, full]) => ({ t, ev, when, full })),
       stands: [['3×3 m', '40px', '40px'], ['3×4 m', '40px', '52px'], ['Da valutare', '44px', '44px']].map(([t, wd, ht]) => {
         const sel = form.stand === t;
